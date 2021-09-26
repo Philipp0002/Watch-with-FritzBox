@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.NoActionBar" >
+        <item name="android:windowBackground">@color/windowBg</item>
+    </style>
+
+
+    <style name="Button.LightGray" parent="ThemeOverlay.AppCompat">
+        <item name="colorAccent">#c4c3c8</item>
+        <item name="colorControlHighlight">#7C7B7E</item>
+    </style>
+
+</resources>

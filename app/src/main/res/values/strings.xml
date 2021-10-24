@@ -19,6 +19,8 @@
     <string name="setup_search_hd_result">HD channels found</string>
     <string name="setup_search_radio_result">radio stations found</string>
     <string name="setup_search_error">There was an error while searching channels. Aborted.</string>
+    <string name="setup_search_error_connect">There was an error while connecting to FritzBox. Aborted.</string>
+    <string name="setup_search_error_not_supported">Your FritzBox is not supported. Aborted.</string>
 
     <string name="setup_gesture_up">Channel +</string>
     <string name="setup_gesture_down">Channel -</string>

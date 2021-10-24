@@ -16,11 +16,15 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.w3ma.m3u8parser.data.Track;
 
+import org.w3c.dom.Document;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Set;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.async.GetFritzInfo;
 import de.hahnphilipp.watchwithfritzbox.async.GetPlaylists;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
@@ -48,7 +52,7 @@ public class SetupSearchActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((TextView)findViewById(R.id.setup_sd_search_text)).setText(((Set<Track>)getPlaylists.playlistSD.getTrackSetMap().get("")).size()+" "+getString(R.string.setup_search_sd_result));
+                        ((TextView)findViewById(R.id.setup_sd_search_text)).setText((getPlaylists.playlistSD.getTrackSetMap().get("")).size()+" "+getString(R.string.setup_search_sd_result));
                     }
                 });
             }
@@ -59,7 +63,7 @@ public class SetupSearchActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((TextView)findViewById(R.id.setup_hd_search_text)).setText(((Set<Track>)getPlaylists.playlistHD.getTrackSetMap().get("")).size()+" "+getString(R.string.setup_search_hd_result));
+                        ((TextView)findViewById(R.id.setup_hd_search_text)).setText((getPlaylists.playlistHD.getTrackSetMap().get("")).size()+" "+getString(R.string.setup_search_hd_result));
                     }
                 });
             }
@@ -70,7 +74,7 @@ public class SetupSearchActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((TextView)findViewById(R.id.setup_radio_search_text)).setText(((Set<Track>)getPlaylists.playlistRadio.getTrackSetMap().get("")).size()+" "+getString(R.string.setup_search_radio_result));
+                        ((TextView)findViewById(R.id.setup_radio_search_text)).setText((getPlaylists.playlistRadio.getTrackSetMap().get("")).size()+" "+getString(R.string.setup_search_radio_result));
                     }
                 });
             }
@@ -95,7 +99,44 @@ public class SetupSearchActivity extends AppCompatActivity {
             }
         };
 
-        getPlaylists.execute();
+
+        final GetFritzInfo getFritzInfo = new GetFritzInfo();
+        getFritzInfo.ip = ip;
+        getFritzInfo.futureRunFinished = new Runnable() {
+            @Override
+            public void run() {
+                if(getFritzInfo.error){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error_connect,Toast.LENGTH_LONG).show();
+                            startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
+                            finish();
+                            overridePendingTransition(0, 0);
+                        }
+                    });
+                }else{
+                    Document doc = getFritzInfo.doc;
+                    String fritzBoxName = doc.getElementsByTagName("friendlyName").item(0).getTextContent();
+                    if(fritzBoxName.toLowerCase().contains("cable")){
+
+                        getPlaylists.execute();
+
+                    }else{
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error_not_supported,Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
+                                finish();
+                                overridePendingTransition(0, 0);
+                            }
+                        });
+                    }
+                }
+            }
+        };
+        getFritzInfo.execute();
 
         findViewById(R.id.setup_search_continue_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,14 +145,14 @@ public class SetupSearchActivity extends AppCompatActivity {
                 int channelNumber = 1;
 
                 ArrayList<ChannelUtils.Channel> channels = new ArrayList<ChannelUtils.Channel>();
-                for(Track t : getPlaylists.playlistSD.getTrackSetMap().get("")){
-                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.SD);
+                for(Track t : getPlaylists.playlistHD.getTrackSetMap().get("")){
+                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.HD);
                     channels.add(channel);
                     channelNumber++;
                 }
 
-                for(Track t : getPlaylists.playlistHD.getTrackSetMap().get("")){
-                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.HD);
+                for(Track t : getPlaylists.playlistSD.getTrackSetMap().get("")){
+                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.SD);
                     channels.add(channel);
                     channelNumber++;
                 }
@@ -130,32 +171,8 @@ public class SetupSearchActivity extends AppCompatActivity {
                 startActivity(new Intent(SetupSearchActivity.this, ShowcaseGesturesActivity.class));
                 finish();
                 overridePendingTransition(0, 0);
-
-
-
-
-
             }
         });
 
-
-
-        /*MediaPlaylistParser parser = new MediaPlaylistParser();
-
-        MediaPlaylist playlistSD = null;
-        MediaPlaylist playlistHD = null;
-        MediaPlaylist playlistRadio = null;
-        try {
-            URL sdURL = new URL("http://"+ip+"/dvb/m3u/tvsd.m3u");
-            BufferedReader sdIn = new BufferedReader( new InputStreamReader( sdURL.openStream()));
-            playlistSD = parser.readPlaylist(sdIn);
-            ((TextView)findViewById(R.id.setup_sd_search_text)).setText(playlistSD.mediaSegments().size()+getString(R.string.setup_search_sd_result));
-            playlistHD = parser.readPlaylist("http://"+ip+"/dvb/m3u/tvhd.m3u");
-            ((TextView)findViewById(R.id.setup_hd_search_text)).setText(playlistHD.mediaSegments().size()+getString(R.string.setup_search_hd_result));
-            playlistRadio = parser.readPlaylist("http://"+ip+"/dvb/m3u/radio.m3u");
-            ((TextView)findViewById(R.id.setup_radio_search_text)).setText(playlistRadio.mediaSegments().size()+getString(R.string.setup_search_radio_result));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
     }
 }

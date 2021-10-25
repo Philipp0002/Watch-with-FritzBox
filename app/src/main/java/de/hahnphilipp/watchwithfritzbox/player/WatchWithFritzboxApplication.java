@@ -6,8 +6,12 @@ import android.content.SharedPreferences;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.async.FetchHbbTVSources;
+import de.hahnphilipp.watchwithfritzbox.async.StartWebServer;
+import de.hahnphilipp.watchwithfritzbox.webserver.TVWebServer;
 
 public class WatchWithFritzboxApplication extends Application {
+
+    TVWebServer webServer = null;
 
     @Override
     public void onCreate() {
@@ -27,6 +31,19 @@ public class WatchWithFritzboxApplication extends Application {
             }
         };
         fetchHbbTVSources.execute();
+
+        StartWebServer sws = new StartWebServer();
+        sws.webServer = webServer;
+        sws.context = getApplicationContext();
+        sws.futureRunFinished = new Runnable() {
+            @Override
+            public void run() {
+                if(!sws.error){
+                    webServer = sws.webServer;
+                }
+            }
+        };
+        sws.execute();
     }
 
 }

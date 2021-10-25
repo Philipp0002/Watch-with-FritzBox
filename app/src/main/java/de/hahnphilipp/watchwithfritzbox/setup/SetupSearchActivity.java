@@ -20,6 +20,8 @@ import org.w3c.dom.Document;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
 
@@ -156,6 +158,13 @@ public class SetupSearchActivity extends AppCompatActivity {
                     channels.add(channel);
                     channelNumber++;
                 }
+
+                Collections.sort(channels, new Comparator<ChannelUtils.Channel>() {
+                    @Override
+                    public int compare(ChannelUtils.Channel channel, ChannelUtils.Channel t1) {
+                        return channel.url.compareTo(t1.url);
+                    }
+                });
 
                 for(Track t : getPlaylists.playlistRadio.getTrackSetMap().get("")){
                     ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.RADIO);

@@ -1,13 +1,167 @@
-<html>
-    <head>
-        <title>Reorder channels | Watch with FritzBox</title>
-    </head>
+<!DOCTYPE html>
+<head>
+    <title>Reorder channels | Watch with FritzBox</title>
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch-polyfill@1.0.0/DragDropTouch.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5sortable/0.13.3/html5sortable.min.js" integrity="sha512-3btxfhQfasdVcv1dKYZph5P7jFeeLRcF1gDVzFA+k9AiwwhB1MNI7O58zCK0uVItuMHNDR5pMoF2nqlCGzUwZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
 
-    <body>
-        <h1>Channel list</h1>
+<body>
+<h1>Channel list</h1>
+<div class="disclamer">PC users: Drag and drop the channels to the desired position.</div>
+<div class="disclamer">Mobile users: Double-tap and move the channels to the desired position.</div>
+<div id="channelCards">
+    <div class="card" draggable="true">
+        <img src="https://tv.avm.de/tvapp/logos/hd/das_erste_hd.png">
         <div>
-            %CHANNELS%
+            Channel
+            <div>
+                <span id="channelNumber" class="channelBadge">CH 1</span>
+                <span class="channelBadgeFilled">HD</span>
+            </div>
         </div>
-    </body>
+        <div class='scrubber'></div>
+    </div>
+
+    <div class="card" draggable="true">
+        <img src="https://tv.avm.de/tvapp/logos/hd/rtl_hd.png">
+        <div>
+            Channel
+            <div>
+                <span id="channelNumber" class="channelBadge">CH 2</span>
+                <span class="channelBadgeFilled">HD</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" draggable="true">
+        <img src="https://tv.avm.de/tvapp/logos/hd/br_hd.png">
+        <div>
+            Channel
+            <div>
+                <span id="channelNumber" class="channelBadge">CH 3</span>
+                <span class="channelBadgeFilled">HD</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<style>
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    h1, .disclamer {
+        margin-left: 25px;
+    }
+
+    body {
+        background-color: #181725;
+        color: #ffffff;
+        font-family: Tahoma;
+        height: 100%;
+        width: 100%;
+    }
+
+    .card {
+        display: grid;
+        grid-template-areas: "logo info info";
+        grid-template-columns: 1fr 1fr 1fr;
+        border-radius: 25px;
+        background-color: #2a2939 !important;
+        width: min(calc(97% - 50px), 550px);
+        height: 160px;
+        margin-top: 25px;
+        margin-bottom: 25px;
+        margin-right: 25px;
+        margin-left: 25px;
+        padding: 25px;
+        box-sizing: border-box;
+        box-shadow: 0px 0px 35px -10px rgba(0, 0, 0, 0.75);
+        position: relative;
+        transition: transform 100ms linear;
+        overflow: hidden;
+    }
+
+    .card:hover {
+        transform: scale(1.05) translateZ(0);
+    }
+
+    .card img {
+        grid-area: logo;
+        width: 100%;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .card > div {
+        grid-area: info;
+        width: 100%;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 25px;
+        font-size: 20pt;
+    }
+
+    .channelBadge {
+        border: #c4c3c8;
+        border-style: solid;
+        border-radius: 5px;
+        padding-left: 3px;
+        padding-right: 3px;
+        width: max-content;
+        color: #c4c3c8;
+        font-weight: bold;
+        font-size: 10pt;
+        margin-top: 10px;
+    }
+
+    .channelBadgeFilled {
+        border: #c4c3c8;
+        background-color: #c4c3c8;
+        border-style: solid;
+        border-radius: 5px;
+        padding-left: 3px;
+        padding-right: 3px;
+        width: max-content;
+        color: #000000;
+        font-weight: bold;
+        font-size: 10pt;
+        margin-top: 10px;
+    }
+
+    .placeholderDrag {
+        border-radius: 25px;
+        background-color: #4c4c57 !important;
+        width: min(calc(97% - 50px), 550px);
+        height: 160px;
+    }
+
+</style>
+
+<script>
+
+sortable('#channelCards', {
+  placeholderClass: 'placeholderDrag'
+});
+
+sortable('#channelCards')[0].addEventListener('sortupdate', function(e) {
+
+var i = 1;
+for(const item of e.detail.destination.items){
+    item.querySelector("#channelNumber").innerText = "CH "+i;
+    i++;
+}
+
+});
+
+
+
+</script>
 
 </html>

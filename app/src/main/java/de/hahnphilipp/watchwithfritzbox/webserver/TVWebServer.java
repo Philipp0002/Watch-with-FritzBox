@@ -26,7 +26,11 @@ public class TVWebServer extends NanoHTTPD {
             String reorderChannelsView = AssetUtils.getStringFromAsset(context, "reorderChannelsView.html");
             String channels = "";
             for(ChannelUtils.Channel channel : ChannelUtils.getAllChannels(context)){
-                channels += "<br>"+channel.number+". "+channel.title;
+                channels += AssetUtils.getStringFromAsset(context, "channelItem.html")
+                        .replace("%CHANNELNAME%", channel.title)
+                        .replace("%CHANNELNUMBER%", Integer.toString(channel.number))
+                        .replace("%CHANNELBADGE%", channel.type.toString())
+                        .replace("%LOGOURL%", "https://tv.avm.de/tvapp/logos/"+(channel.type == ChannelUtils.ChannelType.HD ? "hd/": (channel.type == ChannelUtils.ChannelType.RADIO ? "radio/" : ""))+channel.title.toLowerCase().replace(" ", "_").replace("+", "")+".png");
             }
             //reorderChannelsView.replace("%CHANNELS%", channels);
             return newFixedLengthResponse(reorderChannelsView);

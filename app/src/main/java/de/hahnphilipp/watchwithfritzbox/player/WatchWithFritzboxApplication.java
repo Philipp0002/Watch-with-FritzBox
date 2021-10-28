@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.io.IOException;
+
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.async.FetchHbbTVSources;
 import de.hahnphilipp.watchwithfritzbox.async.StartWebServer;
@@ -32,7 +34,7 @@ public class WatchWithFritzboxApplication extends Application {
         };
         fetchHbbTVSources.execute();
 
-        StartWebServer sws = new StartWebServer();
+        /*StartWebServer sws = new StartWebServer();
         sws.webServer = webServer;
         sws.context = getApplicationContext();
         sws.futureRunFinished = new Runnable() {
@@ -43,7 +45,14 @@ public class WatchWithFritzboxApplication extends Application {
                 }
             }
         };
-        sws.execute();
+        sws.execute();*/
+
+        try {
+            webServer = new TVWebServer(this);
+            webServer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

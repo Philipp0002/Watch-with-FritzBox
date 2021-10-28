@@ -34,6 +34,7 @@
     <string name="settings_hbbtv_info">HbbTV verfügbar</string>
     <string name="settings_reorder_channels_move">Bewege den Sender nach oben oder unten um die Position zu verändern. Drücke OK um zu bestätigen.</string>
     <string name="settings_reorder_channels_select">Wähle den Sender, den du verschieben möchtest.</string>
+    <string name="settings_reorder_channels_webserver_info">oder öffne %d in deinem Web-Browser</string>
 
     <string name="radio_running">Radio läuft</string>
 

@@ -24,6 +24,7 @@ import java.util.TimerTask;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
 
 public class EditChannelListTVOverlay extends Fragment {
 
@@ -57,6 +58,9 @@ public class EditChannelListTVOverlay extends Fragment {
         llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
+
+        String ip = "http://"+IPUtils.getIPAddress(true)+":8080";
+        ((TextView)view.findViewById(R.id.editChannelListInfoText2)).setText(getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d",ip));
 
     }
 

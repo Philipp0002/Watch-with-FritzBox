@@ -49,7 +49,6 @@ public class WatchWithFritzboxApplication extends Application {
 
         try {
             webServer = new TVWebServer(this);
-            webServer.start();
         } catch (IOException e) {
             e.printStackTrace();
         }

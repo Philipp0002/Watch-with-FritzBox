@@ -11,39 +11,7 @@
 <div class="disclamer">PC users: Drag and drop the channels to the desired position.</div>
 <div class="disclamer">Mobile users: Double-tap and move the channels to the desired position.</div>
 <div id="channelCards">
-    <div class="card" draggable="true">
-        <img src="https://tv.avm.de/tvapp/logos/hd/das_erste_hd.png">
-        <div>
-            Channel
-            <div>
-                <span id="channelNumber" class="channelBadge">CH 1</span>
-                <span class="channelBadgeFilled">HD</span>
-            </div>
-        </div>
-        <div class='scrubber'></div>
-    </div>
-
-    <div class="card" draggable="true">
-        <img src="https://tv.avm.de/tvapp/logos/hd/rtl_hd.png">
-        <div>
-            Channel
-            <div>
-                <span id="channelNumber" class="channelBadge">CH 2</span>
-                <span class="channelBadgeFilled">HD</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="card" draggable="true">
-        <img src="https://tv.avm.de/tvapp/logos/hd/br_hd.png">
-        <div>
-            Channel
-            <div>
-                <span id="channelNumber" class="channelBadge">CH 3</span>
-                <span class="channelBadgeFilled">HD</span>
-            </div>
-        </div>
-    </div>
+    %CHANNELS%
 </div>
 </body>
 
@@ -84,6 +52,11 @@
         position: relative;
         transition: transform 100ms linear;
         overflow: hidden;
+        cursor: grab;
+    }
+
+    .card:active {
+        cursor: grabbing;
     }
 
     .card:hover {
@@ -146,17 +119,38 @@
 
 <script>
 
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+
 sortable('#channelCards', {
   placeholderClass: 'placeholderDrag'
 });
 
 sortable('#channelCards')[0].addEventListener('sortupdate', function(e) {
 
-var i = 1;
-for(const item of e.detail.destination.items){
-    item.querySelector("#channelNumber").innerText = "CH "+i;
-    i++;
-}
+    const channelMovedItem = e.detail.item;
+    var channelNumberFrom = channelMovedItem.querySelector("#channelNumber").innerText.replace("CH ", "");
+
+    var i = 1;
+    for(const item of e.detail.destination.items){
+        const channelNumberElem = item.querySelector("#channelNumber");
+        channelNumberElem.innerText = "CH "+i;
+        i++;
+    }
+
+    var channelNumberTo = channelMovedItem.querySelector("#channelNumber").innerText.replace("CH ", "");
+
+    httpGetAsync("/moveChannel?from="+channelNumberFrom+"&to="+channelNumberTo, function(callback){
+        console.log(callback);
+    })
 
 });
 

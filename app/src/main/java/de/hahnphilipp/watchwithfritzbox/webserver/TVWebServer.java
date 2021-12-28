@@ -8,12 +8,18 @@ import com.koushikdutta.async.http.server.AsyncHttpServerResponse;
 import com.koushikdutta.async.http.server.HttpServerRequestCallback;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.utils.AssetUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
 
 public class TVWebServer {
 
@@ -23,6 +29,19 @@ public class TVWebServer {
         this.context = context;
         AsyncHttpServer server = new AsyncHttpServer();
 
+        server.get("/", new HttpServerRequestCallback() {
+            @Override
+            public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
+                try {
+                    String reorderChannelsView = AssetUtils.getStringFromAsset(context, "index.html");
+                    response.send(reorderChannelsView);
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                response.send("There was an error");
+            }
+        });
 
         server.get("/reorder", new HttpServerRequestCallback() {
             @Override
@@ -40,6 +59,24 @@ public class TVWebServer {
                     }
                     reorderChannelsView = reorderChannelsView.replace("%CHANNELS%", channels);
                     response.send(reorderChannelsView);
+                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                response.send("There was an error");
+            }
+        });
+
+
+        server.get("/asset", new HttpServerRequestCallback() {
+            @Override
+            public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
+                String assetString = request.getQuery().getString("name");
+                String contentType = request.getQuery().getString("contentType");
+                try {
+                    InputStream fileStream = AssetUtils.getFileFromAsset(context, "web-assets/"+assetString);
+                    response.setContentType(contentType);
+                    response.sendStream(fileStream, fileStream.available());
                     return;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -81,6 +118,7 @@ public class TVWebServer {
         List<String> p = Arrays.asList(param);
         return p.stream().filter(x -> !x.contains(".")).collect(Collectors.toList());
     }
+
 
 
 }

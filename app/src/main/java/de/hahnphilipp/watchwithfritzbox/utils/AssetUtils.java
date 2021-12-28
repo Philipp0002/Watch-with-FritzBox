@@ -22,4 +22,9 @@ public class AssetUtils {
         String str = new String(buffer);
         return str;
     }
+
+    public static InputStream getFileFromAsset(Context context, String fileName) throws IOException {
+        InputStream is = context.getAssets().open(fileName);
+        return is;
+    }
 }

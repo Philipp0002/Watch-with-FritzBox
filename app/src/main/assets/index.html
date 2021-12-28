@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <head>
-    <title>Reorder channels | Watch with FritzBox</title>
-    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch-polyfill@1.0.0/DragDropTouch.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5sortable/0.13.3/html5sortable.min.js" integrity="sha512-3btxfhQfasdVcv1dKYZph5P7jFeeLRcF1gDVzFA+k9AiwwhB1MNI7O58zCK0uVItuMHNDR5pMoF2nqlCGzUwZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Welcome | Watch with FritzBox</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
-<h1><a href="/">🠔 Channel list</a></h1>
-<div class="disclamer">💻 PC users: Drag and drop the channels to the desired position.</div>
-<div class="disclamer">📱 Mobile users: Long-tap and move the channels to the desired position.</div>
+<h1>Watch with FritzBox</h1>
 <div id="channelCards">
-    %CHANNELS%
+    <a href="reorder">
+        <div class="card" draggable="true">
+            <img src="asset?name=reorder.svg&contentType=image/svg+xml">
+            <div>
+                Reorder channels
+            </div>
+        </div>
+    </a>
 </div>
 </body>
 
@@ -28,13 +30,6 @@
         margin-left: 25px;
     }
 
-    .disclamer:first-of-type {
-        margin-top: 10px;
-    }
-
-    .disclamer {
-        margin-left: 25px;
-    }
 
     body {
         background-color: #181725;
@@ -52,7 +47,7 @@
         border-radius: 25px;
         background-color: #2a2939 !important;
         width: min(calc(97% - 50px), 550px);
-        height: 160px;
+        height: 300px;
         margin-top: 25px;
         margin-bottom: 25px;
         margin-right: 25px;
@@ -63,11 +58,6 @@
         position: relative;
         transition: transform 100ms linear;
         overflow: hidden;
-        cursor: grab;
-    }
-
-    .card:active {
-        cursor: grabbing;
     }
 
     .card:hover {
@@ -80,6 +70,7 @@
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
+        filter: invert(1);
     }
 
     .card > div {
@@ -132,46 +123,5 @@
     }
 
 </style>
-
-<script>
-
-function httpGetAsync(theUrl, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-    xmlHttp.send(null);
-}
-
-sortable('#channelCards', {
-  placeholderClass: 'placeholderDrag'
-});
-
-sortable('#channelCards')[0].addEventListener('sortupdate', function(e) {
-
-    const channelMovedItem = e.detail.item;
-    var channelNumberFrom = channelMovedItem.querySelector("#channelNumber").innerText.replace("CH ", "");
-
-    var i = 1;
-    for(const item of e.detail.destination.items){
-        const channelNumberElem = item.querySelector("#channelNumber");
-        channelNumberElem.innerText = "CH "+i;
-        i++;
-    }
-
-    var channelNumberTo = channelMovedItem.querySelector("#channelNumber").innerText.replace("CH ", "");
-
-    httpGetAsync("/moveChannel?from="+channelNumberFrom+"&to="+channelNumberTo, function(callback){
-        console.log(callback);
-    })
-
-});
-
-
-
-</script>
 
 </html>

@@ -30,6 +30,7 @@ public class EditChannelListTVOverlay extends Fragment {
 
     public TVPlayerActivity context;
     public boolean isShown = false;
+    public String ip;
 
     TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
     RecyclerView recyclerView;
@@ -59,7 +60,7 @@ public class EditChannelListTVOverlay extends Fragment {
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
 
-        String ip = "http://"+IPUtils.getIPAddress(true)+":8080";
+        ip = "http://"+IPUtils.getIPAddress(true)+":8080";
         ((TextView)view.findViewById(R.id.editChannelListInfoText2)).setText(getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d",ip));
 
     }

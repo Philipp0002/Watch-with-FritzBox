@@ -126,11 +126,13 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                         selectedChannel = item.number;
                         ((CardView) v).setCardBackgroundColor(Color.parseColor("#c7c7f2"));
                         ((TextView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoText)).setText(R.string.settings_reorder_channels_move);
+                        ((TextView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoText2)).setText("");
                         ((ImageView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoImage)).setImageResource(R.drawable.ic_baseline_swap_vert_24);
                     }else{
                         selectedChannel = -1;
                         ((CardView) v).setCardBackgroundColor(Color.parseColor("#f5f5f7"));
                         ((TextView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoText)).setText(R.string.settings_reorder_channels_select);
+                        ((TextView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoText2)).setText(context.getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d",((EditChannelListTVOverlay) context).ip));
                         ((ImageView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoImage)).setImageResource(R.drawable.ic_baseline_touch_app_24);
                     }
                 }

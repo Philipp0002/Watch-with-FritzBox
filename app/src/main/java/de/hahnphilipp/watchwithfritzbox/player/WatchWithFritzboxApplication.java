@@ -14,6 +14,7 @@ import de.hahnphilipp.watchwithfritzbox.webserver.TVWebServer;
 public class WatchWithFritzboxApplication extends Application {
 
     TVWebServer webServer = null;
+    public static final boolean TEST_MODE = true;
 
     @Override
     public void onCreate() {

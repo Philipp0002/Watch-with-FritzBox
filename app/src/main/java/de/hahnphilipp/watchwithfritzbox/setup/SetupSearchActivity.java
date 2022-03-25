@@ -29,6 +29,7 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.async.GetFritzInfo;
 import de.hahnphilipp.watchwithfritzbox.async.GetPlaylists;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
+import de.hahnphilipp.watchwithfritzbox.player.WatchWithFritzboxApplication;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 
 public class SetupSearchActivity extends AppCompatActivity {
@@ -118,6 +119,10 @@ public class SetupSearchActivity extends AppCompatActivity {
                         }
                     });
                 }else{
+                    if(WatchWithFritzboxApplication.TEST_MODE){
+                        getPlaylists.execute();
+                        return;
+                    }
                     Document doc = getFritzInfo.doc;
                     String fritzBoxName = doc.getElementsByTagName("friendlyName").item(0).getTextContent();
                     if(fritzBoxName.toLowerCase().contains("cable")){

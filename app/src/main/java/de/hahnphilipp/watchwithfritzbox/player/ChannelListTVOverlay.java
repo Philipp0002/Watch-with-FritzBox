@@ -1,29 +1,22 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.widget.BrowseFrameLayout;
-import androidx.leanback.widget.VerticalGridView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
-import java.security.Key;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -43,11 +36,29 @@ public class ChannelListTVOverlay extends Fragment {
     LinearLayoutManager llm;
 
     Timer t;
-    Fragment openedFragment = null;
+
+    private static ChannelListTVOverlay INSTANCE;
+
+    public static void notifyChannelListChanged(){
+        if(INSTANCE != null){
+            INSTANCE.updateChannelList();
+        }
+    }
+
+    public void updateChannelList(){
+        tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvOverlayRecyclerAdapter.notifyDataSetChanged();
+            }
+        });
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        INSTANCE = this;
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.channellisttvoverlay, container, false);
         return v;
@@ -56,6 +67,7 @@ public class ChannelListTVOverlay extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        INSTANCE = this;
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 

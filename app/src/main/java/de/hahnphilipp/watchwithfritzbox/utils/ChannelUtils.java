@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Objects;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 
@@ -173,6 +174,19 @@ public class ChannelUtils {
             this.title = title;
             this.url = url;
             this.type = type;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Channel channel = (Channel) o;
+            return Objects.equals(title, channel.title) && Objects.equals(url, channel.url) && type == channel.type;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(title, url, type);
         }
     }
 

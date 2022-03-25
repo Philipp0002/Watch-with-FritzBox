@@ -20,6 +20,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import de.hahnphilipp.watchwithfritzbox.player.WatchWithFritzboxApplication;
+
 
 public class GetFritzInfo extends AsyncTask<Void, Void, Void> {
 
@@ -41,6 +43,10 @@ public class GetFritzInfo extends AsyncTask<Void, Void, Void> {
     }
 
     public void runFetch() {
+        if(WatchWithFritzboxApplication.TEST_MODE){
+            error = false;
+            return;
+        }
         try {
             URL url = new URL("http://"+ip+":49000/tr64desc.xml");
             URLConnection conn = url.openConnection();

@@ -1,6 +1,7 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,16 +30,24 @@ import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
 public class EditChannelListTVOverlay extends Fragment {
 
     public TVPlayerActivity context;
-    public boolean isShown = false;
     public String ip;
 
     TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
     RecyclerView recyclerView;
     LinearLayoutManager llm;
 
+    private static EditChannelListTVOverlay INSTANCE;
+
+    public static void notifyChannelListChanged(){
+        if(INSTANCE != null){
+            INSTANCE.updateChannelList();
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        INSTANCE = this;
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.editchannellisttvoverlay, container, false);
         return v;
@@ -46,12 +55,18 @@ public class EditChannelListTVOverlay extends Fragment {
 
     public void updateChannelList(){
         tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
-        tvOverlayRecyclerAdapter.notifyDataSetChanged();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvOverlayRecyclerAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        INSTANCE = this;
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 

@@ -17,6 +17,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import de.hahnphilipp.watchwithfritzbox.player.ChannelListTVOverlay;
+import de.hahnphilipp.watchwithfritzbox.player.EditChannelListTVOverlay;
 import de.hahnphilipp.watchwithfritzbox.utils.AssetUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
@@ -103,6 +105,8 @@ public class TVWebServer {
 
                 //response.send("a: "+params.get(0)+" b: "+params.get(1));
                 response.send("{\"msg\": \"success\"}");
+                EditChannelListTVOverlay.notifyChannelListChanged();
+                ChannelListTVOverlay.notifyChannelListChanged();
             }
         });
 

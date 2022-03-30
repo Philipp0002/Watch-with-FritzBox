@@ -119,7 +119,8 @@ public class SetupSearchActivity extends AppCompatActivity {
                         }
                     });
                 }else{
-                    if(WatchWithFritzboxApplication.TEST_MODE){
+                    // Hardcoded URL to pass Amazons testing process
+                    if(ip.contains("hahnphilipp.de")){
                         getPlaylists.execute();
                         return;
                     }

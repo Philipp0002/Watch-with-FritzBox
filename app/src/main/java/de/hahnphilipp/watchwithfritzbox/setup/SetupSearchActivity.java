@@ -4,12 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
@@ -22,14 +22,10 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Locale;
-import java.util.Set;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.async.GetFritzInfo;
 import de.hahnphilipp.watchwithfritzbox.async.GetPlaylists;
-import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
-import de.hahnphilipp.watchwithfritzbox.player.WatchWithFritzboxApplication;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 
 public class SetupSearchActivity extends AppCompatActivity {
@@ -55,7 +51,7 @@ public class SetupSearchActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((TextView)findViewById(R.id.setup_sd_search_text)).setText((getPlaylists.playlistSD.getTrackSetMap().get("")).size()+" "+getString(R.string.setup_search_sd_result));
+                        ((TextView) findViewById(R.id.setup_sd_search_text)).setText((getPlaylists.playlistSD.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_sd_result));
                     }
                 });
             }
@@ -66,7 +62,7 @@ public class SetupSearchActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((TextView)findViewById(R.id.setup_hd_search_text)).setText((getPlaylists.playlistHD.getTrackSetMap().get("")).size()+" "+getString(R.string.setup_search_hd_result));
+                        ((TextView) findViewById(R.id.setup_hd_search_text)).setText((getPlaylists.playlistHD.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_hd_result));
                     }
                 });
             }
@@ -77,7 +73,7 @@ public class SetupSearchActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((TextView)findViewById(R.id.setup_radio_search_text)).setText((getPlaylists.playlistRadio.getTrackSetMap().get("")).size()+" "+getString(R.string.setup_search_radio_result));
+                        ((TextView) findViewById(R.id.setup_radio_search_text)).setText((getPlaylists.playlistRadio.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_radio_result));
                     }
                 });
             }
@@ -88,12 +84,12 @@ public class SetupSearchActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(getPlaylists.error){
-                            Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error,Toast.LENGTH_LONG).show();
+                        if (getPlaylists.error) {
+                            Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error, Toast.LENGTH_LONG).show();
                             startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
                             finish();
                             overridePendingTransition(0, 0);
-                        }else{
+                        } else {
                             findViewById(R.id.setup_search_progressBar).setVisibility(View.INVISIBLE);
                             findViewById(R.id.setup_search_continue_button).setVisibility(View.VISIBLE);
                         }
@@ -108,37 +104,36 @@ public class SetupSearchActivity extends AppCompatActivity {
         getFritzInfo.futureRunFinished = new Runnable() {
             @Override
             public void run() {
-                if(getFritzInfo.error){
+                if (getFritzInfo.error) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error_connect,Toast.LENGTH_LONG).show();
+                            Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error_connect, Toast.LENGTH_LONG).show();
                             startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
                             finish();
                             overridePendingTransition(0, 0);
                         }
                     });
-                }else{
-                    // Hardcoded URL to pass Amazons testing process
-                    if(ip.contains("hahnphilipp.de")){
-                        getPlaylists.execute();
-                        return;
-                    }
+                } else {
                     Document doc = getFritzInfo.doc;
+
                     String fritzBoxName = doc.getElementsByTagName("friendlyName").item(0).getTextContent();
-                    if(fritzBoxName.toLowerCase().contains("cable")){
+                    if (fritzBoxName.toLowerCase().contains("cable")) {
 
                         getPlaylists.execute();
 
-                    }else{
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error_not_supported,Toast.LENGTH_LONG).show();
-                                startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
-                                finish();
-                                overridePendingTransition(0, 0);
-                            }
+                    } else {
+                        runOnUiThread(() -> {
+                            AlertDialog dialog = new AlertDialog.Builder(SetupSearchActivity.this)
+                                    .setTitle(R.string.setup_search_error_not_supported_title)
+                                    .setMessage(R.string.setup_search_error_not_supported_msg)
+                                    .setPositiveButton(R.string.setup_search_error_not_supported_continue, (dialog1, which) -> getPlaylists.execute())
+                                    .setNegativeButton(R.string.setup_search_error_not_supported_abort, (dialog12, which) -> {
+                                        startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
+                                        finish();
+                                        overridePendingTransition(0, 0);
+                                    }).create();
+                            dialog.show();
                         });
                     }
                 }
@@ -153,13 +148,13 @@ public class SetupSearchActivity extends AppCompatActivity {
                 int channelNumber = 1;
 
                 ArrayList<ChannelUtils.Channel> channels = new ArrayList<ChannelUtils.Channel>();
-                for(Track t : getPlaylists.playlistHD.getTrackSetMap().get("")){
+                for (Track t : getPlaylists.playlistHD.getTrackSetMap().get("")) {
                     ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.HD);
                     channels.add(channel);
                     channelNumber++;
                 }
 
-                for(Track t : getPlaylists.playlistSD.getTrackSetMap().get("")){
+                for (Track t : getPlaylists.playlistSD.getTrackSetMap().get("")) {
                     ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.SD);
                     channels.add(channel);
                     channelNumber++;
@@ -172,13 +167,14 @@ public class SetupSearchActivity extends AppCompatActivity {
                     }
                 });
 
-                for(Track t : getPlaylists.playlistRadio.getTrackSetMap().get("")){
+                for (Track t : getPlaylists.playlistRadio.getTrackSetMap().get("")) {
                     ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.RADIO);
                     channels.add(channel);
                     channelNumber++;
                 }
 
-                Type channelListType = new TypeToken<ArrayList<ChannelUtils.Channel>>(){}.getType();
+                Type channelListType = new TypeToken<ArrayList<ChannelUtils.Channel>>() {
+                }.getType();
                 String channelsJson = new Gson().toJson(channels, channelListType);
                 editor.putString("channels", channelsJson);
                 editor.commit();

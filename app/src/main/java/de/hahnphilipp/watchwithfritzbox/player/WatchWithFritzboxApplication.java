@@ -28,8 +28,10 @@ public class WatchWithFritzboxApplication extends Application {
 
                 SharedPreferences.Editor editor = sp.edit();
 
-                editor.putString("hbbtvSources", fetchHbbTVSources.response.toString());
-                editor.commit();
+                if(fetchHbbTVSources.response != null) {
+                    editor.putString("hbbtvSources", fetchHbbTVSources.response.toString());
+                    editor.commit();
+                }
             }
         };
         fetchHbbTVSources.execute();

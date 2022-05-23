@@ -30,6 +30,8 @@
     <string name="setup_gesture_right">Einstellungen / HbbTV</string>
     <string name="setup_gesture_continue">Zum Fortfahren klicken</string>
 
+    <string name="setup_richtv_error">Konnte dem System nicht mitteilen, dass es Kanäle auslesen soll :/ Probiere es später nochmal.</string>
+
     <string name="settings_title">Einstellungen</string>
     <string name="settings_reorder_channels">Sender anordnen</string>
     <string name="settings_open_hbbtv">HbbTV (Beta)</string>

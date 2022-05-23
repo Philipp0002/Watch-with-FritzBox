@@ -85,8 +85,14 @@ public class RichTvInputService extends BaseTvInputService {
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
 
             Channel ch = TvContractUtils.getChannel(getApplicationContext().getContentResolver(), channelUri);
-            tvPlayer.loadMedia(Uri.parse(ch.getInternalProviderData().getVideoUrl()));
-            tvPlayer.play();
+            try {
+                tvPlayer.loadMedia(Uri.parse(ch.getInternalProviderData().getVideoUrl()));
+                tvPlayer.play();
+            }catch (Exception e){
+                notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_UNKNOWN);
+                e.printStackTrace();
+                return false;
+            }
             tvPlayer.setEventListener(new MediaPlayer.EventListener() {
                 @Override
                 public void onEvent(MediaPlayer.Event event) {

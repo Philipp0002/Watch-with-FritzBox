@@ -31,6 +31,8 @@
     <string name="setup_gesture_right">Settings / HbbTV</string>
     <string name="setup_gesture_continue">Click to continue</string>
 
+    <string name="setup_richtv_error">Could not tell system to read all channels :/ Please try again later.</string>
+
     <string name="settings_title">Settings</string>
     <string name="settings_reorder_channels">Reorder channels</string>
     <string name="settings_open_hbbtv">HbbTV (Beta)</string>

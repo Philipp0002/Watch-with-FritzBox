@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.media.tv.TvInputInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.media.tv.companionlibrary.EpgSyncJobService;
 
@@ -19,15 +20,16 @@ public class RichTvInputSetupActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.richtvinputsetupactivity);
-        Log.d("RichTvInputSetupAct", "START");
-        /*if (null == savedInstanceState) {
-            GuidedStepFragment.addAsRoot(this, new FirstStepFragment(), android.R.id.content);
-        }*/
-        String inputId = getIntent().getStringExtra(TvInputInfo.EXTRA_INPUT_ID);
-        EpgSyncJobService.cancelAllSyncRequests(this);
-        EpgSyncJobService.requestImmediateSync(this, inputId,
-                new ComponentName(this, RichJobService.class));
 
+        try {
+            String inputId = getIntent().getStringExtra(TvInputInfo.EXTRA_INPUT_ID);
+            EpgSyncJobService.cancelAllSyncRequests(this);
+            EpgSyncJobService.requestImmediateSync(this, inputId,
+                    new ComponentName(this, RichJobService.class));
+        }catch(Exception e){
+            Toast.makeText(this, R.string.setup_richtv_error, Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -36,7 +38,6 @@ public class RichTvInputSetupActivity extends Activity {
                 finish();
             }
         }, 5000);
-
     }
 
 

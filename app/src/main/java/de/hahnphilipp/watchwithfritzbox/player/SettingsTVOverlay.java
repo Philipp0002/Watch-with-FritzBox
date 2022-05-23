@@ -91,9 +91,17 @@ public class SettingsTVOverlay extends Fragment {
     public void updateTVSettings(){
         ArrayList<TVSetting> tvSettings = new ArrayList<TVSetting>();
 
+        if(context == null)
+            return;
+
         final MediaPlayer player = context.mMediaPlayer;
-        MediaPlayer.TrackDescription[] descriptionsAudio = player.getAudioTracks();
-        MediaPlayer.TrackDescription[] descriptionsSubtitle = player.getSpuTracks();
+        MediaPlayer.TrackDescription[] descriptionsAudio = new MediaPlayer.TrackDescription[0];
+        MediaPlayer.TrackDescription[] descriptionsSubtitle = new MediaPlayer.TrackDescription[0];
+
+        if(player != null){
+            descriptionsAudio = player.getAudioTracks();
+            descriptionsSubtitle = player.getSpuTracks();
+        }
 
         if(!ChannelUtils.getHbbTvFromChannel(context,ChannelUtils.getLastSelectedChannel(context)).isEmpty()) {
             tvSettings.add(new TVSetting(getString(R.string.settings_open_hbbtv), R.drawable.ic_remote_tv, new Runnable() {
@@ -138,8 +146,10 @@ public class SettingsTVOverlay extends Fragment {
             }
         }, false));
 
-        tvOverlayRecyclerAdapter.objects = tvSettings;
-        tvOverlayRecyclerAdapter.notifyDataSetChanged();
+        if(tvOverlayRecyclerAdapter != null) {
+            tvOverlayRecyclerAdapter.objects = tvSettings;
+            tvOverlayRecyclerAdapter.notifyDataSetChanged();
+        }
     }
 
     public void showChannelEditor(){

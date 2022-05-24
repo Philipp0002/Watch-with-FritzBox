@@ -44,7 +44,17 @@ public class TVPlayerActivity extends FragmentActivity {
 
 
         final ArrayList<String> args = new ArrayList<>();
-        args.add("-vvv");//--rtsp-user=user --rtsp-pwd=26112002
+       // args.add("-vvv");
+
+        args.add("--no-sub-autodetect-file");
+        args.add("--swscale-mode=0");
+        args.add("--network-caching=1000");
+        args.add("--no-drop-late-frames");
+        args.add("--no-skip-frames");
+        //args.add("--avcodec-skip-frame");
+        //args.add("--avcodec-hw=any");
+        args.add("--stats");
+
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
 
@@ -118,12 +128,12 @@ public class TVPlayerActivity extends FragmentActivity {
     protected void onStart() {
         super.onStart();
         mMediaPlayer.attachViews(mVideoLayout, null, false, false);
-        launchPlayer();
+        launchPlayer(false);
     }
 
     Timer switchChannelTimer = null;
 
-    public void launchPlayer(){
+    public void launchPlayer(boolean withWaitInterval){
         mMediaPlayer.pause();
         findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
         findViewById(R.id.player_skip_radio).setVisibility(View.GONE);
@@ -146,6 +156,7 @@ public class TVPlayerActivity extends FragmentActivity {
             ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.ic_radio_tower);
         }
 
+        int timeWait = withWaitInterval ? 500 : 0;
         if(switchChannelTimer != null) {
                 switchChannelTimer.cancel();
                 switchChannelTimer.purge();
@@ -199,7 +210,7 @@ public class TVPlayerActivity extends FragmentActivity {
                     });
 
                 }
-            }, 500);
+            }, timeWait);
 
 
     }
@@ -240,7 +251,7 @@ public class TVPlayerActivity extends FragmentActivity {
                     @Override
                     public void run() {
                         if(selection != null)
-                            launchPlayer();
+                            launchPlayer(true);
                         findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
                     }
                 });

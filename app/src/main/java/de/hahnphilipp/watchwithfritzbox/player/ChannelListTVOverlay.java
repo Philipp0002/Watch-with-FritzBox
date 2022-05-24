@@ -106,12 +106,12 @@ public class ChannelListTVOverlay extends Fragment {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_UP) {
                     ChannelUtils.Channel next = ChannelUtils.getNextChannel(context, ChannelUtils.getLastSelectedChannel(context));
                     ChannelUtils.updateLastSelectedChannel(context, next.number);
-                    context.launchPlayer();
+                    context.launchPlayer(true);
                     return true;
                 } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN) {
                     ChannelUtils.Channel previous = ChannelUtils.getPreviousChannel(context, ChannelUtils.getLastSelectedChannel(context));
                     ChannelUtils.updateLastSelectedChannel(context, previous.number);
-                    context.launchPlayer();
+                    context.launchPlayer(true);
 
                     return true;
                 } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {

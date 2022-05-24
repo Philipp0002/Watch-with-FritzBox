@@ -120,7 +120,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 if(context instanceof ChannelListTVOverlay) {
                     ((ChannelListTVOverlay) context).hideOverlays();
                     ChannelUtils.updateLastSelectedChannel(((ChannelListTVOverlay) context).context, item.number);
-                    ((ChannelListTVOverlay) context).context.launchPlayer();
+                    ((ChannelListTVOverlay) context).context.launchPlayer(false);
                 }else if(context instanceof EditChannelListTVOverlay) {
                     if(selectedChannel == -1) {
                         selectedChannel = item.number;

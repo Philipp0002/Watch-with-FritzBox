@@ -11,6 +11,17 @@ android {
         versionName "1.4"
         vectorDrawables.useSupportLibrary = true
     }
+    flavorDimensions "flavor"
+    productFlavors {
+        fritzbox {
+            dimension "flavor"
+        }
+        enigma2 {
+            dimension "flavor"
+            applicationId "de.hahnphilipp.watchwithenigma2"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false

@@ -1,4 +1,4 @@
-package de.hahnphilipp.watchwith.player;
+package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +17,7 @@ import androidx.fragment.app.FragmentTransaction;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.interfaces.IMedia;
 import org.videolan.libvlc.util.VLCVideoLayout;
 
 import java.util.ArrayList;

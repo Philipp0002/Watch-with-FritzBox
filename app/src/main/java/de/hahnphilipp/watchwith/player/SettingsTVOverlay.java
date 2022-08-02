@@ -234,7 +234,7 @@ public class SettingsTVOverlay extends Fragment {
             selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.ic_baseline_closed_caption_24, new Runnable() {
                 @Override
                 public void run() {
-                    player.setAudioTrack((int)description.id);
+                    player.setSpuTrack((int)description.id);
                     if(selectionTVOverlay != null)
                         getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
                     openedFragment = null;

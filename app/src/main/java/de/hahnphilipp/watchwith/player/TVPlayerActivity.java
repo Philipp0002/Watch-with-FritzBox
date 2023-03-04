@@ -168,12 +168,9 @@ public class TVPlayerActivity extends FragmentActivity {
             switchChannelTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ((ProgressBar)findViewById(R.id.player_skip_timer)).setProgress(0);
-                            findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
-                        }
+                    runOnUiThread(() -> {
+                        ((ProgressBar)findViewById(R.id.player_skip_timer)).setProgress(0);
+                        findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
                     });
                     final Media media = new Media(mLibVLC, Uri.parse(channel.url) );
                     media.setHWDecoderEnabled(true, false);
@@ -181,34 +178,28 @@ public class TVPlayerActivity extends FragmentActivity {
                     media.release();
                     mMediaPlayer.play();
 
-                    mMediaPlayer.setEventListener(new MediaPlayer.EventListener() {
-                        @Override
-                        public void onEvent(MediaPlayer.Event event) {
-                            switch (event.type) {
-                                case MediaPlayer.Event.Buffering:
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            ((ProgressBar)findViewById(R.id.player_skip_timer)).setProgress((int)event.getBuffering());
+                    mMediaPlayer.setEventListener(event -> {
+                        switch (event.type) {
+                            case MediaPlayer.Event.Buffering:
+                                runOnUiThread(() -> {
+                                    ((ProgressBar)findViewById(R.id.player_skip_timer)).setProgress((int)event.getBuffering());
 
-                                            if(event.getBuffering() == 100F) {
-                                                mSettingsOverlayFragment.updateTVSettings();
-                                                findViewById(R.id.player_skip_timer).setVisibility(View.INVISIBLE);
-                                                if(channel.type == ChannelUtils.ChannelType.RADIO){
-                                                    findViewById(R.id.player_skip_radio).setVisibility(View.VISIBLE);
-                                                }else{
-                                                    findViewById(R.id.player_skip_overlay).setVisibility(View.GONE);
-                                                }
-                                            }
-                                        }
-                                    });
                                     if(event.getBuffering() == 100F) {
-                                        mMediaPlayer.setEventListener(null);
+                                        mSettingsOverlayFragment.updateTVSettings();
+                                        findViewById(R.id.player_skip_timer).setVisibility(View.INVISIBLE);
+                                        if(channel.type == ChannelUtils.ChannelType.RADIO){
+                                            findViewById(R.id.player_skip_radio).setVisibility(View.VISIBLE);
+                                        }else{
+                                            findViewById(R.id.player_skip_overlay).setVisibility(View.GONE);
+                                        }
                                     }
-                                    break;
-                                default:
-                                    break;
-                            }
+                                });
+                                if(event.getBuffering() == 100F) {
+                                    mMediaPlayer.setEventListener(null);
+                                }
+                                break;
+                            default:
+                                break;
                         }
                     });
 

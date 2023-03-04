@@ -14,7 +14,9 @@ import androidx.leanback.widget.BrowseFrameLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.interfaces.IMedia;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -80,12 +82,12 @@ public class SettingsTVOverlay extends Fragment {
             return;
 
         final MediaPlayer player = context.mMediaPlayer;
-        MediaPlayer.TrackDescription[] descriptionsAudio = new MediaPlayer.TrackDescription[0];
-        MediaPlayer.TrackDescription[] descriptionsSubtitle = new MediaPlayer.TrackDescription[0];
+        Media.Track[] descriptionsAudio = new Media.Track[0];
+        Media.Track[] descriptionsSubtitle = new Media.Track[0];
 
         if(player != null){
-            descriptionsAudio = player.getAudioTracks();
-            descriptionsSubtitle = player.getSpuTracks();
+            descriptionsAudio = player.getTracks(Media.Track.Type.Audio);
+            descriptionsSubtitle = player.getTracks(Media.Track.Type.Text);
         }
 
         if(!ChannelUtils.getHbbTvFromChannel(context,ChannelUtils.getLastSelectedChannel(context)).isEmpty()) {
@@ -224,17 +226,17 @@ public class SettingsTVOverlay extends Fragment {
         openedFragment = selectionTVOverlay;
         final MediaPlayer player = context.mMediaPlayer;
         selectionTVOverlay.title = getString(R.string.subtitles);
-        MediaPlayer.TrackDescription[] descriptions = player.getSpuTracks();
+        Media.Track[] descriptions = player.getTracks(Media.Track.Type.Text);
         //this should actually never be true, but just to be sure we do it anyways
         if (descriptions == null || descriptions.length == 0) {
             Toast.makeText(getContext(), R.string.no_subtitle_tracks, Toast.LENGTH_SHORT).show();
             return;
         }
-        for (final MediaPlayer.TrackDescription description : descriptions) {
+        for (final Media.Track description : descriptions) {
             selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.ic_baseline_closed_caption_24, new Runnable() {
                 @Override
                 public void run() {
-                    player.setSpuTrack((int)description.id);
+                    player.selectTrack(description.id);
                     if(selectionTVOverlay != null)
                         getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
                     openedFragment = null;
@@ -253,17 +255,17 @@ public class SettingsTVOverlay extends Fragment {
         openedFragment = selectionTVOverlay;
         final MediaPlayer player = context.mMediaPlayer;
         selectionTVOverlay.title = getString(R.string.audio_tracks);
-        MediaPlayer.TrackDescription[] descriptions = player.getAudioTracks();
+        Media.Track[] descriptions = player.getTracks(Media.Track.Type.Audio);
         //this should actually never be true, but just to be sure we do it anyways
         if (descriptions == null || descriptions.length == 0) {
             Toast.makeText(getContext(), R.string.no_audio_tracks, Toast.LENGTH_SHORT).show();
             return;
         }
-        for (final MediaPlayer.TrackDescription description : descriptions) {
+        for (final Media.Track description : descriptions) {
             selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.ic_audiotrack_24, new Runnable() {
                 @Override
                 public void run() {
-                    player.setAudioTrack((int)description.id);
+                    player.selectTrack(description.id);
                     if(selectionTVOverlay != null)
                         getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
                     openedFragment = null;

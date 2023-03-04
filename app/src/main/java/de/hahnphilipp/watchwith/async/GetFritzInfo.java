@@ -48,7 +48,7 @@ public class GetFritzInfo extends AsyncTask<Void, Void, Void> {
             }
             URL url = new URL("http://"+ip+":49000/tr64desc.xml");
             URLConnection conn = url.openConnection();
-            conn.setConnectTimeout(2000);
+            conn.setConnectTimeout(5000);
             conn.setReadTimeout(3000);
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

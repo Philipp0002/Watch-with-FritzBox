@@ -64,7 +64,12 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
             holder.channelTypeIcon.setImageResource(R.drawable.ic_radio_tower);
         }
 
-        Picasso.get().load(Uri.parse("https://tv.avm.de/tvapp/logos/"+(item.type == ChannelUtils.ChannelType.HD ? "hd/": (item.type == ChannelUtils.ChannelType.RADIO ? "radio/" : ""))+item.title.toLowerCase().replace(" ", "_").replace("+", "")+".png")).into(holder.channelIcon);
+        Picasso.get()
+                .load(Uri.parse("https://tv.avm.de/tvapp/logos/" +
+                        (item.type == ChannelUtils.ChannelType.HD ? "hd/": (item.type == ChannelUtils.ChannelType.RADIO ? "radio/" : "")) +
+                        item.title.toLowerCase().replace(" ", "_").replace("+", "") +
+                        ".png"))
+                .into(holder.channelIcon);
 
         holder.cardView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override

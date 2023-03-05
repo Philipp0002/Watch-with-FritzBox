@@ -46,12 +46,7 @@ public class ChannelListTVOverlay extends Fragment {
 
     public void updateChannelList(){
         tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tvOverlayRecyclerAdapter.notifyDataSetChanged();
-            }
-        });
+        getActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
     }
 
     @Override
@@ -219,13 +214,10 @@ public class ChannelListTVOverlay extends Fragment {
         final String time = dftime.format(new Date());
 
         if(context != null)
-        context.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+            context.runOnUiThread(() -> {
                 ((TextView)getView().findViewById(R.id.tvoverlaydate)).setText(date);
                 ((TextView)getView().findViewById(R.id.tvoverlaytime)).setText(time);
-            }
-        });
+            });
     }
 
     public void showOverlays(){

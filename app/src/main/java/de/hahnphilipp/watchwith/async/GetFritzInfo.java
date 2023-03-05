@@ -42,11 +42,11 @@ public class GetFritzInfo extends AsyncTask<Void, Void, Void> {
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 doc = builder.newDocument();
                 Element e = doc.createElement("friendlyName");
-                e.setTextContent("");
+                e.setTextContent("Test FritzBox Cable");
                 doc.insertBefore(e, null);
                 return;
             }
-            URL url = new URL("http://"+ip+":49000/tr64desc.xml");
+            URL url = new URL("http://"+ip+":49000/satipdesc.xml");
             URLConnection conn = url.openConnection();
             conn.setConnectTimeout(2000);
             conn.setReadTimeout(3000);

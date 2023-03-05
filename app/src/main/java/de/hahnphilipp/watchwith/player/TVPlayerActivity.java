@@ -45,18 +45,34 @@ public class TVPlayerActivity extends FragmentActivity {
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvv");
 
-        args.add("--no-sub-autodetect-file");
+        /*args.add("--no-sub-autodetect-file");
         args.add("--swscale-mode=0");
         args.add("--no-drop-late-frames");
-        args.add("--no-skip-frames");
+        args.add("--no-skip-frames");*/
         //args.add("--avcodec-skip-frame");
         //args.add("--avcodec-hw=any");
 
         //args.add("--rtsp-frame-buffer-size=1000000");
 
-        args.add("--network-caching=1000");
+        /*args.add("--network-caching=1000");
         args.add("--rtsp-tcp");
+        args.add("--stats");*/
+
+        args.add("--network-caching=" + 1000);
+        args.add("--audio-time-stretch");
+        args.add("--avcodec-skiploopfilter");
+        args.add("1");
+        args.add("--avcodec-skip-frame");
+        args.add("0");
+        args.add("--avcodec-skip-idct");
+        args.add("0");
+        args.add("--android-display-chroma");
+        args.add("RV32");
+        args.add("--audio-resampler");
+        args.add("soxr");
         args.add("--stats");
+        args.add("--vout=android-opaque,android-display");
+
 
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);

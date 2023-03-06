@@ -5,6 +5,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -98,14 +100,43 @@ public class ChannelListTVOverlay extends Fragment {
         if(!isShown && !context.mSettingsOverlayFragment.isShown){
             if(event.getAction() == KeyEvent.ACTION_DOWN) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_UP) {
-                    ChannelUtils.Channel next = ChannelUtils.getNextChannel(context, ChannelUtils.getLastSelectedChannel(context));
-                    ChannelUtils.updateLastSelectedChannel(context, next.number);
-                    context.launchPlayer(true);
+                    Animation a = AnimationUtils.loadAnimation(context, R.anim.slide_up);
+                    a.setFillEnabled(false);
+                    a.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {}
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            ChannelUtils.Channel next = ChannelUtils.getNextChannel(context, ChannelUtils.getLastSelectedChannel(context));
+                            ChannelUtils.updateLastSelectedChannel(context, next.number);
+                            context.launchPlayer(true);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {}
+                    });
+                    context.findViewById(R.id.video_layout).startAnimation(a);
+
                     return true;
                 } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN) {
-                    ChannelUtils.Channel previous = ChannelUtils.getPreviousChannel(context, ChannelUtils.getLastSelectedChannel(context));
-                    ChannelUtils.updateLastSelectedChannel(context, previous.number);
-                    context.launchPlayer(true);
+                    Animation a = AnimationUtils.loadAnimation(context, R.anim.slide_down);
+                    a.setFillEnabled(false);
+                    a.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {}
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            ChannelUtils.Channel previous = ChannelUtils.getPreviousChannel(context, ChannelUtils.getLastSelectedChannel(context));
+                            ChannelUtils.updateLastSelectedChannel(context, previous.number);
+                            context.launchPlayer(true);
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {}
+                    });
+                    context.findViewById(R.id.video_layout).startAnimation(a);
 
                     return true;
                 } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {

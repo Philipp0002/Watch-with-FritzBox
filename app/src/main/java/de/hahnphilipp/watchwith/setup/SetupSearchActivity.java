@@ -13,6 +13,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.w3ma.m3u8parser.data.Track;
 
@@ -23,8 +26,10 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Optional;
 
 import de.hahnphilipp.watchwith.R;
+import de.hahnphilipp.watchwith.async.FetchPresetChannelOrder;
 import de.hahnphilipp.watchwith.async.GetFritzInfo;
 import de.hahnphilipp.watchwith.async.GetPlaylists;
 import de.hahnphilipp.watchwith.utils.ChannelUtils;
@@ -115,8 +120,8 @@ public class SetupSearchActivity extends AppCompatActivity {
 
                 boolean supportedFritzBox = false;
                 NodeList friendlyNames = doc.getElementsByTagName("friendlyName");
-                for(int i = 0; i < friendlyNames.getLength(); i++){
-                    if(friendlyNames.item(i).getTextContent().toLowerCase().contains("cable")){
+                for (int i = 0; i < friendlyNames.getLength(); i++) {
+                    if (friendlyNames.item(i).getTextContent().toLowerCase().contains("cable")) {
                         supportedFritzBox = true;
                         break;
                     }
@@ -178,10 +183,52 @@ public class SetupSearchActivity extends AppCompatActivity {
             editor.putString("channels", channelsJson);
             editor.commit();
 
-            startActivity(new Intent(SetupSearchActivity.this, ShowcaseGesturesActivity.class));
-            finish();
-            overridePendingTransition(0, 0);
+            setContentView(R.layout.setup_order_activity);
+            findViewById(R.id.setup_order_no_button).setOnClickListener(view -> skipToNext());
+            findViewById(R.id.setup_order_yes_button).setOnClickListener(view -> presortChannels());
         });
 
+    }
+
+    public void presortChannels(){
+        findViewById(R.id.setup_order_no_button).setVisibility(View.INVISIBLE);
+        findViewById(R.id.setup_order_yes_button).setVisibility(View.INVISIBLE);
+        findViewById(R.id.setup_order_progressBar).setVisibility(View.VISIBLE);
+
+        FetchPresetChannelOrder fetchPresetChannelOrder = new FetchPresetChannelOrder();
+        fetchPresetChannelOrder.execute();
+        fetchPresetChannelOrder.futurerun = new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<ChannelUtils.Channel> channelsList = ChannelUtils.getAllChannels(SetupSearchActivity.this);
+                int position = 0;
+
+                for (JsonElement element : fetchPresetChannelOrder.response) {
+                    for (JsonElement element1 : element.getAsJsonArray()) {
+                        String channelName = element1.getAsString();
+
+                        Optional<ChannelUtils.Channel> channelToMove = channelsList
+                                .stream()
+                                .filter(channel -> channel.title.equalsIgnoreCase(channelName))
+                                .findFirst();
+
+                        if (channelToMove.isPresent()) {
+                            position++;
+                            channelsList = ChannelUtils.moveChannelToPosition(SetupSearchActivity.this, channelToMove.get().number, position);
+                            break;
+                        }
+                    }
+                }
+
+                skipToNext();
+
+            }
+        };
+    }
+
+    public void skipToNext(){
+        startActivity(new Intent(SetupSearchActivity.this, ShowcaseGesturesActivity.class));
+        finish();
+        overridePendingTransition(0, 0);
     }
 }

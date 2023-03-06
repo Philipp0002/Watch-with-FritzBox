@@ -29,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvoverlaytime">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <de.hahnphilipp.watchwith.utils.FocusRecyclerView
         android:id="@+id/tvoverlayrecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -37,7 +37,7 @@
         android:focusable="true"
         android:focusableInTouchMode="true">
         <requestFocus/>
-    </androidx.recyclerview.widget.RecyclerView>
+    </de.hahnphilipp.watchwith.utils.FocusRecyclerView>
 
     </androidx.leanback.widget.BrowseFrameLayout>
 

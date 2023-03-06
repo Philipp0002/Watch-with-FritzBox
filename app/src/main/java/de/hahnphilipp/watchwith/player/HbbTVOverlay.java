@@ -53,7 +53,7 @@ public class HbbTVOverlay extends Fragment {
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
-        webSettings.setAppCacheEnabled(true);
+        //webSettings.setAppCacheEnabled(true);
         webSettings.setSupportZoom(false);
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);

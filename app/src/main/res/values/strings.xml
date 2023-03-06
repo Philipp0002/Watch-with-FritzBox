@@ -25,6 +25,10 @@
     <string name="setup_search_error_not_supported_continue">Continue</string>
     <string name="setup_search_error_not_supported_abort">Cancel</string>
 
+    <string name="setup_order_description">Your channel list is unsorted. Should we preorder it?</string>
+    <string name="setup_order_yes">Presort</string>
+    <string name="setup_order_no">Don\'t presort</string>
+
     <string name="setup_gesture_up">Channel +</string>
     <string name="setup_gesture_down">Channel -</string>
     <string name="setup_gesture_left">Channel list</string>

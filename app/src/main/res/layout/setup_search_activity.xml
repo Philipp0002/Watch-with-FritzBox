@@ -102,17 +102,24 @@
                 app:layout_constraintStart_toEndOf="@+id/radioImageView"
                 app:layout_constraintTop_toBottomOf="@+id/setup_hd_search_text" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/setup_search_continue_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/setup_ip_continue_button"
                 android:textColor="#2a2939"
-                android:theme="@style/Button.LightGray"
+                style="@style/Widget.MaterialComponents.Button"
+                app:cornerRadius="16dp"
+                app:elevation="0dp"
+                app:icon="@drawable/round_check"
+                app:iconTint="#2a2939"
                 android:visibility="invisible"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/setup_radio_search_text" />
+                app:layout_constraintTop_toBottomOf="@+id/setup_radio_search_text" >
+
+                <requestFocus/>
+            </com.google.android.material.button.MaterialButton>
 
             <ProgressBar
                 android:id="@+id/setup_search_progressBar"

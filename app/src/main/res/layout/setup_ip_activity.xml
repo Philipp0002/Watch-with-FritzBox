@@ -60,6 +60,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView2">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/setup_ip_address_input_et"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLines = "1"
@@ -67,19 +68,24 @@
                     android:singleLine="true"
                     android:inputType="text"
                     android:text="192.168.178.1"
-                    android:textColor="#fff" />
+                    android:textColor="#fff"
+                    android:imeOptions="actionDone"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/setup_ip_continue_button"
+                style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/setup_ip_continue_button"
                 android:textColor="#2a2939"
-                android:theme="@style/Button.LightGray"
+                app:cornerRadius="16dp"
+                app:elevation="0dp"
+                app:icon="@drawable/round_check"
+                app:iconTint="#2a2939"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/setup_ip_address_input" />
         </androidx.constraintlayout.widget.ConstraintLayout>

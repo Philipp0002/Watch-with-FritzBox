@@ -24,6 +24,10 @@
     <string name="setup_search_error_not_supported_continue">Fortfahren</string>
     <string name="setup_search_error_not_supported_abort">Abbrechen</string>
 
+    <string name="setup_order_description">Deine Senderliste ist momentan unsortiert. Soll eine automatische Vorsortierung durchgeführt werden?</string>
+    <string name="setup_order_yes">Vorsortieren</string>
+    <string name="setup_order_no">Nicht vorsortieren</string>
+
     <string name="setup_gesture_up">Sender +</string>
     <string name="setup_gesture_down">Sender -</string>
     <string name="setup_gesture_left">Senderliste</string>

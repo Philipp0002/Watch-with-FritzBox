@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="12dp"
@@ -15,15 +14,15 @@
         android:layout_height="130dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
+        android:focusable="true"
         app:cardBackgroundColor="#2a2939"
         app:cardCornerRadius="8dp"
-        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -31,7 +30,7 @@
                 android:id="@+id/tvoverlaychannel_logo"
                 android:layout_width="114dp"
                 android:layout_height="114dp"
-                android:layout_gravity="center_horizontal"
+                android:layout_gravity="center"
                 android:layout_margin="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
@@ -40,73 +39,77 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tvoverlaychannel_logo"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/tvoverlaychannel_number_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/channel_number_outline_white"
-                    app:layout_constraintStart_toStartOf="@+id/tvoverlaychannel_name"
-                    app:layout_constraintTop_toBottomOf="@+id/tvoverlaychannel_name">
-
-                    <TextView
-                        android:id="@+id/tvoverlaychannel_number"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginEnd="4dp"
-                        android:layout_marginBottom="2dp"
-                        android:text="CH 1"
-                        android:textColor="#c4c3c8"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <ImageView
-                    android:id="@+id/tvoverlaychannel_type"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/channel_quality_bg_white"
-                    android:tint="#2a2939"
-                    app:layout_constraintBottom_toBottomOf="@+id/tvoverlaychannel_number_layout"
-                    app:layout_constraintStart_toEndOf="@+id/tvoverlaychannel_number_layout"
-                    app:layout_constraintTop_toTopOf="@+id/tvoverlaychannel_number_layout"
-                    app:srcCompat="@drawable/ic_high_definition"
-                    app:tint="#2a2939" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginStart="16dp">
 
                 <TextView
                     android:id="@+id/tvoverlaychannel_name"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
                     android:layout_marginEnd="8dp"
                     android:ellipsize="end"
+                    android:maxLines="2"
                     android:text="KANAL"
                     android:textColor="#fff"
                     android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:maxLines="2"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:textStyle="bold" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/tvoverlaychannel_number_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@drawable/channel_number_outline_white">
+
+                        <TextView
+                            android:id="@+id/tvoverlaychannel_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginEnd="4dp"
+                            android:layout_marginBottom="2dp"
+                            android:text="CH 1"
+                            android:textColor="#c4c3c8"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <ImageView
+                        android:id="@+id/tvoverlaychannel_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/channel_quality_bg_white"
+                        android:tint="#2a2939"
+                        android:layout_gravity="center"
+                        app:layout_constraintBottom_toBottomOf="@+id/tvoverlaychannel_number_layout"
+                        app:layout_constraintStart_toEndOf="@+id/tvoverlaychannel_number_layout"
+                        app:layout_constraintTop_toTopOf="@+id/tvoverlaychannel_number_layout"
+                        app:srcCompat="@drawable/ic_high_definition"
+                        app:tint="#2a2939" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
 
 
     </androidx.cardview.widget.CardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

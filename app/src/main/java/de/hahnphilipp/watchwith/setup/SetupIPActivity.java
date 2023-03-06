@@ -6,8 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -47,24 +50,30 @@ public class SetupIPActivity extends AppCompatActivity {
         }
         setContentView(R.layout.setup_ip_activity);
 
-
-        findViewById(R.id.setup_ip_continue_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText et = ((TextInputLayout)findViewById(R.id.setup_ip_address_input)).getEditText();
-
-                if(et.getText().toString().trim().isEmpty()){
-                    return;
-                }
-
-
-                Intent mainIntent = new Intent(SetupIPActivity.this, SetupSearchActivity.class);
-                mainIntent.putExtra("ip", et.getText().toString().trim());
-                startActivity(mainIntent);
-                finish();
-                overridePendingTransition(0, 0);
+        ((EditText)findViewById(R.id.setup_ip_address_input_et)).setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                startSetup();
+                return true;
             }
+            return false;
         });
+
+
+        findViewById(R.id.setup_ip_continue_button).setOnClickListener(v -> startSetup());
+    }
+
+    public void startSetup() {
+        EditText et = ((TextInputLayout)findViewById(R.id.setup_ip_address_input)).getEditText();
+
+        if(et.getText().toString().trim().isEmpty()){
+            return;
+        }
+
+        Intent mainIntent = new Intent(SetupIPActivity.this, SetupSearchActivity.class);
+        mainIntent.putExtra("ip", et.getText().toString().trim());
+        startActivity(mainIntent);
+        finish();
+        overridePendingTransition(0, 0);
     }
 
     private boolean isDirectToTV() {

@@ -1,5 +1,7 @@
 package de.hahnphilipp.watchwith.player;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -59,6 +61,7 @@ public class TVPlayerActivity extends FragmentActivity {
         args.add("soxr");
         args.add("--stats");
         args.add("--vout=android-opaque,android-display");
+        args.add("--http-reconnect");
 
 
         mLibVLC = new LibVLC(this, args);
@@ -175,8 +178,11 @@ public class TVPlayerActivity extends FragmentActivity {
                         ((ProgressBar)findViewById(R.id.player_skip_timer)).setProgress(0);
                         findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
                     });
+                    SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
+                            getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                    int hwAccel = sp.getInt("setting_hwaccel", 1);
                     final Media media = new Media(mLibVLC, Uri.parse(channel.url) );
-                    media.setHWDecoderEnabled(true, false);
+                    media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
                     mMediaPlayer.setMedia(media);
                     media.release();
                     mMediaPlayer.play();

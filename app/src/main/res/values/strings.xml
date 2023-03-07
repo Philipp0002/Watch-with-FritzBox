@@ -39,6 +39,10 @@
 
     <string name="settings_title">Settings</string>
     <string name="settings_reorder_channels">Reorder channels</string>
+    <string name="settings_hardware_acceleration">Hardware Acceleration</string>
+    <string name="settings_hardware_acceleration_disable">Disable</string>
+    <string name="settings_hardware_acceleration_auto">Enable (Auto)</string>
+    <string name="settings_hardware_acceleration_force">Enable (Force)</string>
     <string name="settings_open_hbbtv">HbbTV (Beta)</string>
     <string name="settings_open_hbbtv_multi_title">Multiple HbbTV sources</string>
     <string name="settings_reorder_channels_move">Move up or down to change the position of this channel. Press OK to confirm.</string>

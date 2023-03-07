@@ -51,58 +51,20 @@ public class SetupSearchActivity extends AppCompatActivity {
 
         final GetPlaylists getPlaylists = new GetPlaylists();
         getPlaylists.ip = ip;
-        getPlaylists.futureRunSD = new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TextView) findViewById(R.id.setup_sd_search_text)).setText((getPlaylists.playlistSD.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_sd_result));
-                    }
-                });
+        getPlaylists.futureRunSD = () -> runOnUiThread(() -> ((TextView) findViewById(R.id.setup_sd_search_text)).setText((getPlaylists.playlistSD.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_sd_result)));
+        getPlaylists.futureRunHD = () -> runOnUiThread(() -> ((TextView) findViewById(R.id.setup_hd_search_text)).setText((getPlaylists.playlistHD.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_hd_result)));
+        getPlaylists.futureRunRadio = () -> runOnUiThread(() -> ((TextView) findViewById(R.id.setup_radio_search_text)).setText((getPlaylists.playlistRadio.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_radio_result)));
+        getPlaylists.futureRunFinished = () -> runOnUiThread(() -> {
+            if (getPlaylists.error) {
+                Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error, Toast.LENGTH_LONG).show();
+                startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
+                finish();
+                overridePendingTransition(0, 0);
+            } else {
+                findViewById(R.id.setup_search_progressBar).setVisibility(View.INVISIBLE);
+                findViewById(R.id.setup_search_continue_button).setVisibility(View.VISIBLE);
             }
-        };
-        getPlaylists.futureRunHD = new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TextView) findViewById(R.id.setup_hd_search_text)).setText((getPlaylists.playlistHD.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_hd_result));
-                    }
-                });
-            }
-        };
-        getPlaylists.futureRunRadio = new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TextView) findViewById(R.id.setup_radio_search_text)).setText((getPlaylists.playlistRadio.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_radio_result));
-                    }
-                });
-            }
-        };
-        getPlaylists.futureRunFinished = new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getPlaylists.error) {
-                            Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error, Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
-                            finish();
-                            overridePendingTransition(0, 0);
-                        } else {
-                            findViewById(R.id.setup_search_progressBar).setVisibility(View.INVISIBLE);
-                            findViewById(R.id.setup_search_continue_button).setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
-            }
-        };
+        });
 
 
         final GetFritzInfo getFritzInfo = new GetFritzInfo();
@@ -197,32 +159,29 @@ public class SetupSearchActivity extends AppCompatActivity {
 
         FetchPresetChannelOrder fetchPresetChannelOrder = new FetchPresetChannelOrder();
         fetchPresetChannelOrder.execute();
-        fetchPresetChannelOrder.futurerun = new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<ChannelUtils.Channel> channelsList = ChannelUtils.getAllChannels(SetupSearchActivity.this);
-                int position = 0;
+        fetchPresetChannelOrder.futurerun = () -> {
+            ArrayList<ChannelUtils.Channel> channelsList = ChannelUtils.getAllChannels(SetupSearchActivity.this);
+            int position = 0;
 
-                for (JsonElement element : fetchPresetChannelOrder.response) {
-                    for (JsonElement element1 : element.getAsJsonArray()) {
-                        String channelName = element1.getAsString();
+            for (JsonElement element : fetchPresetChannelOrder.response) {
+                for (JsonElement element1 : element.getAsJsonArray()) {
+                    String channelName = element1.getAsString();
 
-                        Optional<ChannelUtils.Channel> channelToMove = channelsList
-                                .stream()
-                                .filter(channel -> channel.title.equalsIgnoreCase(channelName))
-                                .findFirst();
+                    Optional<ChannelUtils.Channel> channelToMove = channelsList
+                            .stream()
+                            .filter(channel -> channel.title.equalsIgnoreCase(channelName))
+                            .findFirst();
 
-                        if (channelToMove.isPresent()) {
-                            position++;
-                            channelsList = ChannelUtils.moveChannelToPosition(SetupSearchActivity.this, channelToMove.get().number, position);
-                            break;
-                        }
+                    if (channelToMove.isPresent()) {
+                        position++;
+                        channelsList = ChannelUtils.moveChannelToPosition(SetupSearchActivity.this, channelToMove.get().number, position);
+                        break;
                     }
                 }
-
-                skipToNext();
-
             }
+
+            skipToNext();
+
         };
     }
 

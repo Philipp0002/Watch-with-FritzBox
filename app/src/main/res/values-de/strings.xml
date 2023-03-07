@@ -38,6 +38,10 @@
 
     <string name="settings_title">Einstellungen</string>
     <string name="settings_reorder_channels">Sender anordnen</string>
+    <string name="settings_hardware_acceleration">Hardwarebeschleunigung</string>
+    <string name="settings_hardware_acceleration_disable">Deaktivieren</string>
+    <string name="settings_hardware_acceleration_auto">Aktivieren (Auto)</string>
+    <string name="settings_hardware_acceleration_force">Aktivieren (Erzwingen)</string>
     <string name="settings_open_hbbtv">HbbTV (Beta)</string>
     <string name="settings_open_hbbtv_multi_title">Mehrere HbbTV-Quellen</string>
     <string name="settings_hbbtv_info">HbbTV verfügbar</string>

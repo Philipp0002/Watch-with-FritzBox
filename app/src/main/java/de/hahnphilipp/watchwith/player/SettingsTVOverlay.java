@@ -1,5 +1,7 @@
 package de.hahnphilipp.watchwith.player;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -131,6 +133,13 @@ public class SettingsTVOverlay extends Fragment {
             }
         }, false));
 
+        tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration), R.drawable.ic_baseline_reorder_24, new Runnable() {
+            @Override
+            public void run() {
+                showHWAcelerationSelection();
+            }
+        }, false));
+
         if(tvOverlayRecyclerAdapter != null) {
             tvOverlayRecyclerAdapter.objects = tvSettings;
             tvOverlayRecyclerAdapter.notifyDataSetChanged();
@@ -143,6 +152,51 @@ public class SettingsTVOverlay extends Fragment {
 
         getActivity().getSupportFragmentManager().beginTransaction()
                 .add(R.id.overlayChannels, editChannelListTVOverlay)
+                .addToBackStack("selectionTVOverlay")
+                .commit();
+    }
+
+
+    public void showHWAcelerationSelection(){
+        SharedPreferences sp = context.getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
+        openedFragment = selectionTVOverlay;
+        selectionTVOverlay.title = getString(R.string.settings_hardware_acceleration);
+        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_disable), R.drawable.ic_remote_tv, new Runnable() {
+            @Override
+            public void run() {
+                editor.putInt("setting_hwaccel", 0);
+                editor.commit();
+                if(selectionTVOverlay != null)
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
+                openedFragment = null;
+            }
+        },true));
+        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_auto), R.drawable.ic_remote_tv, new Runnable() {
+            @Override
+            public void run() {
+                editor.putInt("setting_hwaccel", 1);
+                editor.commit();
+                if(selectionTVOverlay != null)
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
+                openedFragment = null;
+            }
+        },true));
+        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_force), R.drawable.ic_remote_tv, new Runnable() {
+            @Override
+            public void run() {
+                editor.putInt("setting_hwaccel", 2);
+                editor.commit();
+                if(selectionTVOverlay != null)
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
+                openedFragment = null;
+            }
+        },true));
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .add(R.id.overlayChannels, selectionTVOverlay)
                 .addToBackStack("selectionTVOverlay")
                 .commit();
     }

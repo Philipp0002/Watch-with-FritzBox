@@ -20,6 +20,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import de.hahnphilipp.watchwith.R;
 import de.hahnphilipp.watchwith.player.TVPlayerActivity;
+import de.hahnphilipp.watchwith.player2.TVWrapperActivity;
 
 public class SetupIPActivity extends AppCompatActivity {
 
@@ -43,7 +44,7 @@ public class SetupIPActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         if(sp.contains("channels")){
-            startActivity(new Intent(SetupIPActivity.this, TVPlayerActivity.class));
+            startActivity(new Intent(SetupIPActivity.this, TVWrapperActivity.class));
             finish();
             overridePendingTransition(0, 0);
             return;

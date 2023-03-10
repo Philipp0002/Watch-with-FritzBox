@@ -31,8 +31,12 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".TVWrapperActivity"
-            android:exported="false" />
+            android:name=".player2.TVWrapperActivity"
+            android:theme="@style/LeanbackTheme"
+            android:supportsPictureInPicture="true"
+            android:configChanges=
+                "screenSize|smallestScreenSize|screenLayout|orientation"
+            android:exported="true" />
         <activity
             android:name="de.hahnphilipp.watchwith.setup.SetupIPActivity"
             android:exported="true">

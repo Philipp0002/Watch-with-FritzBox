@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import de.hahnphilipp.watchwith.R;
 import de.hahnphilipp.watchwith.player.TVPlayerActivity;
+import de.hahnphilipp.watchwith.player2.TVWrapperActivity;
 
 public class ShowcaseGesturesActivity extends AppCompatActivity {
 
@@ -25,7 +26,7 @@ public class ShowcaseGesturesActivity extends AppCompatActivity {
         findViewById(R.id.showcase_continue).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ShowcaseGesturesActivity.this, TVPlayerActivity.class));
+                startActivity(new Intent(ShowcaseGesturesActivity.this, TVWrapperActivity.class));
                 finish();
                 overridePendingTransition(0, 0);
             }

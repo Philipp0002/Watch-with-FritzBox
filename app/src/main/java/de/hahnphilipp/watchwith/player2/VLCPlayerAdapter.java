@@ -41,7 +41,8 @@ public class VLCPlayerAdapter extends PlayerAdapter {
         args.add("-vvv");
 
         args.add("--network-caching=" + 1000);
-        args.add("--audio-time-stretch");
+        args.add("--http-reconnect");
+        /*args.add("--audio-time-stretch");
         args.add("--avcodec-skiploopfilter");
         args.add("1");
         args.add("--avcodec-skip-frame");
@@ -53,8 +54,7 @@ public class VLCPlayerAdapter extends PlayerAdapter {
         args.add("--audio-resampler");
         args.add("soxr");
         args.add("--stats");
-        args.add("--vout=android-opaque,android-display");
-        args.add("--http-reconnect");
+        args.add("--vout=android-opaque,android-display");*/
 
 
         mLibVLC = new LibVLC(context, args);
@@ -177,9 +177,7 @@ public class VLCPlayerAdapter extends PlayerAdapter {
 
     @Override
     public long getSupportedActions() {
-        return (PlaybackBaseControlGlue.ACTION_PLAY_PAUSE +
-                PlaybackBaseControlGlue.ACTION_REWIND +
-                PlaybackBaseControlGlue.ACTION_FAST_FORWARD);
+        return 0;
     }
 
     @Override
@@ -245,8 +243,10 @@ public class VLCPlayerAdapter extends PlayerAdapter {
             mMediaPlayer.getVLCVout().setVideoSurface(surfaceHolder.getSurface(), surfaceHolder);
             mMediaPlayer.getVLCVout().setWindowSize(surfaceHolder.getSurfaceFrame().width(), surfaceHolder.getSurfaceFrame().height());
             mMediaPlayer.getVLCVout().attachViews();
+            Log.d(TAG, "ATTACHED DISPLAY");
             mInitialized = true;
         } else {
+            Log.d(TAG, "DETACHED DISPLAY");
             mInitialized = false;
             mMediaPlayer.getVLCVout().detachViews();
         }

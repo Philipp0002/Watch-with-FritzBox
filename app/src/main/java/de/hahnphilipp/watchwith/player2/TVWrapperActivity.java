@@ -1,24 +1,27 @@
 package de.hahnphilipp.watchwith.player2;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
 
+import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 import de.hahnphilipp.watchwith.R;
 
-public class TVWrapperActivity extends AppCompatActivity {
+public class TVWrapperActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tvwrapper);
 
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.add(R.id.videoFragment, new TVPlayerFragment(),
                 TVPlayerFragment.TAG);
         ft.commit();

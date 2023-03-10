@@ -11,4 +11,6 @@
         <item name="colorControlHighlight">#7C7B7E</item>
     </style>
 
+    <style name="LeanbackTheme" parent="@style/Theme.Leanback" />
+
 </resources>

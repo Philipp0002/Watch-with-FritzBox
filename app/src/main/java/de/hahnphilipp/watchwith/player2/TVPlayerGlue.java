@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.leanback.media.PlaybackBannerControlGlue;

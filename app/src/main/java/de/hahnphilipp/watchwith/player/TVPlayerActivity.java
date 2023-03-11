@@ -158,11 +158,11 @@ public class TVPlayerActivity extends FragmentActivity {
         }
 
         if(channel.type == ChannelUtils.ChannelType.HD){
-            ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.ic_high_definition);
+            ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.high_definition);
         }else if(channel.type == ChannelUtils.ChannelType.SD){
-            ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.ic_standard_definition);
+            ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.standard_definition);
         }else if(channel.type == ChannelUtils.ChannelType.RADIO){
-            ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.ic_radio_tower);
+            ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.radio_tower);
         }
 
         int timeWait = withWaitInterval ? 500 : 0;

@@ -57,11 +57,11 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         holder.channelNumber.setText("CH "+item.number);
 
         if(item.type == ChannelUtils.ChannelType.HD){
-            holder.channelTypeIcon.setImageResource(R.drawable.ic_high_definition);
+            holder.channelTypeIcon.setImageResource(R.drawable.high_definition);
         }else if(item.type == ChannelUtils.ChannelType.SD){
-            holder.channelTypeIcon.setImageResource(R.drawable.ic_standard_definition);
+            holder.channelTypeIcon.setImageResource(R.drawable.standard_definition);
         }else if(item.type == ChannelUtils.ChannelType.RADIO){
-            holder.channelTypeIcon.setImageResource(R.drawable.ic_radio_tower);
+            holder.channelTypeIcon.setImageResource(R.drawable.radio_tower);
         }
 
         Picasso.get()
@@ -130,13 +130,13 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                         ((CardView) v).setCardBackgroundColor(Color.parseColor("#c7c7f2"));
                         ((TextView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoText)).setText(R.string.settings_reorder_channels_move);
                         ((TextView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoText2)).setText("");
-                        ((ImageView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoImage)).setImageResource(R.drawable.ic_baseline_swap_vert_24);
+                        ((ImageView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoImage)).setImageResource(R.drawable.round_swap_vert);
                     }else{
                         selectedChannel = -1;
                         ((CardView) v).setCardBackgroundColor(Color.parseColor("#f5f5f7"));
                         ((TextView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoText)).setText(R.string.settings_reorder_channels_select);
                         ((TextView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoText2)).setText(context.getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d",((EditChannelListTVOverlay) context).ip));
-                        ((ImageView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoImage)).setImageResource(R.drawable.ic_baseline_touch_app_24);
+                        ((ImageView)((EditChannelListTVOverlay) context).getView().findViewById(R.id.editChannelListInfoImage)).setImageResource(R.drawable.round_touch_app);
                     }
                 }
             }

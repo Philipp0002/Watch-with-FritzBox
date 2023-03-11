@@ -91,7 +91,7 @@ public class SettingsTVOverlay extends Fragment {
         }
 
         if(!ChannelUtils.getHbbTvFromChannel(context,ChannelUtils.getLastSelectedChannel(context)).isEmpty()) {
-            tvSettings.add(new TVSetting(getString(R.string.settings_open_hbbtv), R.drawable.ic_remote_tv, new Runnable() {
+            tvSettings.add(new TVSetting(getString(R.string.settings_open_hbbtv), R.drawable.round_remote, new Runnable() {
                 @Override
                 public void run() {
                     showHbbTV();
@@ -100,7 +100,7 @@ public class SettingsTVOverlay extends Fragment {
         }
 
         if (descriptionsAudio != null && descriptionsAudio.length != 0) {
-            tvSettings.add(new TVSetting(getString(R.string.audio_tracks), R.drawable.ic_audiotrack_24, new Runnable() {
+            tvSettings.add(new TVSetting(getString(R.string.audio_tracks), R.drawable.round_audiotrack, new Runnable() {
                 @Override
                 public void run() {
                     showAudioTrackSelection();
@@ -109,7 +109,7 @@ public class SettingsTVOverlay extends Fragment {
         }
 
         if (descriptionsSubtitle != null && descriptionsSubtitle.length != 0) {
-            tvSettings.add(new TVSetting(getString(R.string.subtitles), R.drawable.ic_baseline_closed_caption_24, new Runnable() {
+            tvSettings.add(new TVSetting(getString(R.string.subtitles), R.drawable.round_closed_caption, new Runnable() {
                 @Override
                 public void run() {
                     showSubtitleTrackSelection();
@@ -118,7 +118,7 @@ public class SettingsTVOverlay extends Fragment {
         }
 
         if (ChannelUtils.getChannelByNumber(context, ChannelUtils.getLastSelectedChannel(context)).type != ChannelUtils.ChannelType.RADIO) {
-            tvSettings.add(new TVSetting(getString(R.string.video_aspect), R.drawable.ic_baseline_video_settings_24, new Runnable() {
+            tvSettings.add(new TVSetting(getString(R.string.video_aspect), R.drawable.round_video_settings, new Runnable() {
                 @Override
                 public void run() {
                     showVideoFormatSelection();
@@ -126,14 +126,14 @@ public class SettingsTVOverlay extends Fragment {
             }, true));
         }
 
-        tvSettings.add(new TVSetting(getString(R.string.settings_reorder_channels), R.drawable.ic_baseline_reorder_24, new Runnable() {
+        tvSettings.add(new TVSetting(getString(R.string.settings_reorder_channels), R.drawable.round_reorder, new Runnable() {
             @Override
             public void run() {
                 showChannelEditor();
             }
         }, false));
 
-        tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration), R.drawable.ic_baseline_reorder_24, new Runnable() {
+        tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration), R.drawable.round_reorder, new Runnable() {
             @Override
             public void run() {
                 showHWAcelerationSelection();
@@ -165,7 +165,7 @@ public class SettingsTVOverlay extends Fragment {
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         openedFragment = selectionTVOverlay;
         selectionTVOverlay.title = getString(R.string.settings_hardware_acceleration);
-        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_disable), R.drawable.ic_remote_tv, new Runnable() {
+        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_disable), R.drawable.round_remote, new Runnable() {
             @Override
             public void run() {
                 editor.putInt("setting_hwaccel", 0);
@@ -175,7 +175,7 @@ public class SettingsTVOverlay extends Fragment {
                 openedFragment = null;
             }
         },true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_auto), R.drawable.ic_remote_tv, new Runnable() {
+        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_auto), R.drawable.round_remote, new Runnable() {
             @Override
             public void run() {
                 editor.putInt("setting_hwaccel", 1);
@@ -185,7 +185,7 @@ public class SettingsTVOverlay extends Fragment {
                 openedFragment = null;
             }
         },true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_force), R.drawable.ic_remote_tv, new Runnable() {
+        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_force), R.drawable.round_remote, new Runnable() {
             @Override
             public void run() {
                 editor.putInt("setting_hwaccel", 2);
@@ -222,7 +222,7 @@ public class SettingsTVOverlay extends Fragment {
                 openedFragment = selectionTVOverlay;
                 selectionTVOverlay.title = getString(R.string.settings_open_hbbtv_multi_title);
                 for (ChannelUtils.HbbTV hbbTV : hbbTVList) {
-                    selectionTVOverlay.tvSettings.add(new TVSetting(hbbTV.title, R.drawable.ic_remote_tv, new Runnable() {
+                    selectionTVOverlay.tvSettings.add(new TVSetting(hbbTV.title, R.drawable.round_remote, new Runnable() {
                         @Override
                         public void run() {
                             getActivity().getSupportFragmentManager().beginTransaction().remove(openedFragment).commit();
@@ -256,7 +256,7 @@ public class SettingsTVOverlay extends Fragment {
         String[] aspect_ratios = {"16:9", "4:3", "21:9", "16:10"};
         //this should actually never be true, but just to be sure we do it anyways
         for (String aspect : aspect_ratios) {
-            selectionTVOverlay.tvSettings.add(new TVSetting(aspect, R.drawable.ic_baseline_video_settings_24, new Runnable() {
+            selectionTVOverlay.tvSettings.add(new TVSetting(aspect, R.drawable.round_video_settings, new Runnable() {
                 @Override
                 public void run() {
                     player.setAspectRatio(aspect);
@@ -285,7 +285,7 @@ public class SettingsTVOverlay extends Fragment {
             return;
         }
         for (final MediaPlayer.TrackDescription description : descriptions) {
-            selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.ic_baseline_closed_caption_24, new Runnable() {
+            selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.round_closed_caption, new Runnable() {
                 @Override
                 public void run() {
                     player.setSpuTrack((int)description.id);
@@ -314,7 +314,7 @@ public class SettingsTVOverlay extends Fragment {
             return;
         }
         for (final MediaPlayer.TrackDescription description : descriptions) {
-            selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.ic_audiotrack_24, new Runnable() {
+            selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.round_audiotrack, new Runnable() {
                 @Override
                 public void run() {
                     player.setAudioTrack((int)description.id);

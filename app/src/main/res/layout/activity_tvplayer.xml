@@ -74,7 +74,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/player_number_layout"
             app:layout_constraintStart_toEndOf="@+id/player_number_layout"
             app:layout_constraintTop_toTopOf="@+id/player_number_layout"
-            app:srcCompat="@drawable/ic_high_definition"
+            app:srcCompat="@drawable/high_definition"
             app:tint="#2a2939" />
 
         <ProgressBar
@@ -119,7 +119,7 @@
                     android:layout_marginStart="7dp"
                     android:layout_marginTop="7dp"
                     android:layout_marginBottom="7dp"
-                    android:src="@drawable/ic_remote_tv"
+                    android:src="@drawable/round_remote"
                     android:tint="#ffffff"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

@@ -102,7 +102,7 @@
                         app:layout_constraintBottom_toBottomOf="@+id/tvoverlaychannel_number_layout"
                         app:layout_constraintStart_toEndOf="@+id/tvoverlaychannel_number_layout"
                         app:layout_constraintTop_toTopOf="@+id/tvoverlaychannel_number_layout"
-                        app:srcCompat="@drawable/ic_high_definition"
+                        app:srcCompat="@drawable/high_definition"
                         app:tint="#2a2939" />
                 </LinearLayout>
             </LinearLayout>

@@ -21,7 +21,7 @@ import de.hahnphilipp.watchwith.utils.IPUtils;
 public class EditChannelListTVOverlay extends Fragment {
 
     public TVPlayerActivity context;
-    public String ip;
+    public String ip = null;
 
     TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
     RecyclerView recyclerView;
@@ -29,8 +29,8 @@ public class EditChannelListTVOverlay extends Fragment {
 
     private static EditChannelListTVOverlay INSTANCE;
 
-    public static void notifyChannelListChanged(){
-        if(INSTANCE != null){
+    public static void notifyChannelListChanged() {
+        if (INSTANCE != null) {
             INSTANCE.updateChannelList();
         }
     }
@@ -39,19 +39,12 @@ public class EditChannelListTVOverlay extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         INSTANCE = this;
-        // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.editchannellisttvoverlay, container, false);
-        return v;
+        return inflater.inflate(R.layout.editchannellisttvoverlay, container, false);
     }
 
-    public void updateChannelList(){
+    public void updateChannelList() {
         tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tvOverlayRecyclerAdapter.notifyDataSetChanged();
-            }
-        });
+        getActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
     }
 
     @Override
@@ -61,16 +54,18 @@ public class EditChannelListTVOverlay extends Fragment {
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(getContext()), Picasso.get());
+        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(getContext()), Picasso.get(), recyclerView);
         llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
 
-        ip = "http://"+IPUtils.getIPAddress(true)+":8080";
-        ((TextView)view.findViewById(R.id.editChannelListInfoText2)).setText(getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d",ip));
+        String rawIP = IPUtils.getIPAddress(true);
+        if (!rawIP.isEmpty()) {
+            ip = "http://" + rawIP + ":8080";
+            ((TextView) view.findViewById(R.id.editChannelListInfoText2)).setText(getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d", ip));
+        }
 
     }
-
 
 
     @Override

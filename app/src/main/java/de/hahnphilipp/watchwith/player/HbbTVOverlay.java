@@ -53,17 +53,16 @@ public class HbbTVOverlay extends Fragment {
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
-        //webSettings.setAppCacheEnabled(true);
         webSettings.setSupportZoom(false);
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setSupportMultipleWindows(true);
 
-        webView.setWebViewClient(new WebViewClient(){
+        webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onUnhandledKeyEvent(WebView view, KeyEvent event) {
-                if(event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     int keyCode = event.getKeyCode();
                     if (keyCode == KeyEvent.KEYCODE_PROG_RED ||
                             keyCode == KeyEvent.KEYCODE_PROG_GREEN ||
@@ -109,7 +108,8 @@ public class HbbTVOverlay extends Fragment {
 
             @Override
             public void onPageCommitVisible(WebView view, String url) {
-                super.onPageCommitVisible(view, url);webView.zoomOut();
+                super.onPageCommitVisible(view, url);
+                webView.zoomOut();
                 webView.zoomOut();
                 webView.zoomOut();
                 webView.zoomOut();
@@ -162,73 +162,64 @@ public class HbbTVOverlay extends Fragment {
         });
 
         // add progress bar
-        webView.setWebChromeClient(new WebChromeClient(){
-            @Override
-            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                Log.d("HBBTVWebView", consoleMessage.message() + " " + consoleMessage.lineNumber());
-                return true;
-            }
+        webView.setWebChromeClient(new WebChromeClient() {
+                                       @Override
+                                       public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                                           Log.d("HBBTVWebView", consoleMessage.message() + " " + consoleMessage.lineNumber());
+                                           return true;
+                                       }
 
-           @Override
-           public void onPermissionRequest(PermissionRequest request) {
-               String[] resources = request.getResources();
-               for (int i = 0; i < resources.length; i++) {
-                   if (PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID.equals(resources[i])) {
-                       request.grant(resources);
-                       return;
-                   }
-               }
+                                       @Override
+                                       public void onPermissionRequest(PermissionRequest request) {
+                                           String[] resources = request.getResources();
+                                           for (int i = 0; i < resources.length; i++) {
+                                               if (PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID.equals(resources[i])) {
+                                                   request.grant(resources);
+                                                   return;
+                                               }
+                                           }
 
-               super.onPermissionRequest(request);
-           }
-       }
+                                           super.onPermissionRequest(request);
+                                       }
+                                   }
         );
 
         //webView.loadUrl(hbbTvUrl);
 
 
-
         GetHbbTVContent getHbbTVContent = new GetHbbTVContent();
         getHbbTVContent.hbbTvUrl = hbbTvUrl;
-        getHbbTVContent.futureRunFinished = new Runnable() {
-            @Override
-            public void run() {
-                Response response = getHbbTVContent.response;
-                ResponseBody responseBody = getHbbTVContent.responseBody;
-                String responseBodyString = getHbbTVContent.responseBodyString;
+        getHbbTVContent.futureRunFinished = () -> {
+            Response response = getHbbTVContent.response;
+            ResponseBody responseBody = getHbbTVContent.responseBody;
+            String responseBodyString = getHbbTVContent.responseBodyString;
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            webView.loadDataWithBaseURL(
-                                    response.request().url().toString(),
-                                    responseBodyString,
-                                    "application/xhtml+xml",
-                                    null,
-                                    hbbTvUrl);
+            getActivity().runOnUiThread(() -> {
+                if (webView != null) {
+                    webView.loadDataWithBaseURL(
+                            response.request().url().toString(),
+                            responseBodyString,
+                            "application/xhtml+xml",
+                            null,
+                            hbbTvUrl);
+                }
+            });
 
-
-                        }
-                    });
-
-
-
-            }
         };
         getHbbTVContent.execute();
 
     }
 
 
-    public void triggerColor(int keyCode){
+    public void triggerColor(int keyCode) {
         String jsColor = "";
-        if(keyCode == KeyEvent.KEYCODE_PROG_RED){
+        if (keyCode == KeyEvent.KEYCODE_PROG_RED) {
             jsColor = "window.KeyEvent.VK_RED";
-        }else if(keyCode == KeyEvent.KEYCODE_PROG_GREEN){
+        } else if (keyCode == KeyEvent.KEYCODE_PROG_GREEN) {
             jsColor = "window.KeyEvent.VK_GREEN";
-        }else if(keyCode == KeyEvent.KEYCODE_PROG_YELLOW){
+        } else if (keyCode == KeyEvent.KEYCODE_PROG_YELLOW) {
             jsColor = "window.KeyEvent.VK_YELLOW";
-        }else if(keyCode == KeyEvent.KEYCODE_PROG_BLUE){
+        } else if (keyCode == KeyEvent.KEYCODE_PROG_BLUE) {
             jsColor = "window.KeyEvent.VK_BLUE";
         }
 
@@ -236,21 +227,22 @@ public class HbbTVOverlay extends Fragment {
             @Override
             public void onReceiveValue(String value) {
                 Log.d("HBBTV", "onReceiveValue8:");
-                Log.d("HBBTV", value+"");
+                Log.d("HBBTV", value + "");
             }
         });
 
     }
 
-    public void injectJs1(WebView webView){
+    public void injectJs1(WebView webView) {
 
         webView.evaluateJavascript("(function(d){ var e=d.createElement(\"script\");" +
                 "e.setAttribute(\"type\",\"text/javascript\");e.setAttribute(\"src\",\"https://hahnphilipp.de/watchwithfritzbox/hbbtv1.js\");" +
                 "d.head.appendChild(e)" +
                 "}(document));", new ValueCallback<String>() {
-            @Override public void onReceiveValue(String value) {
+            @Override
+            public void onReceiveValue(String value) {
                 Log.d("HBBTV", "onReceiveValue3:");
-                Log.d("HBBTV", value+"");
+                Log.d("HBBTV", value + "");
             }
         });
         webView.evaluateJavascript("(function(d){ var e=d.createElement(\"script\");" +
@@ -258,9 +250,10 @@ public class HbbTVOverlay extends Fragment {
                 "e.setAttribute(\"type\",\"text/javascript\");e.setAttribute(\"src\",\"https://hahnphilipp.de/watchwithfritzbox/hbbdom1.js\");" +
                 "d.head.appendChild(e)" +
                 "}(document));", new ValueCallback<String>() {
-            @Override public void onReceiveValue(String value) {
+            @Override
+            public void onReceiveValue(String value) {
                 Log.d("HBBTV", "onReceiveValue4:");
-                Log.d("HBBTV", value+"");
+                Log.d("HBBTV", value + "");
             }
         });
         webView.evaluateJavascript("(function(d){ var e=d.createElement(\"script\");" +
@@ -268,15 +261,16 @@ public class HbbTVOverlay extends Fragment {
                 "e.setAttribute(\"type\",\"text/javascript\");e.setAttribute(\"src\",\"https://hahnphilipp.de/watchwithfritzbox/first1.js\");" +
                 "d.head.appendChild(e)" +
                 "}(document));", new ValueCallback<String>() {
-            @Override public void onReceiveValue(String value) {
+            @Override
+            public void onReceiveValue(String value) {
                 Log.d("HBBTV", "onReceiveValue7:");
-                Log.d("HBBTV", value+"");
+                Log.d("HBBTV", value + "");
             }
         });
     }
 
 
-    public void injectJs2(WebView webView){
+    public void injectJs2(WebView webView) {
         //injectJs(tabId, 'https://cdn.dashjs.org/v2.9.3/dash.all.min.js', 'DASH.js injection done.', true, false, 'async');
         //injectJs(tabId, fileName,                                         succeededMessage,   addedToHead, addedAsFirstChild, withOption)
         webView.evaluateJavascript("(function(d){ var e=d.createElement(\"script\");" +
@@ -284,9 +278,10 @@ public class HbbTVOverlay extends Fragment {
                 "e.setAttribute(\"type\",\"text/javascript\");e.setAttribute(\"src\",\"https://cdn.dashjs.org/v2.9.3/dash.all.min.js\");" +
                 "d.head.appendChild(e)" +
                 "}(document));", new ValueCallback<String>() {
-            @Override public void onReceiveValue(String value) {
+            @Override
+            public void onReceiveValue(String value) {
                 Log.d("HBBTV", "onReceiveValue1:");
-                Log.d("HBBTV", value+"");
+                Log.d("HBBTV", value + "");
             }
         });
 
@@ -295,20 +290,21 @@ public class HbbTVOverlay extends Fragment {
                 "e.setAttribute(\"type\",\"text/javascript\");e.setAttribute(\"src\",\"https://hahnphilipp.de/watchwithfritzbox/hbbobj1.js\");" +
                 "d.head.appendChild(e)" +
                 "}(document));", new ValueCallback<String>() {
-            @Override public void onReceiveValue(String value) {
+            @Override
+            public void onReceiveValue(String value) {
                 Log.d("HBBTV", "onReceiveValue2:");
-                Log.d("HBBTV", value+"");
+                Log.d("HBBTV", value + "");
             }
         });
 
         webView.evaluateJavascript("try{GLOBALS.htmlfive = true;}catch(ReferenceError){}", new ValueCallback<String>() {
-            @Override public void onReceiveValue(String value) {
+            @Override
+            public void onReceiveValue(String value) {
                 Log.d("HBBTV", "onReceiveValue6:");
-                Log.d("HBBTV", value+"");
+                Log.d("HBBTV", value + "");
             }
         });
     }
-
 
 
 }

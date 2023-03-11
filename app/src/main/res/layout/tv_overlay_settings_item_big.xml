@@ -28,19 +28,19 @@
 
             <ImageView
                 android:id="@+id/tvoverlaysetting_logo"
-                android:layout_width="114dp"
-                android:layout_height="114dp"
+                android:layout_width="100dp"
+                android:layout_height="59dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="8dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
+                android:scaleType="fitCenter"
+                android:tint="#c4c3c8"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:scaleType="fitXY"
-                android:tint="#c4c3c8"
-                app:tint="#c4c3c8"/>
+                app:tint="#c4c3c8" />
 
             <TextView
                 android:id="@+id/tvoverlaysetting_name"

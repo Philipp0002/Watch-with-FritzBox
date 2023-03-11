@@ -1,5 +1,7 @@
 package de.hahnphilipp.watchwith.utils;
 
+import android.util.Log;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;

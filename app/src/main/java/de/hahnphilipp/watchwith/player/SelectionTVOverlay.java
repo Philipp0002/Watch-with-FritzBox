@@ -27,11 +27,8 @@ public class SelectionTVOverlay extends Fragment {
     public String title = null;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.selectiontvoverlay, container, false);
-        return v;
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.selectiontvoverlay, container, false);
     }
 
     @Override
@@ -40,13 +37,11 @@ public class SelectionTVOverlay extends Fragment {
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        if(title == null){
+        if (title == null) {
             view.findViewById(R.id.tvoverlayrecyclerTitle).setVisibility(View.GONE);
-        }else{
-            ((TextView)view.findViewById(R.id.tvoverlayrecyclerTitle)).setText(title);
+        } else {
+            ((TextView) view.findViewById(R.id.tvoverlayrecyclerTitle)).setText(title);
         }
-
-
 
         tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings);
         final LinearLayoutManager llm = new LinearLayoutManager(getContext());
@@ -54,33 +49,15 @@ public class SelectionTVOverlay extends Fragment {
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
 
         BrowseFrameLayout browseFrameLayout = view.findViewById(R.id.tvoverlayrecyclerBrowse);
-        browseFrameLayout.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
-            @Override
-            public View onFocusSearch(View focused, int direction) {
-                if (recyclerView.hasFocus())
-                    return focused; // keep focus on recyclerview! DO NOT return recyclerview, but focused, which is a child of the recyclerview
-                else
-                    return null; // someone else will find the next focus
+        browseFrameLayout.setOnFocusSearchListener((focused, direction) -> {
+            if (recyclerView.hasFocus()) {
+                // keep focus on recyclerview! DO NOT return recyclerview, but focused, which is a child of the recyclerview
+                return focused;
+            } else {
+                // someone else will find the next focus
+                return null;
             }
         });
     }
-
-/*    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        if(isShown){
-            if(event.getAction() == KeyEvent.ACTION_DOWN) {
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    hideOverlays();
-                    return true;
-                } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                    hideOverlays();
-                    return true;
-                }
-            }
-        }
-    return false;
-
-    }*/
-
 
 }

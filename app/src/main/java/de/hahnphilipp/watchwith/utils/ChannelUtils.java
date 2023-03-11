@@ -22,42 +22,42 @@ public class ChannelUtils {
 
     static int selectedChannel = -1;
 
-    public static Channel getNextChannel(Context context, int number){
-        for(Channel ch : getAllChannels(context)){
-            if(ch.number == number+1){
+    public static Channel getNextChannel(Context context, int number) {
+        for (Channel ch : getAllChannels(context)) {
+            if (ch.number == number + 1) {
                 return ch;
             }
         }
         return getChannelByNumber(context, 1);
     }
 
-    public static ArrayList<Channel> moveChannelToPosition(Context context, int fromChannelPos, int toChannelPos){
+    public static ArrayList<Channel> moveChannelToPosition(Context context, int fromChannelPos, int toChannelPos) {
         ArrayList<Channel> channels = getAllChannels(context);
         return moveChannelToPosition(context, fromChannelPos, toChannelPos, channels);
     }
 
-    public static ArrayList<Channel> moveChannelToPosition(Context context, int fromChannelPos, int toChannelPos, ArrayList<Channel> channels){
-        if(fromChannelPos == toChannelPos) return channels;
+    public static ArrayList<Channel> moveChannelToPosition(Context context, int fromChannelPos, int toChannelPos, ArrayList<Channel> channels) {
+        if (fromChannelPos == toChannelPos) return channels;
 
         Channel toMove = null;
 
-        for(Channel channel : channels){
-            if(channel.number == fromChannelPos){
+        for (Channel channel : channels) {
+            if (channel.number == fromChannelPos) {
                 toMove = channel;
                 break;
             }
         }
 
-        if(getLastSelectedChannel(context) == toMove.number){
+        if (getLastSelectedChannel(context) == toMove.number) {
             updateLastSelectedChannel(context, toChannelPos);
         }
 
-        if(toMove != null) {
+        if (toMove != null) {
             channels.remove(toMove);
-            channels.add(toChannelPos-1, toMove);
+            channels.add(toChannelPos - 1, toMove);
 
             int i = 1;
-            for(Channel channel : channels){
+            for (Channel channel : channels) {
                 channel.number = i;
                 i++;
             }
@@ -78,30 +78,31 @@ public class ChannelUtils {
 
     }
 
-    public static Channel getPreviousChannel(Context context, int number){
+    public static Channel getPreviousChannel(Context context, int number) {
         Channel highest = null;
-        for(Channel ch : getAllChannels(context)){
-            if(highest == null || highest.number < ch.number){
+        for (Channel ch : getAllChannels(context)) {
+            if (highest == null || highest.number < ch.number) {
                 highest = ch;
             }
-            if(ch.number == number-1){
+            if (ch.number == number - 1) {
                 return ch;
             }
         }
         return highest;
     }
 
-    public static int getLastSelectedChannel(Context context){
+    public static int getLastSelectedChannel(Context context) {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        if(selectedChannel == -1){
+        if (selectedChannel == -1) {
             return sp.getInt("lastChannel", 1);
-        }else{
+        } else {
             return selectedChannel;
         }
     }
-    public static void updateLastSelectedChannel(Context context, int number){
+
+    public static void updateLastSelectedChannel(Context context, int number) {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
@@ -110,32 +111,28 @@ public class ChannelUtils {
         editor.commit();
     }
 
-    public static Channel getChannelByNumber(Context context, int number){
-        for(Channel ch : getAllChannels(context)){
-            if(ch.number == number){
+    public static Channel getChannelByNumber(Context context, int number) {
+        for (Channel ch : getAllChannels(context)) {
+            if (ch.number == number) {
                 return ch;
             }
         }
         return null;
     }
 
-    public static ArrayList<Channel> getAllChannels(Context context){
+    public static ArrayList<Channel> getAllChannels(Context context) {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        Type channelListType = new TypeToken<ArrayList<Channel>>(){}.getType();
+        Type channelListType = new TypeToken<ArrayList<Channel>>() {
+        }.getType();
 
         ArrayList<Channel> channels = new Gson().fromJson(sp.getString("channels", "[]"), channelListType);
-        Collections.sort(channels, new Comparator<Channel>() {
-            @Override
-            public int compare(Channel o1, Channel o2) {
-                return o1.number - o2.number;
-            }
-        });
+        Collections.sort(channels, Comparator.comparingInt(o -> o.number));
         return channels;
     }
 
-    public static ArrayList<HbbTV> getHbbTvFromChannel(Context context, int number){
+    public static ArrayList<HbbTV> getHbbTvFromChannel(Context context, int number) {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
@@ -143,21 +140,27 @@ public class ChannelUtils {
 
         ArrayList<HbbTV> hbbTVList = new ArrayList<HbbTV>();
         JsonArray array = new JsonParser().parse(sp.getString("hbbtvSources", "[]")).getAsJsonArray();
-        for(JsonElement element : array){
+        for (JsonElement element : array) {
             JsonObject groupObj = element.getAsJsonObject();
-            z: for(JsonElement a: groupObj.get("channels").getAsJsonArray()){
-                if(channel.title.toLowerCase().equalsIgnoreCase(a.getAsString().toLowerCase())){
-
-                    for(JsonElement b : groupObj.get("urls").getAsJsonArray()){
+            z:
+            for (JsonElement a : groupObj.get("channels").getAsJsonArray()) {
+                if (channel.title.equalsIgnoreCase(a.getAsString())) {
+                    for (JsonElement b : groupObj.get("urls").getAsJsonArray()) {
                         JsonObject jsonUrlObj = b.getAsJsonObject();
                         hbbTVList.add(new HbbTV(jsonUrlObj.get("title").getAsString(), jsonUrlObj.get("url").getAsString()));
                     }
-
                     break z;
                 }
             }
         }
         return hbbTVList;
+    }
+
+    public static String getIconURL(Channel channel) {
+        return "https://tv.avm.de/tvapp/logos/" +
+                (channel.type == ChannelUtils.ChannelType.HD ? "hd/" : (channel.type == ChannelUtils.ChannelType.RADIO ? "radio/" : "")) +
+                channel.title.toLowerCase().replace(" ", "_").replace("+", "") +
+                ".png";
     }
 
 

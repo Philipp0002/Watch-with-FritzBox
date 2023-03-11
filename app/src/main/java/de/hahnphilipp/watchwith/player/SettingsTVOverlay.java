@@ -133,7 +133,7 @@ public class SettingsTVOverlay extends Fragment {
             }
         }, false));
 
-        tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration), R.drawable.round_reorder, new Runnable() {
+        tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration), R.drawable.round_speed, new Runnable() {
             @Override
             public void run() {
                 showHWAcelerationSelection();
@@ -165,35 +165,26 @@ public class SettingsTVOverlay extends Fragment {
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         openedFragment = selectionTVOverlay;
         selectionTVOverlay.title = getString(R.string.settings_hardware_acceleration);
-        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_disable), R.drawable.round_remote, new Runnable() {
-            @Override
-            public void run() {
-                editor.putInt("setting_hwaccel", 0);
-                editor.commit();
-                if(selectionTVOverlay != null)
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
-                openedFragment = null;
-            }
+        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_disable), R.drawable.round_power_off, () -> {
+            editor.putInt("setting_hwaccel", 0);
+            editor.commit();
+            if(selectionTVOverlay != null)
+                getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
+            openedFragment = null;
         },true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_auto), R.drawable.round_remote, new Runnable() {
-            @Override
-            public void run() {
-                editor.putInt("setting_hwaccel", 1);
-                editor.commit();
-                if(selectionTVOverlay != null)
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
-                openedFragment = null;
-            }
+        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_auto), R.drawable.round_auto_awesome, () -> {
+            editor.putInt("setting_hwaccel", 1);
+            editor.commit();
+            if(selectionTVOverlay != null)
+                getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
+            openedFragment = null;
         },true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_force), R.drawable.round_remote, new Runnable() {
-            @Override
-            public void run() {
-                editor.putInt("setting_hwaccel", 2);
-                editor.commit();
-                if(selectionTVOverlay != null)
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
-                openedFragment = null;
-            }
+        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_force), R.drawable.round_power, () -> {
+            editor.putInt("setting_hwaccel", 2);
+            editor.commit();
+            if(selectionTVOverlay != null)
+                getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
+            openedFragment = null;
         },true));
         getActivity().getSupportFragmentManager().beginTransaction()
                 .add(R.id.overlayChannels, selectionTVOverlay)

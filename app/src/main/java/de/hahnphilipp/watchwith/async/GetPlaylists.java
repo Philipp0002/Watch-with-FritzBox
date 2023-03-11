@@ -43,7 +43,6 @@ public class GetPlaylists extends AsyncTask<Void, Void, Void> {
             M3U8Parser m3U8ParserSD = new M3U8Parser(sdURL.openStream(), M3U8ItemScanner.Encoding.UTF_8);
             playlistSD = m3U8ParserSD.parse();
             if(!playlistSD.getTrackSetMap().containsKey("")){
-                Log.d("GetPlaylists", "ERROR NO SD TRACK SET MAP");
                 error = true;
                 return;
             }
@@ -54,7 +53,6 @@ public class GetPlaylists extends AsyncTask<Void, Void, Void> {
             M3U8Parser m3U8ParserHD = new M3U8Parser(hdURL.openStream(), M3U8ItemScanner.Encoding.UTF_8);
             playlistHD = m3U8ParserHD.parse();
             if(!playlistHD.getTrackSetMap().containsKey("")){
-                Log.d("GetPlaylists", "ERROR NO HD TRACK SET MAP");
                 error = true;
                 return;
             }
@@ -65,7 +63,6 @@ public class GetPlaylists extends AsyncTask<Void, Void, Void> {
             M3U8Parser m3U8ParserRadio = new M3U8Parser(radioURL.openStream(), M3U8ItemScanner.Encoding.UTF_8);
             playlistRadio = m3U8ParserRadio.parse();
             if(!playlistRadio.getTrackSetMap().containsKey("")){
-                Log.d("GetPlaylists", "ERROR NO RADIO TRACK SET MAP");
                 error = true;
                 return;
             }

@@ -49,5 +49,5 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.android.libraries.tv:companionlibrary:0.2'
     implementation 'com.yanzhenjie.andserver:api:2.1.9'
-    implementation 'com.koushikdutta.async:androidasync:2.+'
+    implementation 'com.koushikdutta.async:androidasync:3.0.8'
 }

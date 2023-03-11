@@ -60,7 +60,6 @@ public class TVPlayerActivity extends FragmentActivity {
         args.add("--audio-resampler");
         args.add("soxr");
         args.add("--stats");
-        args.add("--vout=android-opaque,android-display");
         args.add("--http-reconnect");
 
 
@@ -142,104 +141,105 @@ public class TVPlayerActivity extends FragmentActivity {
 
     Timer switchChannelTimer = null;
 
-    public void launchPlayer(boolean withWaitInterval){
+    public void launchPlayer(boolean withWaitInterval) {
         mMediaPlayer.pause();
         findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
         findViewById(R.id.player_skip_radio).setVisibility(View.GONE);
         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
-        ((TextView) findViewById(R.id.player_number)).setText("CH "+channel.number);
+        ((TextView) findViewById(R.id.player_number)).setText("CH " + channel.number);
         ((TextView) findViewById(R.id.player_channel)).setText(channel.title);
 
-        if(!ChannelUtils.getHbbTvFromChannel(TVPlayerActivity.this,ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this)).isEmpty()) {
+        if (!ChannelUtils.getHbbTvFromChannel(TVPlayerActivity.this, ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this)).isEmpty()) {
             findViewById(R.id.hbbTvInfoCard).setVisibility(View.VISIBLE);
-        }else{
+        } else {
             findViewById(R.id.hbbTvInfoCard).setVisibility(View.GONE);
         }
 
-        if(channel.type == ChannelUtils.ChannelType.HD){
+        if (channel.type == ChannelUtils.ChannelType.HD) {
             ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.high_definition);
-        }else if(channel.type == ChannelUtils.ChannelType.SD){
+        } else if (channel.type == ChannelUtils.ChannelType.SD) {
             ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.standard_definition);
-        }else if(channel.type == ChannelUtils.ChannelType.RADIO){
+        } else if (channel.type == ChannelUtils.ChannelType.RADIO) {
             ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.radio_tower);
         }
 
         int timeWait = withWaitInterval ? 500 : 0;
-        if(switchChannelTimer != null) {
-                switchChannelTimer.cancel();
-                switchChannelTimer.purge();
+        if (switchChannelTimer != null) {
+            switchChannelTimer.cancel();
+            switchChannelTimer.purge();
         }
         switchChannelTimer = new Timer();
-            switchChannelTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    runOnUiThread(() -> {
-                        ((ProgressBar)findViewById(R.id.player_skip_timer)).setProgress(0);
-                        findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
-                    });
-                    SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
-                            getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-                    int hwAccel = sp.getInt("setting_hwaccel", 1);
-                    final Media media = new Media(mLibVLC, Uri.parse(channel.url) );
-                    media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
-                    mMediaPlayer.setMedia(media);
-                    media.release();
-                    mMediaPlayer.play();
+        switchChannelTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> {
+                    ((ProgressBar) findViewById(R.id.player_skip_timer)).setProgress(0);
+                    findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
+                });
+                SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
+                        getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                int hwAccel = sp.getInt("setting_hwaccel", 1);
+                final Media media = new Media(mLibVLC, Uri.parse(channel.url));
+                media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
+                mMediaPlayer.setMedia(media);
+                media.release();
+                mMediaPlayer.play();
 
-                    mMediaPlayer.setEventListener(event -> {
-                        switch (event.type) {
-                            case MediaPlayer.Event.Buffering:
-                                runOnUiThread(() -> {
-                                    ((ProgressBar)findViewById(R.id.player_skip_timer)).setProgress((int)event.getBuffering());
+                mMediaPlayer.setEventListener(event -> {
+                    switch (event.type) {
+                        case MediaPlayer.Event.Buffering:
+                            runOnUiThread(() -> {
+                                ((ProgressBar) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
 
-                                    if(event.getBuffering() == 100F) {
-                                        mSettingsOverlayFragment.updateTVSettings();
-                                        findViewById(R.id.player_skip_timer).setVisibility(View.INVISIBLE);
-                                        if(channel.type == ChannelUtils.ChannelType.RADIO){
-                                            findViewById(R.id.player_skip_radio).setVisibility(View.VISIBLE);
-                                        }else{
-                                            findViewById(R.id.player_skip_overlay).setVisibility(View.GONE);
-                                        }
+                                if (event.getBuffering() == 100F) {
+                                    mSettingsOverlayFragment.updateTVSettings();
+                                    findViewById(R.id.player_skip_timer).setVisibility(View.INVISIBLE);
+                                    if (channel.type == ChannelUtils.ChannelType.RADIO) {
+                                        findViewById(R.id.player_skip_radio).setVisibility(View.VISIBLE);
+                                    } else {
+                                        findViewById(R.id.player_skip_overlay).setVisibility(View.GONE);
                                     }
-                                });
-                                if(event.getBuffering() == 100F) {
-                                    mMediaPlayer.setEventListener(null);
                                 }
-                                break;
-                            default:
-                                break;
-                        }
-                    });
+                            });
+                            if (event.getBuffering() == 100F) {
+                                mMediaPlayer.setEventListener(null);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                });
 
-                }
-            }, timeWait);
+            }
+        }, timeWait);
 
 
     }
 
     String number = "0000";
     Timer numberEnterTimer = null;
-    public void enterNumber(int entered){
-        Log.d("ChannelNumber", number+"");
-        number = number+entered;
+
+    public void enterNumber(int entered) {
+        Log.d("ChannelNumber", number + "");
+        number = number + entered;
         number = number.substring(1, number.length());
 
 
-        ((TextView)findViewById(R.id.player_enter_number_text)).setText(number);
+        ((TextView) findViewById(R.id.player_enter_number_text)).setText(number);
         findViewById(R.id.player_enter_number_overlay).setVisibility(View.VISIBLE);
 
         final ChannelUtils.Channel selection = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, Integer.parseInt(number));
 
-        if(selection == null){
-            ((TextView)findViewById(R.id.player_enter_number_channel)).setText("");
+        if (selection == null) {
+            ((TextView) findViewById(R.id.player_enter_number_channel)).setText("");
             findViewById(R.id.player_enter_number_channel).setVisibility(View.GONE);
-        }else{
-            ((TextView)findViewById(R.id.player_enter_number_channel)).setText(selection.title);
+        } else {
+            ((TextView) findViewById(R.id.player_enter_number_channel)).setText(selection.title);
             findViewById(R.id.player_enter_number_channel).setVisibility(View.VISIBLE);
         }
 
-        if(numberEnterTimer != null){
+        if (numberEnterTimer != null) {
             numberEnterTimer.cancel();
             numberEnterTimer.purge();
         }
@@ -248,12 +248,12 @@ public class TVPlayerActivity extends FragmentActivity {
         numberEnterTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if(selection != null)
-                ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);
+                if (selection != null)
+                    ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(selection != null)
+                        if (selection != null)
                             launchPlayer(true);
                         findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
                     }

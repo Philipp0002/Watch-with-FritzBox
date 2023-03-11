@@ -10,7 +10,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -157,10 +160,15 @@ public class ChannelUtils {
     }
 
     public static String getIconURL(Channel channel) {
-        return "https://tv.avm.de/tvapp/logos/" +
-                (channel.type == ChannelUtils.ChannelType.HD ? "hd/" : (channel.type == ChannelUtils.ChannelType.RADIO ? "radio/" : "")) +
-                channel.title.toLowerCase().replace(" ", "_").replace("+", "") +
-                ".png";
+        try {
+            return "https://tv.avm.de/tvapp/logos/" +
+                    (channel.type == ChannelType.HD ? "hd/" : (channel.type == ChannelType.RADIO ? "radio/" : "")) +
+                    URLEncoder.encode(channel.title.toLowerCase().replace(" ", "_").replace("+", ""), "UTF-8") +
+                    ".png";
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 

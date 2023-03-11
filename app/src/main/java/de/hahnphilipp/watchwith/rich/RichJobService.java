@@ -28,10 +28,10 @@ public class RichJobService extends EpgSyncJobService {
             internalProviderData.setVideoType(TvContractUtils.SOURCE_TYPE_MPEG_DASH);
             channels.add(new Channel.Builder()
                     .setDisplayName(channelApp.title)
-                    .setDisplayNumber(channelApp.number+"")
+                    .setDisplayNumber(channelApp.number + "")
                     .setServiceType((channelApp.type == ChannelUtils.ChannelType.RADIO ? TvContract.Channels.SERVICE_TYPE_AUDIO : TvContract.Channels.SERVICE_TYPE_AUDIO_VIDEO))
                     .setType(TvContract.Channels.TYPE_DVB_C2)
-                    .setChannelLogo("https://tv.avm.de/tvapp/logos/"+(channelApp.type == ChannelUtils.ChannelType.HD ? "hd/": (channelApp.type == ChannelUtils.ChannelType.RADIO ? "radio/" : ""))+channelApp.title.toLowerCase().replace(" ", "_").replace("+", "")+".png")
+                    .setChannelLogo(ChannelUtils.getIconURL(channelApp))
                     .setOriginalNetworkId(channelApp.number)
                     .setInternalProviderData(internalProviderData)
                     .build() );

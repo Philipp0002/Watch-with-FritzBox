@@ -28,6 +28,8 @@ import static android.media.tv.TvTrackInfo.TYPE_SUBTITLE;
 import static android.media.tv.TvTrackInfo.TYPE_VIDEO;
 
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import kotlin.Unit;
+import kotlinx.coroutines.CompletableDeferred;
 
 public class RichTvInputService extends TvInputService {
 
@@ -41,6 +43,8 @@ public class RichTvInputService extends TvInputService {
     }
 
     class RichTvInputSessionImpl extends TvInputService.Session {
+
+        Surface surface;
         int deselectAudioTrackId = -1;
         int deselectSubtitleTrackId = -1;
 
@@ -213,17 +217,15 @@ public class RichTvInputService extends TvInputService {
 
         @Override
         public boolean onSetSurface(@Nullable Surface surface) {
-            Log.d("RICHTVINPUUT", "onsetsurface");
+            Log.d("RICHTVINPUUT", "onsetsurface " + surface);
+            if(surface == null) return false;
+            this.surface = surface;
             final IVLCVout vlcVout = player.getVLCVout();
-            if (surface != null) {
-                DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
-                vlcVout.setVideoSurface(surface, null);
-                vlcVout.setWindowSize(dm.widthPixels, dm.heightPixels);
-                vlcVout.attachViews();
-            } else {
-                vlcVout.detachViews();
-            }
-            return false;
+            DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
+            vlcVout.setVideoSurface(surface, null);
+            vlcVout.setWindowSize(dm.widthPixels, dm.heightPixels);
+            vlcVout.attachViews();
+            return true;
         }
 
         @Override

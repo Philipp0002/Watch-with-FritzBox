@@ -63,6 +63,8 @@ public class RichTvInputService extends TvInputService {
 
         @Override
         public boolean onTune(Uri channelUri) {
+
+            Log.d("RICHTVINPUUT", "onTune");
             player.stop();
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
 
@@ -74,12 +76,12 @@ public class RichTvInputService extends TvInputService {
 
             try {
                 final Media media = new Media(libVlc, Uri.parse(channel.url));
-                media.setHWDecoderEnabled(true, false);
+                /*media.setHWDecoderEnabled(true, false);
                 media.addOption(":clock-jitter=0");
                 media.addOption(":clock-synchro=0");
                 media.addOption(":network-caching=1000"); // In milliseconds
                 media.addOption(":sout-keep");
-                media.addOption(":audio-time-stretch");
+                media.addOption(":audio-time-stretch");*/
 
                 player.setMedia(media);
 
@@ -182,6 +184,7 @@ public class RichTvInputService extends TvInputService {
                 }
             });
             notifyVideoAvailable();
+            Log.d("RICHTVINPUUT", "notifyVideoAvailable");
             return true;
         }
 
@@ -210,6 +213,7 @@ public class RichTvInputService extends TvInputService {
 
         @Override
         public boolean onSetSurface(@Nullable Surface surface) {
+            Log.d("RICHTVINPUUT", "onsetsurface");
             final IVLCVout vlcVout = player.getVLCVout();
             if (surface != null) {
                 DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
@@ -224,7 +228,7 @@ public class RichTvInputService extends TvInputService {
 
         @Override
         public void onSetStreamVolume(float volume) {
-
+            player.setVolume((int) (volume * 100));
         }
 
 

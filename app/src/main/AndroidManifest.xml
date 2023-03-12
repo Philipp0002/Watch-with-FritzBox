@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="de.hahnphilipp.watchwith">
+    package="de.hahnphilipp.watchwithfritzbox">
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -20,7 +20,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED "/>
 
     <application
-        android:name="de.hahnphilipp.watchwith.player.WatchWithFritzboxApplication"
+        android:name="de.hahnphilipp.watchwithfritzbox.player.WatchWithFritzboxApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -30,7 +30,7 @@
         android:banner="@mipmap/ic_banner"
         android:theme="@style/AppTheme">
         <activity
-            android:name="de.hahnphilipp.watchwith.setup.SetupIPActivity"
+            android:name="de.hahnphilipp.watchwithfritzbox.setup.SetupIPActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,17 +38,17 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="de.hahnphilipp.watchwith.setup.SetupSearchActivity"/>
-        <activity android:name="de.hahnphilipp.watchwith.player.TVPlayerActivity"/>
-        <activity android:name="de.hahnphilipp.watchwith.setup.ShowcaseGesturesActivity"/>
-        <activity android:name="de.hahnphilipp.watchwith.rich.RichTvInputSetupActivity"
+        <activity android:name="de.hahnphilipp.watchwithfritzbox.setup.SetupSearchActivity"/>
+        <activity android:name="de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity"/>
+        <activity android:name="de.hahnphilipp.watchwithfritzbox.setup.ShowcaseGesturesActivity"/>
+        <activity android:name="de.hahnphilipp.watchwithfritzbox.rich.RichTvInputSetupActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
 
-        <service android:name="de.hahnphilipp.watchwith.rich.RichTvInputService"
+        <service android:name="de.hahnphilipp.watchwithfritzbox.rich.RichTvInputService"
             android:label="@string/rich_input_label"
             android:permission="android.permission.BIND_TV_INPUT"
             android:exported="true">
@@ -62,12 +62,6 @@
                 android:name="android.media.tv.input"
                 android:resource="@xml/richtvinputservice" />
         </service>
-        <service
-            android:name="de.hahnphilipp.watchwith.rich.RichJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true" />
-
-
 
     </application>
 

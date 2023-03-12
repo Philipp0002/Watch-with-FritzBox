@@ -37,7 +37,9 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.google.android.libraries.tv:companionlibrary:0.2'
+    implementation 'androidx.tvprovider:tvprovider:1.0.0'
     implementation 'com.yanzhenjie.andserver:api:2.1.9'
     implementation 'com.koushikdutta.async:androidasync:3.0.8'
+
+    implementation 'junit:junit:4.12'
 }

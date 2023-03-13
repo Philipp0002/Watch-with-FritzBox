@@ -41,10 +41,6 @@ public class SetupSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.setup_search_activity);
 
-        SharedPreferences sp = getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-
         ip = getIntent().getStringExtra("ip");
 
         final GetPlaylists getPlaylists = new GetPlaylists();
@@ -111,7 +107,7 @@ public class SetupSearchActivity extends AppCompatActivity {
 
             int channelNumber = 1;
 
-            ArrayList<ChannelUtils.Channel> channels = new ArrayList<ChannelUtils.Channel>();
+            ArrayList<ChannelUtils.Channel> channels = new ArrayList<>();
             for (Track t : getPlaylists.playlistHD.getTrackSetMap().get("")) {
                 ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.HD);
                 channels.add(channel);
@@ -137,11 +133,7 @@ public class SetupSearchActivity extends AppCompatActivity {
                 channelNumber++;
             }
 
-            Type channelListType = new TypeToken<ArrayList<ChannelUtils.Channel>>() {
-            }.getType();
-            String channelsJson = new Gson().toJson(channels, channelListType);
-            editor.putString("channels", channelsJson);
-            editor.commit();
+            ChannelUtils.setChannels(SetupSearchActivity.this, channels);
 
             setContentView(R.layout.setup_order_activity);
             findViewById(R.id.setup_order_no_button).setOnClickListener(view -> skipToNext());

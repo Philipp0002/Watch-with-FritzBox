@@ -168,6 +168,7 @@ public class SettingsTVOverlay extends Fragment {
         selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_disable), R.drawable.round_power_off, () -> {
             editor.putInt("setting_hwaccel", 0);
             editor.commit();
+            context.launchPlayer(false);
             if(selectionTVOverlay != null)
                 getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
             openedFragment = null;
@@ -175,6 +176,7 @@ public class SettingsTVOverlay extends Fragment {
         selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_auto), R.drawable.round_auto_awesome, () -> {
             editor.putInt("setting_hwaccel", 1);
             editor.commit();
+            context.launchPlayer(false);
             if(selectionTVOverlay != null)
                 getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
             openedFragment = null;
@@ -182,6 +184,7 @@ public class SettingsTVOverlay extends Fragment {
         selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_force), R.drawable.round_power, () -> {
             editor.putInt("setting_hwaccel", 2);
             editor.commit();
+            context.launchPlayer(false);
             if(selectionTVOverlay != null)
                 getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
             openedFragment = null;

@@ -63,6 +63,19 @@
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/tvoverlaychannel_event"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="EVENT"
+                    android:textColor="#fff"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    android:layout_marginTop="4dp" />
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

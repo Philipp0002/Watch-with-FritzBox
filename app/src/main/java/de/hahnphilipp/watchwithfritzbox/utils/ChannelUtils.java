@@ -25,6 +25,25 @@ public class ChannelUtils {
 
     static int selectedChannel = -1;
 
+    public static void setChannels(Context context, ArrayList<ChannelUtils.Channel> channels) {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sp.edit();
+        Type channelListType = new TypeToken<ArrayList<ChannelUtils.Channel>>() {
+        }.getType();
+        String channelsJson = new Gson().toJson(channels, channelListType);
+        editor.putString("channels", channelsJson);
+        editor.commit();
+    }
+
+    public static void updateChannel(Context context, Channel oldChannel, Channel newChannel){
+        ArrayList<Channel> channels = getAllChannels(context);
+        channels.remove(oldChannel);
+        channels.add(newChannel);
+        setChannels(context, channels);
+    }
+
     public static Channel getNextChannel(Context context, int number) {
         for (Channel ch : getAllChannels(context)) {
             if (ch.number == number + 1) {
@@ -65,17 +84,7 @@ public class ChannelUtils {
                 i++;
             }
 
-
-            SharedPreferences sp = context.getSharedPreferences(
-                    context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-
-            SharedPreferences.Editor editor = sp.edit();
-
-            Type channelListType = new TypeToken<ArrayList<ChannelUtils.Channel>>() {
-            }.getType();
-            String channelsJson = new Gson().toJson(channels, channelListType);
-            editor.putString("channels", channelsJson);
-            editor.commit();
+            setChannels(context, channels);
         }
         return channels;
 
@@ -117,6 +126,24 @@ public class ChannelUtils {
     public static Channel getChannelByNumber(Context context, int number) {
         for (Channel ch : getAllChannels(context)) {
             if (ch.number == number) {
+                return ch;
+            }
+        }
+        return null;
+    }
+
+    public static Channel getChannelByTitle(Context context, String title) {
+        for (Channel ch : getAllChannels(context)) {
+            if (ch.title.equalsIgnoreCase(title)) {
+                return ch;
+            }
+        }
+        return null;
+    }
+
+    public static Channel getChannelByServiceId(Context context, int serviceId) {
+        for (Channel ch : getAllChannels(context)) {
+            if (ch.serviceId == serviceId) {
                 return ch;
             }
         }
@@ -200,6 +227,9 @@ public class ChannelUtils {
         public String url;
         public ChannelType type;
 
+        public int serviceId;
+        public String provider;
+
         public Channel(int number, String title, String url, ChannelType type) {
             this.number = number;
             this.title = title;
@@ -212,12 +242,23 @@ public class ChannelUtils {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Channel channel = (Channel) o;
-            return Objects.equals(title, channel.title) && Objects.equals(url, channel.url) && type == channel.type;
+            return Objects.equals(title, channel.title)
+                    && Objects.equals(url, channel.url)
+                    && type == channel.type
+                    && serviceId == serviceId
+                    && Objects.equals(provider, channel.provider);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(title, url, type);
+            return Objects.hash(title, url, type, serviceId, provider);
+        }
+
+        public Channel copy() {
+            Channel copy = new Channel(number, title, url, type);
+            copy.provider = provider;
+            copy.serviceId = serviceId;
+            return copy;
         }
     }
 

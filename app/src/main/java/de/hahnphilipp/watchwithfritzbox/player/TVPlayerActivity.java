@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.hahnphilipp.watchwithfritzbox.epg.LogcatEpgReader;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.R;
 
@@ -37,6 +38,8 @@ public class TVPlayerActivity extends FragmentActivity {
     public ChannelListTVOverlay mChannelOverlayFragment;
     public SettingsTVOverlay mSettingsOverlayFragment;
 
+    private LogcatEpgReader logcatEpgReader;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,20 +50,50 @@ public class TVPlayerActivity extends FragmentActivity {
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvv");
 
-        args.add("--network-caching=" + 1000);
-        args.add("--audio-time-stretch");
-        args.add("--avcodec-skiploopfilter");
+        /*args.add("--no-ts-trust-pcr");
+        args.add("--ts-seek-percent");*/
+
+        //args.add("--ts-cc-check");
+        //args.add("0");
+
+        //args.add("--network-caching=" + 1000);
+        //args.add("--no-audio-time-stretch");
+        /*args.add("--avcodec-skiploopfilter");
         args.add("1");
         args.add("--avcodec-skip-frame");
         args.add("0");
         args.add("--avcodec-skip-idct");
         args.add("0");
-        args.add("--android-display-chroma");
-        args.add("RV32");
+        args.add("--avcodec-corrupted");
+        args.add("1");
+        args.add("--avcodec-hurry-up");
+        args.add("1");
+        args.add("--audio-resampler");
+        args.add("soxr");*/
+        //args.add("--stats");
+        //args.add("--http-reconnect");
+
+        //args.add("--telx-override-page");
+        //args.add("101");
+
         args.add("--audio-resampler");
         args.add("soxr");
-        args.add("--stats");
         args.add("--http-reconnect");
+        args.add("--sout-keep");
+        args.add("--no-audio-time-stretch");
+        args.add("--avcodec-skiploopfilter");
+        args.add("1");
+        args.add("--network-caching=1500");
+        args.add("--live-caching=1500");
+        args.add("--sout-mux-caching=1500");
+        args.add("-vvvvv");
+        args.add("--freetype-rel-fontsize=16");
+        args.add("--freetype-color=16777215");
+        args.add("--freetype-background-opacity=128");
+        args.add("--avcodec-hurry-up");
+        args.add("1");
+        args.add("--avcodec-corrupted");
+        args.add("1");
 
 
         mLibVLC = new LibVLC(this, args);
@@ -142,6 +175,11 @@ public class TVPlayerActivity extends FragmentActivity {
     Timer switchChannelTimer = null;
 
     public void launchPlayer(boolean withWaitInterval) {
+        if(logcatEpgReader != null){
+            logcatEpgReader.stopLogcatRead();
+        }
+        logcatEpgReader = new LogcatEpgReader(this);
+        logcatEpgReader.readLogcat();
         mMediaPlayer.pause();
         findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
         findViewById(R.id.player_skip_radio).setVisibility(View.GONE);
@@ -180,6 +218,7 @@ public class TVPlayerActivity extends FragmentActivity {
                 SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
+                Log.d("URIIIL", channel.url);
                 final Media media = new Media(mLibVLC, Uri.parse(channel.url));
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
                 mMediaPlayer.setMedia(media);

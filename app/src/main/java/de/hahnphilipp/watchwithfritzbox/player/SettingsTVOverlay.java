@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.epg.EpgTimelineFragment;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
 
@@ -90,6 +91,13 @@ public class SettingsTVOverlay extends Fragment {
             descriptionsSubtitle = player.getSpuTracks();
         }
 
+        tvSettings.add(new TVSetting(getString(R.string.settings_open_hbbtv), R.drawable.round_remote, new Runnable() {
+            @Override
+            public void run() {
+                showEpg();
+            }
+        }, true));
+
         if(!ChannelUtils.getHbbTvFromChannel(context,ChannelUtils.getLastSelectedChannel(context)).isEmpty()) {
             tvSettings.add(new TVSetting(getString(R.string.settings_open_hbbtv), R.drawable.round_remote, new Runnable() {
                 @Override
@@ -153,6 +161,16 @@ public class SettingsTVOverlay extends Fragment {
         getActivity().getSupportFragmentManager().beginTransaction()
                 .add(R.id.overlayChannels, editChannelListTVOverlay)
                 .addToBackStack("selectionTVOverlay")
+                .commit();
+    }
+
+    public void showEpg(){
+        EpgTimelineFragment epgTimelineFragment = new EpgTimelineFragment();
+        openedFragment = epgTimelineFragment;
+
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .add(R.id.overlayChannels, epgTimelineFragment)
+                .addToBackStack("epgTimelineFragment")
                 .commit();
     }
 

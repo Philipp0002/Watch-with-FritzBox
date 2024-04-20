@@ -25,7 +25,7 @@
     <string name="setup_search_error_not_supported_continue">Continue</string>
     <string name="setup_search_error_not_supported_abort">Cancel</string>
 
-    <string name="setup_order_description">Your channel list is unsorted. Should we preorder it?</string>
+    <string name="setup_order_description">Your channel list is unsorted. Apply auto-order now?</string>
     <string name="setup_order_yes">Presort</string>
     <string name="setup_order_no">Don\'t presort</string>
 
@@ -48,6 +48,7 @@
     <string name="settings_reorder_channels_move">Move up or down to change the position of this channel. Press OK to confirm.</string>
     <string name="settings_reorder_channels_select">Select the channel that you want to move</string>
     <string name="settings_reorder_channels_webserver_info">or visit %d in your web browser</string>
+    <string name="settings_epg">EPG</string>
 
     <string name="radio_running">Listening to radio</string>
 
@@ -60,4 +61,24 @@
 
     <string name="preference_file_key" translatable="false">saves</string>
     <string name="settings_hbbtv_info">HbbTV available</string>
+
+
+    <string name="programguide_title_no_program">No broadcast</string>
+    <string name="programguide_error_fetching_content">Unable to display content. Please try again later.</string>
+
+    <string name="programguide_day_yesterday">Yesterday</string>
+    <string name="programguide_day_today">Today</string>
+    <string name="programguide_day_tomorrow">Tomorrow</string>
+
+    <string name="programguide_part_of_day_morning">Morning</string>
+    <string name="programguide_part_of_day_afternoon">Afternoon</string>
+    <string name="programguide_part_of_day_evening">Evening</string>
+
+    <string name="programguide_button_jump_to_live">Jump to live</string>
+
+    <string name="programguide_day_selector_title">Select the desired day</string>
+    <string name="programguide_day_time_selector_title">Select the desired time of day</string>
+    <string name="programguide_content_description_large_thumbnail">Program thumbnail</string>
+    <string name="programguide_content_description_channel_logo">Channel logo</string>
+    <string name="programguide_content_description_dropdown_icon">Dropdown icon</string>
 </resources>

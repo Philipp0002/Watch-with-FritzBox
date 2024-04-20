@@ -49,6 +49,7 @@
     <string name="settings_reorder_channels_select">Wähle den Sender, den du verschieben möchtest</string>
     <string name="settings_reorder_channels_webserver_info">oder öffne %d in deinem Web-Browser</string>
 
+    <string name="settings_epg">EPG</string>
     <string name="radio_running">Radio läuft</string>
 
     <string name="no_audio_tracks">Keine Audiokanäle</string>
@@ -57,4 +58,18 @@
     <string name="audio_tracks">Audiokanäle</string>
     <string name="video_aspect">Seitenverhältnis</string>
     <string name="audio_tracks_desc">Wähle den Audiokanal</string>
+    <string name="programguide_title_no_program">Keine Infos</string>
+    <string name="programguide_error_fetching_content">Anzeige nicht möglich. Bitte später nochmals versuchen.</string>
+    <string name="programguide_day_yesterday">Gestern</string>
+    <string name="programguide_day_today">Heute</string>
+    <string name="programguide_day_tomorrow">Morgen</string>
+    <string name="programguide_part_of_day_morning">Morgens</string>
+    <string name="programguide_part_of_day_afternoon">Mittags</string>
+    <string name="programguide_part_of_day_evening">Abends</string>
+    <string name="programguide_button_jump_to_live">Springe zu Jetzt</string>
+    <string name="programguide_day_selector_title">Wähle gewünschten Tag</string>
+    <string name="programguide_day_time_selector_title">Wähle gewünschte Tageszeit</string>
+    <string name="programguide_content_description_large_thumbnail">Vorschaubild</string>
+    <string name="programguide_content_description_channel_logo">Kanallogo</string>
+    <string name="programguide_content_description_dropdown_icon">Nach unten Symbol</string>
 </resources>

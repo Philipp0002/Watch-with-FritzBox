@@ -87,6 +87,7 @@ public class TVPlayerActivity extends FragmentActivity {
         args.add("--live-caching=1500");
         args.add("--sout-mux-caching=1500");
         args.add("-vvvvv");
+        args.add("--stats");
         args.add("--freetype-rel-fontsize=16");
         args.add("--freetype-color=16777215");
         args.add("--freetype-background-opacity=128");

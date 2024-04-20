@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.jakewharton.threetenabp.AndroidThreeTen;
+
 import java.io.IOException;
 
 import de.hahnphilipp.watchwithfritzbox.R;
@@ -17,6 +19,7 @@ public class WatchWithFritzboxApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        AndroidThreeTen.init(this);
 
         FetchHbbTVSources fetchHbbTVSources = new FetchHbbTVSources();
         fetchHbbTVSources.futurerun = () -> {

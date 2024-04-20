@@ -5,6 +5,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
@@ -101,6 +102,7 @@ public class ChannelListTVOverlay extends Fragment {
             if(event.getAction() == KeyEvent.ACTION_DOWN) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_UP) {
                     Animation a = AnimationUtils.loadAnimation(context, R.anim.slide_up);
+                    a.setInterpolator(new AccelerateDecelerateInterpolator());
                     a.setFillEnabled(false);
                     a.setAnimationListener(new Animation.AnimationListener() {
                         @Override
@@ -121,6 +123,7 @@ public class ChannelListTVOverlay extends Fragment {
                     return true;
                 } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN) {
                     Animation a = AnimationUtils.loadAnimation(context, R.anim.slide_down);
+                    a.setInterpolator(new AccelerateDecelerateInterpolator());
                     a.setFillEnabled(false);
                     a.setAnimationListener(new Animation.AnimationListener() {
                         @Override

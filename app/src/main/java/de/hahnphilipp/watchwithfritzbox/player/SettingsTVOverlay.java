@@ -91,7 +91,7 @@ public class SettingsTVOverlay extends Fragment {
             descriptionsSubtitle = player.getSpuTracks();
         }
 
-        tvSettings.add(new TVSetting(getString(R.string.settings_open_hbbtv), R.drawable.round_remote, new Runnable() {
+        tvSettings.add(new TVSetting(getString(R.string.settings_open_epg), R.drawable.round_remote, new Runnable() {
             @Override
             public void run() {
                 showEpg();

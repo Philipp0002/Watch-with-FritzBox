@@ -49,7 +49,7 @@
     <string name="settings_reorder_channels_select">Wähle den Sender, den du verschieben möchtest</string>
     <string name="settings_reorder_channels_webserver_info">oder öffne %d in deinem Web-Browser</string>
 
-    <string name="settings_epg">EPG</string>
+    <string name="settings_open_epg">EPG</string>
     <string name="radio_running">Radio läuft</string>
 
     <string name="no_audio_tracks">Keine Audiokanäle</string>

@@ -48,7 +48,7 @@
     <string name="settings_reorder_channels_move">Move up or down to change the position of this channel. Press OK to confirm.</string>
     <string name="settings_reorder_channels_select">Select the channel that you want to move</string>
     <string name="settings_reorder_channels_webserver_info">or visit %d in your web browser</string>
-    <string name="settings_epg">EPG</string>
+    <string name="settings_open_epg">EPG</string>
 
     <string name="radio_running">Listening to radio</string>
 

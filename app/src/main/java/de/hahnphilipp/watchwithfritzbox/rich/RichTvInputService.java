@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.interfaces.IMedia;
 import org.videolan.libvlc.interfaces.IVLCVout;
 
 import java.util.ArrayList;
@@ -45,8 +46,8 @@ public class RichTvInputService extends TvInputService {
     class RichTvInputSessionImpl extends TvInputService.Session {
 
         Surface surface;
-        int deselectAudioTrackId = -1;
-        int deselectSubtitleTrackId = -1;
+        String deselectAudioTrackId = "-1";
+        String deselectSubtitleTrackId = "-1";
 
         private LibVLC libVlc;
         public MediaPlayer player;
@@ -108,8 +109,8 @@ public class RichTvInputService extends TvInputService {
                                 String audioId = null;
                                 String subtitleId = null;
 
-                                MediaPlayer.TrackDescription[] descriptionsAudio = player.getAudioTracks();
-                                for (MediaPlayer.TrackDescription desc : descriptionsAudio) {
+                                IMedia.Track[] descriptionsAudio = player.getTracks(Media.Track.Type.Audio);
+                                for (IMedia.Track desc : descriptionsAudio) {
                                     if (desc.name.equalsIgnoreCase("Disable")) {
                                         deselectAudioTrackId = desc.id;
                                         continue;
@@ -128,12 +129,12 @@ public class RichTvInputService extends TvInputService {
                                     }
                                     tvTrackInfoList.add(builder.build());
 
-                                    if (player.getAudioTrack() == desc.id) {
+                                    if (player.getSelectedTrack(IMedia.Track.Type.Audio).id.equals(desc.id)) {
                                         audioId = desc.name;
                                     }
                                 }
-                                MediaPlayer.TrackDescription[] descriptionsSubtitle = player.getSpuTracks();
-                                for (MediaPlayer.TrackDescription desc : descriptionsAudio) {
+                                IMedia.Track[] descriptionsSubtitle = player.getTracks(Media.Track.Type.Text);
+                                for (IMedia.Track desc : descriptionsAudio) {
                                     if (desc.name.equalsIgnoreCase("Disable")) {
                                         deselectSubtitleTrackId = desc.id;
                                         continue;
@@ -152,22 +153,23 @@ public class RichTvInputService extends TvInputService {
                                     }
                                     tvTrackInfoList.add(builder.build());
 
-                                    if (player.getSpuTrack() == desc.id) {
+                                    if (player.getSelectedTrack(IMedia.Track.Type.Text).id.equals(desc.id)) {
                                         subtitleId = desc.name;
                                     }
                                 }
                                 notifyTracksChanged(tvTrackInfoList);
 
 
-                                if (player.getCurrentVideoTrack() != null) {
+                                if (player.getSelectedTrack(IMedia.Track.Type.Video) != null) {
+                                    Media.VideoTrack videoTrack = (Media.VideoTrack) player.getSelectedTrack(IMedia.Track.Type.Video);
                                     TvTrackInfo.Builder builder = new TvTrackInfo.Builder(TvTrackInfo.TYPE_VIDEO, "video");
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                         builder.setDescription((CharSequence) "Video");
                                     }
                                     builder.setVideoFrameRate(player.getRate());
-                                    float height = player.getCurrentVideoTrack().height;
+                                    float height = videoTrack.height;
                                     if (height == 1088F) height = 1080F;
-                                    float width = player.getCurrentVideoTrack().width;
+                                    float width = videoTrack.width;
                                     builder.setVideoHeight((int) height);
                                     builder.setVideoWidth((int) width);
                                     tvTrackInfoList.add(builder.build());
@@ -194,10 +196,10 @@ public class RichTvInputService extends TvInputService {
 
         @Override
         public boolean onSelectTrack(int type, @Nullable String trackId) {
-            if (type == TYPE_AUDIO) {
-                player.setAudioTrack(trackId == null ? deselectAudioTrackId : Integer.parseInt(trackId));
-            } else if (type == TYPE_SUBTITLE) {
-                player.setSpuTrack(trackId == null ? deselectSubtitleTrackId : Integer.parseInt(trackId));
+            if(trackId == null) {
+                player.unselectTrackType(type == TYPE_AUDIO ? IMedia.Track.Type.Audio : IMedia.Track.Type.Text);
+            } else {
+                player.selectTrack(trackId);
             }
             return true;
         }

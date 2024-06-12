@@ -50,52 +50,8 @@ public class TVPlayerActivity extends FragmentActivity {
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvv");
 
-        /*args.add("--no-ts-trust-pcr");
-        args.add("--ts-seek-percent");*/
-
-        //args.add("--ts-cc-check");
-        //args.add("0");
-
-        //args.add("--network-caching=" + 1000);
-        //args.add("--no-audio-time-stretch");
-        /*args.add("--avcodec-skiploopfilter");
-        args.add("1");
-        args.add("--avcodec-skip-frame");
-        args.add("0");
-        args.add("--avcodec-skip-idct");
-        args.add("0");
-        args.add("--avcodec-corrupted");
-        args.add("1");
-        args.add("--avcodec-hurry-up");
-        args.add("1");
-        args.add("--audio-resampler");
-        args.add("soxr");*/
-        //args.add("--stats");
-        //args.add("--http-reconnect");
-
-        //args.add("--telx-override-page");
-        //args.add("101");
-
         args.add("--audio-resampler");
         args.add("soxr");
-        args.add("--http-reconnect");
-        args.add("--sout-keep");
-        args.add("--no-audio-time-stretch");
-        args.add("--avcodec-skiploopfilter");
-        args.add("1");
-        args.add("--network-caching=1500");
-        args.add("--live-caching=1500");
-        args.add("--sout-mux-caching=1500");
-        args.add("-vvvvv");
-        args.add("--stats");
-        args.add("--freetype-rel-fontsize=16");
-        args.add("--freetype-color=16777215");
-        args.add("--freetype-background-opacity=128");
-        args.add("--avcodec-hurry-up");
-        args.add("1");
-        args.add("--avcodec-corrupted");
-        args.add("1");
-
 
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);

@@ -145,12 +145,6 @@ public class TVPlayerActivity extends FragmentActivity {
         ((TextView) findViewById(R.id.player_number)).setText("CH " + channel.number);
         ((TextView) findViewById(R.id.player_channel)).setText(channel.title);
 
-        if (!ChannelUtils.getHbbTvFromChannel(TVPlayerActivity.this, ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this)).isEmpty()) {
-            findViewById(R.id.hbbTvInfoCard).setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.hbbTvInfoCard).setVisibility(View.GONE);
-        }
-
         if (channel.type == ChannelUtils.ChannelType.HD) {
             ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.high_definition);
         } else if (channel.type == ChannelUtils.ChannelType.SD) {

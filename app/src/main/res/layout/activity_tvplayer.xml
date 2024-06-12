@@ -98,50 +98,6 @@
             app:layout_constraintStart_toEndOf="@+id/player_type"
             app:layout_constraintTop_toTopOf="@+id/player_number_layout" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/hbbTvInfoCard"
-            android:layout_width="200dp"
-            android:layout_height="75dp"
-            android:layout_marginEnd="32dp"
-            app:cardBackgroundColor="#2a2939"
-            app:cardCornerRadius="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/player_number_layout"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="7dp"
-                    android:layout_marginTop="7dp"
-                    android:layout_marginBottom="7dp"
-                    android:src="@drawable/round_remote"
-                    android:tint="#ffffff"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#ffffff" />
-
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:lineSpacingExtra="18sp"
-                    android:text="@string/settings_hbbtv_info"
-                    android:textColor="#fff"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageView"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

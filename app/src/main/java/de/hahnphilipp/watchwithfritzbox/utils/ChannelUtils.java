@@ -162,30 +162,6 @@ public class ChannelUtils {
         return channels;
     }
 
-    public static ArrayList<HbbTV> getHbbTvFromChannel(Context context, int number) {
-        SharedPreferences sp = context.getSharedPreferences(
-                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-
-        Channel channel = getChannelByNumber(context, number);
-
-        ArrayList<HbbTV> hbbTVList = new ArrayList<HbbTV>();
-        JsonArray array = new JsonParser().parse(sp.getString("hbbtvSources", "[]")).getAsJsonArray();
-        for (JsonElement element : array) {
-            JsonObject groupObj = element.getAsJsonObject();
-            z:
-            for (JsonElement a : groupObj.get("channels").getAsJsonArray()) {
-                if (channel.title.equalsIgnoreCase(a.getAsString())) {
-                    for (JsonElement b : groupObj.get("urls").getAsJsonArray()) {
-                        JsonObject jsonUrlObj = b.getAsJsonObject();
-                        hbbTVList.add(new HbbTV(jsonUrlObj.get("title").getAsString(), jsonUrlObj.get("url").getAsString()));
-                    }
-                    break z;
-                }
-            }
-        }
-        return hbbTVList;
-    }
-
     public static String getIconURL(Channel channel) {
         try {
             return "https://tv.avm.de/tvapp/logos/" +

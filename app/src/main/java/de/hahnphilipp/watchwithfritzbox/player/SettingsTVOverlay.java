@@ -95,50 +95,21 @@ public class SettingsTVOverlay extends Fragment {
 
         tvSettings.add(new TVSetting(getString(R.string.settings_open_epg), R.drawable.round_remote, () -> showEpg(), true));
 
-        if(!ChannelUtils.getHbbTvFromChannel(context,ChannelUtils.getLastSelectedChannel(context)).isEmpty()) {
-            tvSettings.add(new TVSetting(getString(R.string.settings_open_hbbtv), R.drawable.round_remote, () -> showHbbTV(), true));
-        }
-
         if (descriptionsAudio != null && descriptionsAudio.length != 0) {
-            tvSettings.add(new TVSetting(getString(R.string.audio_tracks), R.drawable.round_audiotrack, new Runnable() {
-                @Override
-                public void run() {
-                    showAudioTrackSelection();
-                }
-            }, true));
+            tvSettings.add(new TVSetting(getString(R.string.audio_tracks), R.drawable.round_audiotrack, () -> showAudioTrackSelection(), true));
         }
 
         if (descriptionsSubtitle != null && descriptionsSubtitle.length != 0) {
-            tvSettings.add(new TVSetting(getString(R.string.subtitles), R.drawable.round_closed_caption, new Runnable() {
-                @Override
-                public void run() {
-                    showSubtitleTrackSelection();
-                }
-            }, true));
+            tvSettings.add(new TVSetting(getString(R.string.subtitles), R.drawable.round_closed_caption, () -> showSubtitleTrackSelection(), true));
         }
 
         if (ChannelUtils.getChannelByNumber(context, ChannelUtils.getLastSelectedChannel(context)).type != ChannelUtils.ChannelType.RADIO) {
-            tvSettings.add(new TVSetting(getString(R.string.video_aspect), R.drawable.round_video_settings, new Runnable() {
-                @Override
-                public void run() {
-                    showVideoFormatSelection();
-                }
-            }, true));
+            tvSettings.add(new TVSetting(getString(R.string.video_aspect), R.drawable.round_video_settings, () -> showVideoFormatSelection(), true));
         }
 
-        tvSettings.add(new TVSetting(getString(R.string.settings_reorder_channels), R.drawable.round_reorder, new Runnable() {
-            @Override
-            public void run() {
-                showChannelEditor();
-            }
-        }, false));
+        tvSettings.add(new TVSetting(getString(R.string.settings_reorder_channels), R.drawable.round_reorder, () -> showChannelEditor(), false));
 
-        tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration), R.drawable.round_speed, new Runnable() {
-            @Override
-            public void run() {
-                showHWAcelerationSelection();
-            }
-        }, false));
+        tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration), R.drawable.round_speed, () -> showHWAcelerationSelection(), false));
 
         if(tvOverlayRecyclerAdapter != null) {
             tvOverlayRecyclerAdapter.objects = tvSettings;
@@ -203,53 +174,6 @@ public class SettingsTVOverlay extends Fragment {
                 .add(R.id.overlayChannels, selectionTVOverlay)
                 .addToBackStack("selectionTVOverlay")
                 .commit();
-    }
-
-    public void showHbbTV(){
-        ArrayList<ChannelUtils.HbbTV> hbbTVList = ChannelUtils.getHbbTvFromChannel(context,ChannelUtils.getLastSelectedChannel(context));
-
-        if(!hbbTVList.isEmpty()) {
-            if(hbbTVList.size() == 1){
-                HbbTVOverlay hbbTVOverlay = new HbbTVOverlay();
-                openedFragment = hbbTVOverlay;
-
-                hbbTVOverlay.hbbTvUrl = ChannelUtils.getHbbTvFromChannel(context, ChannelUtils.getLastSelectedChannel(context)).get(0).url;
-
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .add(R.id.overlayChannels, hbbTVOverlay)
-                        .addToBackStack("selectionTVOverlay")
-                        .commit();
-
-                context.mMediaPlayer.pause();
-            }else {
-                SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
-                openedFragment = selectionTVOverlay;
-                selectionTVOverlay.title = getString(R.string.settings_open_hbbtv_multi_title);
-                for (ChannelUtils.HbbTV hbbTV : hbbTVList) {
-                    selectionTVOverlay.tvSettings.add(new TVSetting(hbbTV.title, R.drawable.round_remote, new Runnable() {
-                        @Override
-                        public void run() {
-                            getActivity().getSupportFragmentManager().beginTransaction().remove(openedFragment).commit();
-                            HbbTVOverlay hbbTVOverlay = new HbbTVOverlay();
-                            openedFragment = hbbTVOverlay;
-
-                            hbbTVOverlay.hbbTvUrl = hbbTV.url;
-
-                            getActivity().getSupportFragmentManager().beginTransaction()
-                                    .add(R.id.overlayChannels, hbbTVOverlay)
-                                    .addToBackStack("selectionTVOverlay")
-                                    .commit();
-
-                            context.mMediaPlayer.pause();
-                        }
-                    },true));
-                }
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .add(R.id.overlayChannels, selectionTVOverlay)
-                        .addToBackStack("selectionTVOverlay")
-                        .commit();
-            }
-        }
     }
 
     public void showVideoFormatSelection(){
@@ -341,14 +265,7 @@ public class SettingsTVOverlay extends Fragment {
             if(event.getAction() == KeyEvent.ACTION_DOWN) {
                 if (keyCode == KeyEvent.KEYCODE_BACK ||keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
                     if(openedFragment!= null){
-                        if(openedFragment instanceof HbbTVOverlay) {
-                            if(((HbbTVOverlay) openedFragment).webView.canGoBack()) {
-                                ((HbbTVOverlay) openedFragment).webView.goBack();
-                                return true;
-                            }else{
-                                context.mMediaPlayer.play();
-                            }
-                        }else if(openedFragment instanceof EditChannelListTVOverlay) {
+                        if(openedFragment instanceof EditChannelListTVOverlay) {
                             context.mChannelOverlayFragment.tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(context);
                         }
                         getActivity().getSupportFragmentManager().beginTransaction().remove(openedFragment).commit();

@@ -26,3 +26,9 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Releasing using Hub
+      uses: valley-fordham/action-release-debugapk@master
+      env:
+       GITHUB_TOKEN: ${{ secrets.PUBLISH_DEV_TOKEN }}
+       APP_FOLDER: app
+       RELEASE_TITLE: New Build

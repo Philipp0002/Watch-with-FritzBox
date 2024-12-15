@@ -16,9 +16,7 @@ import androidx.leanback.widget.BrowseFrameLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
-import org.videolan.libvlc.interfaces.IMedia;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -85,12 +83,12 @@ public class SettingsTVOverlay extends Fragment {
             return;
 
         final MediaPlayer player = context.mMediaPlayer;
-        IMedia.Track[] descriptionsAudio = new IMedia.Track[0];
-        IMedia.Track[] descriptionsSubtitle = new IMedia.Track[0];
+        MediaPlayer.TrackDescription[] descriptionsAudio = new MediaPlayer.TrackDescription[0];
+        MediaPlayer.TrackDescription[] descriptionsSubtitle = new MediaPlayer.TrackDescription[0];
 
         if(player != null){
-            descriptionsAudio = player.getTracks(Media.Track.Type.Audio);
-            descriptionsSubtitle = player.getTracks(Media.Track.Type.Text);
+            descriptionsAudio = player.getAudioTracks();
+            descriptionsSubtitle = player.getSpuTracks();
         }
 
         tvSettings.add(new TVSetting(getString(R.string.settings_open_epg), R.drawable.round_remote, () -> showEpg(), true));
@@ -187,7 +185,7 @@ public class SettingsTVOverlay extends Fragment {
             selectionTVOverlay.tvSettings.add(new TVSetting(aspect, R.drawable.round_video_settings, new Runnable() {
                 @Override
                 public void run() {
-                    player.setAspectRatio(aspect);
+                    //TODO player.setAspectRatio(aspect);
                     if(selectionTVOverlay != null)
                         getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
                     openedFragment = null;
@@ -206,17 +204,17 @@ public class SettingsTVOverlay extends Fragment {
         openedFragment = selectionTVOverlay;
         final MediaPlayer player = context.mMediaPlayer;
         selectionTVOverlay.title = getString(R.string.subtitles);
-        IMedia.Track[] descriptions = player.getTracks(Media.Track.Type.Text);
+        MediaPlayer.TrackDescription[] descriptions = player.getSpuTracks();
         //this should actually never be true, but just to be sure we do it anyways
         if (descriptions == null || descriptions.length == 0) {
             Toast.makeText(getContext(), R.string.no_subtitle_tracks, Toast.LENGTH_SHORT).show();
             return;
         }
-        for (final IMedia.Track description : descriptions) {
+        for (final MediaPlayer.TrackDescription description : descriptions) {
             selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.round_closed_caption, new Runnable() {
                 @Override
                 public void run() {
-                    player.selectTrack(description.id);
+                    player.setSpuTrack(description.id);
                     if(selectionTVOverlay != null)
                         getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
                     openedFragment = null;
@@ -235,17 +233,17 @@ public class SettingsTVOverlay extends Fragment {
         openedFragment = selectionTVOverlay;
         final MediaPlayer player = context.mMediaPlayer;
         selectionTVOverlay.title = getString(R.string.audio_tracks);
-        IMedia.Track[] descriptions = player.getTracks(Media.Track.Type.Audio);
+        MediaPlayer.TrackDescription[] descriptions = player.getAudioTracks();
         //this should actually never be true, but just to be sure we do it anyways
         if (descriptions == null || descriptions.length == 0) {
             Toast.makeText(getContext(), R.string.no_audio_tracks, Toast.LENGTH_SHORT).show();
             return;
         }
-        for (final IMedia.Track description : descriptions) {
+        for (final MediaPlayer.TrackDescription description : descriptions) {
             selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.round_audiotrack, new Runnable() {
                 @Override
                 public void run() {
-                    player.selectTrack(description.id);
+                    player.setAudioTrack(description.id);
                     if(selectionTVOverlay != null)
                         getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
                     openedFragment = null;
@@ -272,13 +270,13 @@ public class SettingsTVOverlay extends Fragment {
                         openedFragment = null;
 
                     }else{
-                            hideOverlays();
+                        hideOverlays();
                     }
                     return true;
                 }
             }
         }
-    return false;
+        return false;
 
     }
 

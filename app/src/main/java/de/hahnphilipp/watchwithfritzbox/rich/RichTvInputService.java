@@ -46,8 +46,8 @@ public class RichTvInputService extends TvInputService {
     class RichTvInputSessionImpl extends TvInputService.Session {
 
         Surface surface;
-        String deselectAudioTrackId = "-1";
-        String deselectSubtitleTrackId = "-1";
+        int deselectAudioTrackId = -1;
+        int deselectSubtitleTrackId = -1;
 
         private LibVLC libVlc;
         public MediaPlayer player;
@@ -109,8 +109,8 @@ public class RichTvInputService extends TvInputService {
                                 String audioId = null;
                                 String subtitleId = null;
 
-                                IMedia.Track[] descriptionsAudio = player.getTracks(Media.Track.Type.Audio);
-                                for (IMedia.Track desc : descriptionsAudio) {
+                                MediaPlayer.TrackDescription[] descriptionsAudio = player.getAudioTracks();
+                                for (MediaPlayer.TrackDescription desc : descriptionsAudio) {
                                     if (desc.name.equalsIgnoreCase("Disable")) {
                                         deselectAudioTrackId = desc.id;
                                         continue;
@@ -129,12 +129,12 @@ public class RichTvInputService extends TvInputService {
                                     }
                                     tvTrackInfoList.add(builder.build());
 
-                                    if (player.getSelectedTrack(IMedia.Track.Type.Audio).id.equals(desc.id)) {
+                                    if (player.getAudioTrack() == desc.id) {
                                         audioId = desc.name;
                                     }
                                 }
-                                IMedia.Track[] descriptionsSubtitle = player.getTracks(Media.Track.Type.Text);
-                                for (IMedia.Track desc : descriptionsAudio) {
+                                MediaPlayer.TrackDescription[] descriptionsSubtitle = player.getSpuTracks();
+                                for (MediaPlayer.TrackDescription desc : descriptionsAudio) {
                                     if (desc.name.equalsIgnoreCase("Disable")) {
                                         deselectSubtitleTrackId = desc.id;
                                         continue;
@@ -153,18 +153,18 @@ public class RichTvInputService extends TvInputService {
                                     }
                                     tvTrackInfoList.add(builder.build());
 
-                                    if (player.getSelectedTrack(IMedia.Track.Type.Text).id.equals(desc.id)) {
+                                    if (player.getSpuTrack() == desc.id) {
                                         subtitleId = desc.name;
                                     }
                                 }
                                 notifyTracksChanged(tvTrackInfoList);
 
 
-                                if (player.getSelectedTrack(IMedia.Track.Type.Video) != null) {
-                                    Media.VideoTrack videoTrack = (Media.VideoTrack) player.getSelectedTrack(IMedia.Track.Type.Video);
+                                //if (player.getVideoTrack() != null) {
+                                    Media.VideoTrack videoTrack = player.getCurrentVideoTrack();
                                     TvTrackInfo.Builder builder = new TvTrackInfo.Builder(TvTrackInfo.TYPE_VIDEO, "video");
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        builder.setDescription((CharSequence) "Video");
+                                        builder.setDescription("Video");
                                     }
                                     builder.setVideoFrameRate(player.getRate());
                                     float height = videoTrack.height;
@@ -173,7 +173,7 @@ public class RichTvInputService extends TvInputService {
                                     builder.setVideoHeight((int) height);
                                     builder.setVideoWidth((int) width);
                                     tvTrackInfoList.add(builder.build());
-                                }
+                                //}
 
 
                                 if (audioId != null)
@@ -197,9 +197,17 @@ public class RichTvInputService extends TvInputService {
         @Override
         public boolean onSelectTrack(int type, @Nullable String trackId) {
             if(trackId == null) {
-                player.unselectTrackType(type == TYPE_AUDIO ? IMedia.Track.Type.Audio : IMedia.Track.Type.Text);
+                if(type == TYPE_AUDIO) {
+                    player.setAudioTrack(deselectAudioTrackId);
+                } else if(type == TYPE_SUBTITLE) {
+                    player.setSpuTrack(deselectSubtitleTrackId);
+                }
             } else {
-                player.selectTrack(trackId);
+                if(type == TYPE_AUDIO) {
+                    player.setAudioTrack(Integer.parseInt(trackId));
+                } else if(type == TYPE_SUBTITLE) {
+                    player.setSpuTrack(Integer.parseInt(trackId));
+                }
             }
             return true;
         }

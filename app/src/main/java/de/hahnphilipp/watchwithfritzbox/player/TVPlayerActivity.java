@@ -3,6 +3,7 @@ package de.hahnphilipp.watchwithfritzbox.player;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -48,10 +49,31 @@ public class TVPlayerActivity extends FragmentActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         final ArrayList<String> args = new ArrayList<>();
-        args.add("-vvv");
+        //args.add("-vvv");
+        //args.add("--rtsp-tcp");
 
-        args.add("--audio-resampler");
+        //args.add("--audio-resampler");
+        //args.add("soxr");
+
+        //[--audio-resampler, soxr, --http-reconnect, --sout-keep, --no-audio-time-stretch, --avcodec-skiploopfilter, 1, --network-caching=1500, --live-caching=1500, --sout-mux-caching=1500, -vvvvv, --freetype-rel-fontsize=16, --freetype-color=16777215, --freetype-background-opacity=128, --avcodec-hurry-up, 1, --avcodec-corrupted, 1, --telx-hide]
+        /*args.add("--audio-resampler");
         args.add("soxr");
+        args.add("--http-reconnect");
+        args.add("--sout-keep");
+        args.add("--no-audio-time-stretch");
+        args.add("--avcodec-skiploopfilter");
+        args.add("1");
+        args.add("--network-caching=1500");
+        args.add("--live-caching=1500");
+        args.add("--sout-mux-caching=1500");
+
+        args.add("--freetype-color=16777215");
+        args.add("--freetype-background-opacity=128");
+        args.add("--avcodec-hurry-up");
+        args.add("1");
+        args.add("--avcodec-corrupted");
+        args.add("1");*/
+        args.add("-vvvvv");
 
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
@@ -171,7 +193,12 @@ public class TVPlayerActivity extends FragmentActivity {
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("URIIIL", channel.url);
                 final Media media = new Media(mLibVLC, Uri.parse(channel.url));
-                media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
+                String str3 = Build.MODEL;
+                if (("AFTB".equalsIgnoreCase(str3) || "AFTT".equalsIgnoreCase(str3) || "AFTM".equalsIgnoreCase(str3))) {
+                    media.setHWDecoderEnabled(false, false);
+                } else {
+                    media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
+                }
                 mMediaPlayer.setMedia(media);
                 media.release();
                 mMediaPlayer.play();

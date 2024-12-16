@@ -38,7 +38,6 @@ public class RichTvInputService extends TvInputService {
     public TvInputService.Session onCreateSession(String inputId) {
         RichTvInputSessionImpl session = new RichTvInputSessionImpl(this);
         //session.setOverlayViewEnabled(true);
-        Log.d("RichTvInputService", inputId + "");
         return session;
     }
 
@@ -67,8 +66,6 @@ public class RichTvInputService extends TvInputService {
 
         @Override
         public boolean onTune(Uri channelUri) {
-
-            Log.d("RICHTVINPUUT", "onTune");
             player.stop();
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
 
@@ -189,7 +186,6 @@ public class RichTvInputService extends TvInputService {
                 }
             });
             notifyVideoAvailable();
-            Log.d("RICHTVINPUUT", "notifyVideoAvailable");
             return true;
         }
 
@@ -226,7 +222,6 @@ public class RichTvInputService extends TvInputService {
 
         @Override
         public boolean onSetSurface(@Nullable Surface surface) {
-            Log.d("RICHTVINPUUT", "onsetsurface " + surface);
             if(surface == null) return false;
             this.surface = surface;
             final IVLCVout vlcVout = player.getVLCVout();

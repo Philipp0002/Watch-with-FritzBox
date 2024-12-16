@@ -126,7 +126,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     @Override
     protected void onResume() {
-        Log.d("TVPlayerActivity", "onResume");
         super.onResume();
         //mOverlayFragment.showOverlays();
     }
@@ -139,11 +138,9 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     @Override
     protected void onPause() {
-        Log.d("TVPlayerActivity", "onPause");
         mChannelOverlayFragment.hideOverlays();
         mSettingsOverlayFragment.hideOverlays();
         super.onPause();
-        Log.d("TVPlayerActivity", "onPauseEnd");
     }
 
 
@@ -194,7 +191,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
-                Log.d("URIIIL", channel.url);
+                Log.d("PlaybackActivity", "Starting playback of " + channel.title + " -" + channel.url);
                 final Media media = new Media(mLibVLC, Uri.parse(channel.url));
                 mMediaPlayer.setMedia(media);
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
@@ -211,7 +208,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     Timer numberEnterTimer = null;
 
     public void enterNumber(int entered) {
-        Log.d("ChannelNumber", number + "");
         number = number + entered;
         number = number.substring(1, number.length());
 
@@ -268,7 +264,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     @Override
     public void onEvent(MediaPlayer.Event event) {
-        Log.d("MediaPlayerEvent", event.type + " " + event.getBuffering());
         switch (event.type) {
             case MediaPlayer.Event.Buffering:
                 runOnUiThread(() -> {

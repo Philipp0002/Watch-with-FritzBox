@@ -26,12 +26,13 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.egeniq.androidtvprogramguide.ProgramGuideHolder
 import com.egeniq.androidtvprogramguide.ProgramGuideListAdapter
 import com.egeniq.androidtvprogramguide.ProgramGuideManager
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideChannel
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule
-import com.squareup.picasso.Picasso
 import de.hahnphilipp.watchwithfritzbox.R
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils
 import java.util.*
@@ -152,10 +153,10 @@ internal class ProgramGuideRowAdapter(
             if (imageUrl == null) {
                 channelLogoView.visibility = View.GONE
             } else {
-                Picasso.get()
-                        .load(Uri.parse(imageUrl))
-                        //.centerInside()
-                        .into(channelLogoView)
+                Glide.with(this.itemView.context)
+                    .load(Uri.parse(imageUrl))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(channelLogoView)
                 channelLogoView.visibility = View.VISIBLE
             }
             channelNameView.text = channel.name

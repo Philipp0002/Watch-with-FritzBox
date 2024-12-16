@@ -16,7 +16,8 @@ import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
 
@@ -30,14 +31,12 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
 
     public ArrayList<ChannelUtils.Channel> objects;
     private Fragment context;
-    public Picasso picasso;
     public int selectedChannel = -1;
     private RecyclerView recyclerView;
 
-    public TVChannelListOverlayRecyclerAdapter(Fragment context, ArrayList<ChannelUtils.Channel> objects, Picasso picasso, RecyclerView recyclerView) {
+    public TVChannelListOverlayRecyclerAdapter(Fragment context, ArrayList<ChannelUtils.Channel> objects, RecyclerView recyclerView) {
         this.objects = objects;
         this.context = context;
-        this.picasso = picasso;
         this.recyclerView = recyclerView;
     }
 
@@ -51,6 +50,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
     @Override
     public void onBindViewHolder(final ChannelInfoViewHolder holder, final int position) {
         //holder.setIsRecyclable(false);
+        Glide.with(context).clear(holder.channelIcon);
         CardView card = holder.cardView;
 
         final ChannelUtils.Channel item = objects.get(position);
@@ -74,8 +74,9 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
             holder.channelEvent.setVisibility(View.GONE);
         }
 
-        Picasso.get()
+        Glide.with(context)
                 .load(Uri.parse(ChannelUtils.getIconURL(item)))
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.channelIcon);
 
         holder.cardView.setOnFocusChangeListener((v, hasFocus) -> {

@@ -2,6 +2,7 @@
 <resources>
 
     <color name="windowBg">#181725</color>
+    <color name="panel_background">#181725</color>
 
     <color name="programguide_header_background">#202020</color>
     <color name="programguide_content_background">#000000</color>

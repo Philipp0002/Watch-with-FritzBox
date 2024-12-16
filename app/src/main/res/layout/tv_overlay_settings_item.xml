@@ -4,19 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
+    android:layout_marginTop="4dp"
     android:orientation="vertical">
 
 
     <androidx.cardview.widget.CardView
         android:id="@+id/tvoverlaysetting_cardView"
         android:layout_width="350dp"
-        android:layout_height="130dp"
+        android:layout_height="64dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:focusable="true"
-        app:cardBackgroundColor="#2a2939"
-        app:cardCornerRadius="8dp"
+        app:cardBackgroundColor="@color/item_card_background"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -24,23 +25,26 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:paddingVertical="4dp"
+            android:duplicateParentState="true">
 
             <ImageView
                 android:id="@+id/tvoverlaysetting_logo"
                 android:layout_width="100dp"
-                android:layout_height="59dp"
+                android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="8dp"
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:scaleType="fitCenter"
-                android:tint="#c4c3c8"
+                android:tint="@color/item_card_icon_color"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="#c4c3c8" />
+                app:tint="@color/item_card_icon_color"
+                android:duplicateParentState="true" />
 
             <TextView
                 android:id="@+id/tvoverlaysetting_name"
@@ -49,9 +53,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="8dp"
                 android:text="EINSTELLUNG"
-                android:textColor="#fff"
+                android:textColor="@color/item_card_text_color"
                 android:textSize="24sp"
-                android:textStyle="bold"
+                android:duplicateParentState="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tvoverlaysetting_logo"

@@ -9,7 +9,7 @@
         android:id="@+id/view"
         android:layout_width="414dp"
         android:layout_height="match_parent"
-        android:background="#181725"
+        android:background="@color/panel_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

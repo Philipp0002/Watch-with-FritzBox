@@ -3,7 +3,11 @@ package de.hahnphilipp.watchwithfritzbox.player;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.net.Uri;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +37,8 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
     private Fragment context;
     public int selectedChannel = -1;
     private RecyclerView recyclerView;
+
+    int focus = 0;
 
     public TVChannelListOverlayRecyclerAdapter(Fragment context, ArrayList<ChannelUtils.Channel> objects, RecyclerView recyclerView) {
         this.objects = objects;
@@ -84,14 +90,15 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 if (context instanceof EditChannelListTVOverlay) {
                     card.setCardBackgroundColor(Color.parseColor(item.number == selectedChannel ? "#c7c7f2" : "#f5f5f7"));
                 } else {
-                    card.setCardBackgroundColor(Color.parseColor("#f5f5f7"));
+                    //card.setCardBackgroundColor(Color.parseColor("#f5f5f7"));
                     if (recyclerView != null) {
                         recyclerView.scrollToPosition(position);
+                        //centerItem(holder.itemView);
                     }
                     holder.mainView.setElevation(12);
-                    AnimationUtils.scaleView(holder.mainView, 1F, 1.05F, 1F, 1.05F, 100L);
+                    AnimationUtils.scaleView(holder.mainView, 1F, 1.025F, 1F, 1.025F, 100L);
+                    focus = position;
                 }
-                holder.channelName.setTextColor(Color.BLACK);
                 holder.channelEvent.setTextColor(Color.parseColor("#52525a"));
                 holder.channelNumber.setTextColor(Color.parseColor("#52525a"));
                 holder.channelNumberLayout.setBackgroundResource(R.drawable.channel_number_outline_black);
@@ -109,8 +116,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
 
                 }
             } else {
-                card.setCardBackgroundColor(Color.parseColor("#2a2939"));
-                holder.channelName.setTextColor(Color.WHITE);
+                //card.setCardBackgroundColor(Color.parseColor("#2a2939"));
                 holder.channelEvent.setTextColor(Color.parseColor("#c4c3c8"));
                 holder.channelNumber.setTextColor(Color.parseColor("#c4c3c8"));
                 holder.channelNumberLayout.setBackgroundResource(R.drawable.channel_number_outline_white);
@@ -119,7 +125,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 ImageViewCompat.setImageTintList(holder.channelTypeIcon, ColorStateList.valueOf(Color.parseColor("#2a2939")));
 
                 if (!(context instanceof EditChannelListTVOverlay)) {
-                    AnimationUtils.scaleView(holder.mainView, 1.05F, 1F, 1.05F, 1F, 20L);
+                    AnimationUtils.scaleView(holder.mainView, 1.025F, 1F, 1.025F, 1F, 20L);
                     holder.mainView.setElevation(3);
                 }
             }
@@ -163,6 +169,20 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         }
 
 
+    }
+
+    public void centerItem(View view) {
+        int[] location = new int[2];
+        view.getLocationOnScreen(location);
+        int y = location[1] + (view.getHeight() / 2);
+
+        DisplayMetrics displaymetrics = context.getResources().getDisplayMetrics();
+        int height = displaymetrics.heightPixels;
+
+        int scrollby = y - (height / 2);
+        Log.d("scrollby", y + " - " + (height / 2) + " = " + scrollby);
+
+        recyclerView.smoothScrollBy(0, scrollby);
     }
 
 

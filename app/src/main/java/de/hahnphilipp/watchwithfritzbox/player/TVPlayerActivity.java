@@ -6,7 +6,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -15,23 +17,23 @@ import android.widget.TextView;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 
-
-import org.videolan.libvlc.LibVLC;
-import org.videolan.libvlc.Media;
-import org.videolan.libvlc.MediaPlayer;
-import org.videolan.libvlc.util.VLCVideoLayout;
-
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import org.videolan.libvlc.IVLCVout;
+import org.videolan.libvlc.LibVLC;
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaPlayer;
 
 import de.hahnphilipp.watchwithfritzbox.epg.LogcatEpgReader;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.R;
 
-public class TVPlayerActivity extends FragmentActivity {
+public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
 
-    public VLCVideoLayout mVideoLayout = null;
+    public IVLCVout ivlcVout;
+    public SurfaceView surfaceView;
     private LibVLC mLibVLC = null;
     public MediaPlayer mMediaPlayer = null;
 
@@ -48,15 +50,40 @@ public class TVPlayerActivity extends FragmentActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         final ArrayList<String> args = new ArrayList<>();
-        args.add("-vvv");
+        args.add("-vvvvv");
 
         args.add("--audio-resampler");
         args.add("soxr");
+        args.add("--http-reconnect");
+        args.add("--sout-keep");
+        args.add("--no-audio-time-stretch");
+        args.add("--avcodec-skiploopfilter");
+        args.add("1");
+        args.add("--freetype-color=16777215");
+        args.add("--freetype-background-opacity=128");
+        args.add("--network-caching=1500");
+        args.add("--live-caching=1500");
+        args.add("--sout-mux-caching=1500");
+        args.add("--avcodec-hurry-up");
+        args.add("1");
+        args.add("--demux");
+        args.add("live555");
+
+        surfaceView = findViewById(R.id.video_layout);
 
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
+        mMediaPlayer.setEventListener(this);
+        ivlcVout = mMediaPlayer.getVLCVout();
+        ivlcVout.setVideoView(surfaceView);
+        ivlcVout.attachViews();
 
-        mVideoLayout = findViewById(R.id.video_layout);
+        final ViewTreeObserver observer= surfaceView.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(() -> {
+            // Set rendering size
+            ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
+        });
+
 
         initializeOverlay();
     }
@@ -94,8 +121,6 @@ public class TVPlayerActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mMediaPlayer.release();
-        mLibVLC.release();
     }
 
 
@@ -125,7 +150,7 @@ public class TVPlayerActivity extends FragmentActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mMediaPlayer.attachViews(mVideoLayout, null, false, false);
+        //mMediaPlayer.attachViews(mVideoLayout, null, false, false);
         launchPlayer(false);
     }
 
@@ -171,35 +196,10 @@ public class TVPlayerActivity extends FragmentActivity {
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("URIIIL", channel.url);
                 final Media media = new Media(mLibVLC, Uri.parse(channel.url));
-                media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
                 mMediaPlayer.setMedia(media);
+                media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
                 media.release();
                 mMediaPlayer.play();
-
-                mMediaPlayer.setEventListener(event -> {
-                    switch (event.type) {
-                        case MediaPlayer.Event.Buffering:
-                            runOnUiThread(() -> {
-                                ((ProgressBar) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
-
-                                if (event.getBuffering() == 100F) {
-                                    mSettingsOverlayFragment.updateTVSettings();
-                                    findViewById(R.id.player_skip_timer).setVisibility(View.INVISIBLE);
-                                    if (channel.type == ChannelUtils.ChannelType.RADIO) {
-                                        findViewById(R.id.player_skip_radio).setVisibility(View.VISIBLE);
-                                    } else {
-                                        findViewById(R.id.player_skip_overlay).setVisibility(View.GONE);
-                                    }
-                                }
-                            });
-                            if (event.getBuffering() == 100F) {
-                                mMediaPlayer.setEventListener(null);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                });
 
             }
         }, timeWait);
@@ -240,13 +240,10 @@ public class TVPlayerActivity extends FragmentActivity {
             public void run() {
                 if (selection != null)
                     ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (selection != null)
-                            launchPlayer(true);
-                        findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
-                    }
+                runOnUiThread(() -> {
+                    if (selection != null)
+                        launchPlayer(true);
+                    findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
                 });
 
 
@@ -262,7 +259,37 @@ public class TVPlayerActivity extends FragmentActivity {
         super.onStop();
 
         mMediaPlayer.stop();
-        mMediaPlayer.detachViews();
+        ivlcVout.detachViews();
+        mLibVLC.release();
+        mMediaPlayer.release();
+        mMediaPlayer = null;
+        mLibVLC = null;
     }
 
+    @Override
+    public void onEvent(MediaPlayer.Event event) {
+        Log.d("MediaPlayerEvent", event.type + " " + event.getBuffering());
+        switch (event.type) {
+            case MediaPlayer.Event.Buffering:
+                runOnUiThread(() -> {
+                    ((ProgressBar) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
+
+                    if (event.getBuffering() == 100F) {
+                        int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
+                        ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
+
+                        mSettingsOverlayFragment.updateTVSettings();
+                        findViewById(R.id.player_skip_timer).setVisibility(View.INVISIBLE);
+                        if (channel.type == ChannelUtils.ChannelType.RADIO) {
+                            findViewById(R.id.player_skip_radio).setVisibility(View.VISIBLE);
+                        } else {
+                            findViewById(R.id.player_skip_overlay).setVisibility(View.GONE);
+                        }
+                    }
+                });
+                break;
+            default:
+                break;
+        }
+    }
 }

@@ -159,20 +159,20 @@ public class RichTvInputService extends TvInputService {
                                 notifyTracksChanged(tvTrackInfoList);
 
 
-                                //if (player.getVideoTrack() != null) {
-                                int videoTrack = player.getVideoTrack();
-                                TvTrackInfo.Builder builder = new TvTrackInfo.Builder(TvTrackInfo.TYPE_VIDEO, "video");
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    builder.setDescription("Video");
+                                if (player.getCurrentVideoTrack() != null) {
+                                    Media.VideoTrack videoTrack = player.getCurrentVideoTrack();
+                                    TvTrackInfo.Builder builder = new TvTrackInfo.Builder(TvTrackInfo.TYPE_VIDEO, "video");
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        builder.setDescription("Video");
+                                    }
+                                    builder.setVideoFrameRate(player.getRate());
+                                    float height = videoTrack.height;
+                                    if (height == 1088F) height = 1080F;
+                                    float width = videoTrack.width;
+                                    builder.setVideoHeight((int) height);
+                                    builder.setVideoWidth((int) width);
+                                    tvTrackInfoList.add(builder.build());
                                 }
-                                /*builder.setVideoFrameRate(player.getRate());
-                                float height = videoTrack.height;
-                                if (height == 1088F) height = 1080F;
-                                float width = videoTrack.width;
-                                builder.setVideoHeight((int) height);
-                                builder.setVideoWidth((int) width);
-                                tvTrackInfoList.add(builder.build());*///TODO
-                                //}
 
 
                                 if (audioId != null)

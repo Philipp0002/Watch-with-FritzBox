@@ -54,7 +54,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
         args.add("--audio-resampler");
         args.add("soxr");
-
         args.add("--http-reconnect");
         args.add("--sout-keep");
         args.add("--no-audio-time-stretch");
@@ -67,6 +66,8 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         args.add("--sout-mux-caching=1500");
         args.add("--avcodec-hurry-up");
         args.add("1");
+        args.add("--demux");
+        args.add("live555");
 
         surfaceView = findViewById(R.id.video_layout);
 
@@ -195,15 +196,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("URIIIL", channel.url);
                 final Media media = new Media(mLibVLC, Uri.parse(channel.url));
-                Log.d("URIIIL", "1");
                 mMediaPlayer.setMedia(media);
-                Log.d("URIIIL", "2");
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
-                Log.d("URIIIL", "3");
                 media.release();
-                Log.d("URIIIL", "4");
                 mMediaPlayer.play();
-                Log.d("URIIIL", "5");
 
             }
         }, timeWait);
@@ -244,13 +240,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             public void run() {
                 if (selection != null)
                     ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (selection != null)
-                            launchPlayer(true);
-                        findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
-                    }
+                runOnUiThread(() -> {
+                    if (selection != null)
+                        launchPlayer(true);
+                    findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
                 });
 
 

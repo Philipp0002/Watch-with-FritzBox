@@ -185,7 +185,7 @@ public class SettingsTVOverlay extends Fragment {
             selectionTVOverlay.tvSettings.add(new TVSetting(aspect, R.drawable.round_video_settings, new Runnable() {
                 @Override
                 public void run() {
-                    //TODO player.setAspectRatio(aspect);
+                    player.setAspectRatio(aspect);
                     if(selectionTVOverlay != null)
                         getActivity().getSupportFragmentManager().beginTransaction().remove(selectionTVOverlay).commit();
                     openedFragment = null;

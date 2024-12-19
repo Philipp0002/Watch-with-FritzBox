@@ -34,6 +34,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public IVLCVout ivlcVout;
     public SurfaceView surfaceView;
+    public SurfaceView subtitlesView;
     private LibVLC mLibVLC = null;
     public MediaPlayer mMediaPlayer = null;
 
@@ -66,16 +67,20 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         args.add("--sout-mux-caching=1500");
         args.add("--avcodec-hurry-up");
         args.add("1");
-        args.add("--demux");
-        args.add("live555");
+        //args.add("--telx-hide");
+        //args.add("--demux");
+        //args.add("live555");
+        //args.add("--vbi-text");
 
         surfaceView = findViewById(R.id.video_layout);
+        subtitlesView = findViewById(R.id.subtitles_layout);
 
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mMediaPlayer.setEventListener(this);
         ivlcVout = mMediaPlayer.getVLCVout();
         ivlcVout.setVideoView(surfaceView);
+        ivlcVout.setSubtitlesView(subtitlesView);
         ivlcVout.attachViews();
 
         final ViewTreeObserver observer= surfaceView.getViewTreeObserver();
@@ -194,8 +199,31 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 Log.d("PlaybackActivity", "Starting playback of " + channel.title + " -" + channel.url);
                 final Media media = new Media(mLibVLC, Uri.parse(channel.url));
                 mMediaPlayer.setMedia(media);
+                /**
+                 * --vbi-page=<integer [0 .. 7995392]>
+                 *                                  Teletext page
+                 *           Open the indicated Teletext page. Default page is index 100.
+                 *       --vbi-opaque, --no-vbi-opaque
+                 *                                  Opacity
+                 *                                  (default disabled)
+                 *           Setting to true makes the text to be boxed and maybe easier to read.
+                 *       --vbi-position={0 (Center), 1 (Left), 2 (Right), 4 (Top), 8 (Bottom), 5 (Top-Left), 6 (Top-Right), 9 (Bottom-Left), 10 (Bottom-Right)}
+                 *                                  Teletext alignment
+                 *           You can enforce the teletext position on the video (0=center, 1=left,
+                 *           2=right, 4=top, 8=bottom, you can also use combinations of these
+                 *           values, eg. 6 = top-right).
+                 *       --vbi-text, --no-vbi-text  Teletext text subtitles
+                 *                                  (default disabled)
+                 *           Output teletext subtitles as text instead of as RGBA.
+                 *       --vbi-level={0 (1), 1 (1.5), 2 (2.5), 3 (3.5)}
+                 *                                  Presentation Level
+                 */
+                media.addOption(":vbi-page=150");
+                media.addOption(":vbi-opaque");
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
-                media.release();
+
+
+                //media.release();
                 mMediaPlayer.play();
 
             }

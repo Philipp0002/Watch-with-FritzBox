@@ -223,7 +223,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
 
-                //media.release();
+                media.release();
                 mMediaPlayer.play();
 
             }

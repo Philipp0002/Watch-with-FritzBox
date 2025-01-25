@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
@@ -160,6 +161,19 @@ public class ChannelUtils {
         ArrayList<Channel> channels = new Gson().fromJson(sp.getString("channels", "[]"), channelListType);
         Collections.sort(channels, Comparator.comparingInt(o -> o.number));
         return channels;
+    }
+
+    public static String getAllChannelsM3U(Context context) {
+        ArrayList<Channel> channels = getAllChannels(context);
+
+        StringBuilder m3u = new StringBuilder("#EXTM3U\n");
+        for (Channel channel : channels) {
+            m3u.append("#EXTINF:0,").append(channel.title).append("\n");
+            m3u.append("#EXTVLCOPT:network-caching=1000\n");
+            m3u.append(channel.url).append("\n");
+        }
+
+        return m3u.toString();
     }
 
     public static String getIconURL(Channel channel) {

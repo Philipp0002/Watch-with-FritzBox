@@ -5,11 +5,15 @@ import static androidx.core.content.ContextCompat.getSystemService;
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.net.wifi.WifiManager;
+import android.text.format.Formatter;
 import android.util.Log;
 
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
 
 /**
  * mDNS - NSD (Network Service Discovery)
@@ -130,6 +134,8 @@ public class NSDService {
     public void resolveService(NsdServiceInfo serviceInfo) {
         NsdManager nsdManager = getSystemService(context, NsdManager.class);
 
+        String ownIP = IPUtils.getIPAddress(true);
+
         nsdManager.resolveService(
                 serviceInfo,
                 new NsdManager.ResolveListener() {
@@ -142,9 +148,11 @@ public class NSDService {
                     public void onServiceResolved(NsdServiceInfo resolvedServiceInfo) {
                         Log.d("NSD", "Service resolved: " + resolvedServiceInfo);
                         String host = resolvedServiceInfo.getHost().getHostAddress();
-                        int port = resolvedServiceInfo.getPort();
+                        if(host.equalsIgnoreCase(ownIP)) {
+                            return;
+                        }
                         discoveredIPs.add(host);
-                        Log.d("NSD", "Host: " + host + ", Port: " + port);
+                        Log.d("NSD", "Host: " + host);
                     }
                 });
     }

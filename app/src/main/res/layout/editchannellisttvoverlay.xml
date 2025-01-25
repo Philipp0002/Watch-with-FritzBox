@@ -26,6 +26,8 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:focusedByDefault="true"
+        android:nextFocusForward="@id/editChannelListImportButton"
+        android:nextFocusRight="@id/editChannelListImportButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/view">
@@ -67,7 +69,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editChannelListInfoImage" />
+            app:layout_constraintTop_toBottomOf="@id/editChannelListInfoImage" />
 
         <TextView
             android:id="@+id/editChannelListInfoText2"
@@ -80,7 +82,24 @@
             android:textColor="#fff"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editChannelListInfoText" />
+            app:layout_constraintTop_toBottomOf="@id/editChannelListInfoText" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editChannelListImportButton"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/settings_reorder_channels_import_button"
+            android:textColor="#2a2939"
+            app:cornerRadius="16dp"
+            app:elevation="0dp"
+            app:icon="@drawable/round_check"
+            app:iconTint="#2a2939"
+            android:nextFocusLeft="@id/tvoverlayrecycler"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editChannelListInfoText2" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

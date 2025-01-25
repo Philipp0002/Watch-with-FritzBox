@@ -39,13 +39,13 @@ public class ChannelListTVOverlay extends Fragment {
 
     private static ChannelListTVOverlay INSTANCE;
 
-    public static void notifyChannelListChanged(){
-        if(INSTANCE != null){
+    public static void notifyChannelListChanged() {
+        if (INSTANCE != null) {
             INSTANCE.updateChannelList();
         }
     }
 
-    public void updateChannelList(){
+    public void updateChannelList() {
         tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
         getActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
     }
@@ -55,8 +55,7 @@ public class ChannelListTVOverlay extends Fragment {
                              Bundle savedInstanceState) {
         INSTANCE = this;
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.channellisttvoverlay, container, false);
-        return v;
+        return inflater.inflate(R.layout.channellisttvoverlay, container, false);
     }
 
     @Override
@@ -86,7 +85,6 @@ public class ChannelListTVOverlay extends Fragment {
     }
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,15 +94,16 @@ public class ChannelListTVOverlay extends Fragment {
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-        if(!isShown && !context.mSettingsOverlayFragment.isShown){
-            if(event.getAction() == KeyEvent.ACTION_DOWN) {
+        if (!isShown && !context.mSettingsOverlayFragment.isShown) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_UP) {
                     Animation a = AnimationUtils.loadAnimation(context, R.anim.slide_up);
                     a.setInterpolator(new AccelerateDecelerateInterpolator());
                     a.setFillEnabled(false);
                     a.setAnimationListener(new Animation.AnimationListener() {
                         @Override
-                        public void onAnimationStart(Animation animation) {}
+                        public void onAnimationStart(Animation animation) {
+                        }
 
                         @Override
                         public void onAnimationEnd(Animation animation) {
@@ -114,7 +113,8 @@ public class ChannelListTVOverlay extends Fragment {
                         }
 
                         @Override
-                        public void onAnimationRepeat(Animation animation) {}
+                        public void onAnimationRepeat(Animation animation) {
+                        }
                     });
                     context.findViewById(R.id.video_layout).startAnimation(a);
 
@@ -125,7 +125,8 @@ public class ChannelListTVOverlay extends Fragment {
                     a.setFillEnabled(false);
                     a.setAnimationListener(new Animation.AnimationListener() {
                         @Override
-                        public void onAnimationStart(Animation animation) {}
+                        public void onAnimationStart(Animation animation) {
+                        }
 
                         @Override
                         public void onAnimationEnd(Animation animation) {
@@ -135,7 +136,8 @@ public class ChannelListTVOverlay extends Fragment {
                         }
 
                         @Override
-                        public void onAnimationRepeat(Animation animation) {}
+                        public void onAnimationRepeat(Animation animation) {
+                        }
                     });
                     context.findViewById(R.id.video_layout).startAnimation(a);
 
@@ -150,34 +152,34 @@ public class ChannelListTVOverlay extends Fragment {
                     context.mSettingsOverlayFragment.showOverlays();
                     return true;
                 } else {
-                    if(keyCode == KeyEvent.KEYCODE_0){
+                    if (keyCode == KeyEvent.KEYCODE_0) {
                         context.enterNumber(0);
                         return true;
-                    }else if(keyCode == KeyEvent.KEYCODE_1){
+                    } else if (keyCode == KeyEvent.KEYCODE_1) {
                         context.enterNumber(1);
                         return true;
-                    }else if(keyCode == KeyEvent.KEYCODE_2){
+                    } else if (keyCode == KeyEvent.KEYCODE_2) {
                         context.enterNumber(2);
                         return true;
-                    }else if(keyCode == KeyEvent.KEYCODE_3){
+                    } else if (keyCode == KeyEvent.KEYCODE_3) {
                         context.enterNumber(3);
                         return true;
-                    }else if(keyCode == KeyEvent.KEYCODE_4){
+                    } else if (keyCode == KeyEvent.KEYCODE_4) {
                         context.enterNumber(4);
                         return true;
-                    }else if(keyCode == KeyEvent.KEYCODE_5){
+                    } else if (keyCode == KeyEvent.KEYCODE_5) {
                         context.enterNumber(5);
                         return true;
-                    }else if(keyCode == KeyEvent.KEYCODE_6){
+                    } else if (keyCode == KeyEvent.KEYCODE_6) {
                         context.enterNumber(6);
                         return true;
-                    }else if(keyCode == KeyEvent.KEYCODE_7){
+                    } else if (keyCode == KeyEvent.KEYCODE_7) {
                         context.enterNumber(7);
                         return true;
-                    }else if(keyCode == KeyEvent.KEYCODE_8){
+                    } else if (keyCode == KeyEvent.KEYCODE_8) {
                         context.enterNumber(8);
                         return true;
-                    }else if(keyCode == KeyEvent.KEYCODE_9){
+                    } else if (keyCode == KeyEvent.KEYCODE_9) {
                         context.enterNumber(9);
                         return true;
                     }
@@ -185,25 +187,20 @@ public class ChannelListTVOverlay extends Fragment {
                 }
 
             }
-        }else{
-            if(event.getAction() == KeyEvent.ACTION_DOWN) {
-                if (keyCode == KeyEvent.KEYCODE_BACK && isShown) {
-                    hideOverlays();
-                    return true;
-                } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && isShown) {
+        } else {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if ((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) && isShown) {
                     hideOverlays();
                     return true;
                 }
             }
         }
-    return false;
-
+        return false;
     }
 
 
-
-    public void startUpdateTimer(){
-        if(t == null){
+    public void startUpdateTimer() {
+        if (t == null) {
             t = new Timer();
             t.scheduleAtFixedRate(new TimerTask() {
                 @Override
@@ -214,8 +211,8 @@ public class ChannelListTVOverlay extends Fragment {
         }
     }
 
-    public void stopUpdateTimer(){
-        if(t != null){
+    public void stopUpdateTimer() {
+        if (t != null) {
             t.cancel();
             t = null;
         }
@@ -239,30 +236,30 @@ public class ChannelListTVOverlay extends Fragment {
         stopUpdateTimer();
     }
 
-    public void updateInfo(){
+    public void updateInfo() {
         DateFormat dfdate = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
         final String date = dfdate.format(new Date());
         DateFormat dftime = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault());
         final String time = dftime.format(new Date());
 
-        if(context != null)
+        if (context != null)
             context.runOnUiThread(() -> {
-                ((TextView)getView().findViewById(R.id.tvoverlaydate)).setText(date);
-                ((TextView)getView().findViewById(R.id.tvoverlaytime)).setText(time);
+                ((TextView) getView().findViewById(R.id.tvoverlaydate)).setText(date);
+                ((TextView) getView().findViewById(R.id.tvoverlaytime)).setText(time);
             });
     }
 
-    public void showOverlays(){
+    public void showOverlays() {
         isShown = true;
-        int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(getContext())-1;
-        tvOverlayRecyclerAdapter.selectedChannel = lastSelectedChannel+1;
+        int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(getContext()) - 1;
+        tvOverlayRecyclerAdapter.selectedChannel = lastSelectedChannel + 1;
         tvOverlayRecyclerAdapter.notifyDataSetChanged();
         getView().setVisibility(View.VISIBLE);
         recyclerView.scrollToPosition(lastSelectedChannel);
 
     }
 
-    public void hideOverlays(){
+    public void hideOverlays() {
         isShown = false;
         getView().setVisibility(View.GONE);
     }

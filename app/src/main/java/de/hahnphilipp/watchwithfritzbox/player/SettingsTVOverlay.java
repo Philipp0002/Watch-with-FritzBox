@@ -99,9 +99,9 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             tvSettings.add(new TVSetting(getString(R.string.video_aspect), R.drawable.round_video_settings, this::showVideoFormatSelection, true));
         }
 
-        tvSettings.add(new TVSetting(getString(R.string.settings_reorder_channels), R.drawable.round_reorder, this::showChannelEditor, false));
-
         tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration), R.drawable.round_speed, this::showHWAcelerationSelection, false));
+
+        tvSettings.add(new TVSetting(getString(R.string.settings_reorder_channels), R.drawable.round_reorder, this::showChannelEditor, false));
 
         if (tvOverlayRecyclerAdapter != null) {
             tvOverlayRecyclerAdapter.objects = tvSettings;

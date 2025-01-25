@@ -157,15 +157,9 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <FrameLayout
-        android:id="@+id/overlaySettings"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:background="@android:color/transparent" />
 
     <FrameLayout
-        android:id="@+id/overlayChannels"
+        android:id="@+id/overlayMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"

@@ -5,9 +5,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,17 +22,14 @@ import java.util.TimerTask;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
-public class ChannelListTVOverlay extends Fragment {
+public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
 
     public TVPlayerActivity context;
-    public boolean isShown = false;
-
-    TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
-    RecyclerView recyclerView;
-    LinearLayoutManager llm;
-
-    Timer t;
+    private TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
+    private RecyclerView recyclerView;
+    private Timer clockTimer;
 
     private static ChannelListTVOverlay INSTANCE;
 
@@ -66,9 +60,12 @@ public class ChannelListTVOverlay extends Fragment {
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
         tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(getContext()), recyclerView);
-        llm = new LinearLayoutManager(context);
+        LinearLayoutManager llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
+        int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(getContext()) - 1;
+        tvOverlayRecyclerAdapter.selectedChannel = lastSelectedChannel + 1;
+        recyclerView.scrollToPosition(lastSelectedChannel);
 
         BrowseFrameLayout browseFrameLayout = view.findViewById(R.id.tvoverlayrecyclerBrowse);
         browseFrameLayout.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
@@ -81,7 +78,6 @@ public class ChannelListTVOverlay extends Fragment {
             }
         });
 
-        hideOverlays();
     }
 
 
@@ -93,128 +89,30 @@ public class ChannelListTVOverlay extends Fragment {
 
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        if (!isShown && !context.mSettingsOverlayFragment.isShown) {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_UP) {
-                    Animation a = AnimationUtils.loadAnimation(context, R.anim.slide_up);
-                    a.setInterpolator(new AccelerateDecelerateInterpolator());
-                    a.setFillEnabled(false);
-                    a.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            ChannelUtils.Channel next = ChannelUtils.getNextChannel(context, ChannelUtils.getLastSelectedChannel(context));
-                            ChannelUtils.updateLastSelectedChannel(context, next.number);
-                            context.launchPlayer(true);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-                        }
-                    });
-                    context.findViewById(R.id.video_layout).startAnimation(a);
-
-                    return true;
-                } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN) {
-                    Animation a = AnimationUtils.loadAnimation(context, R.anim.slide_down);
-                    a.setInterpolator(new AccelerateDecelerateInterpolator());
-                    a.setFillEnabled(false);
-                    a.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            ChannelUtils.Channel previous = ChannelUtils.getPreviousChannel(context, ChannelUtils.getLastSelectedChannel(context));
-                            ChannelUtils.updateLastSelectedChannel(context, previous.number);
-                            context.launchPlayer(true);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-                        }
-                    });
-                    context.findViewById(R.id.video_layout).startAnimation(a);
-
-                    return true;
-                } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
-                    showOverlays();
-                    return true;
-                } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                    showOverlays();
-                    return true;
-                } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-                    context.mSettingsOverlayFragment.showOverlays();
-                    return true;
-                } else {
-                    if (keyCode == KeyEvent.KEYCODE_0) {
-                        context.enterNumber(0);
-                        return true;
-                    } else if (keyCode == KeyEvent.KEYCODE_1) {
-                        context.enterNumber(1);
-                        return true;
-                    } else if (keyCode == KeyEvent.KEYCODE_2) {
-                        context.enterNumber(2);
-                        return true;
-                    } else if (keyCode == KeyEvent.KEYCODE_3) {
-                        context.enterNumber(3);
-                        return true;
-                    } else if (keyCode == KeyEvent.KEYCODE_4) {
-                        context.enterNumber(4);
-                        return true;
-                    } else if (keyCode == KeyEvent.KEYCODE_5) {
-                        context.enterNumber(5);
-                        return true;
-                    } else if (keyCode == KeyEvent.KEYCODE_6) {
-                        context.enterNumber(6);
-                        return true;
-                    } else if (keyCode == KeyEvent.KEYCODE_7) {
-                        context.enterNumber(7);
-                        return true;
-                    } else if (keyCode == KeyEvent.KEYCODE_8) {
-                        context.enterNumber(8);
-                        return true;
-                    } else if (keyCode == KeyEvent.KEYCODE_9) {
-                        context.enterNumber(9);
-                        return true;
-                    }
-                    return false;
-                }
-
-            }
-        } else {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                if ((keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) && isShown) {
-                    hideOverlays();
-                    return true;
-                }
-            }
+        if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+            context.popOverlayFragment();
+            return true;
         }
         return false;
     }
 
 
     public void startUpdateTimer() {
-        if (t == null) {
-            t = new Timer();
-            t.scheduleAtFixedRate(new TimerTask() {
+        if (clockTimer == null) {
+            clockTimer = new Timer();
+            clockTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
                     updateInfo();
                 }
-            }, 1000, 1000);
+            }, 0, 1000);
         }
     }
 
     public void stopUpdateTimer() {
-        if (t != null) {
-            t.cancel();
-            t = null;
+        if (clockTimer != null) {
+            clockTimer.cancel();
+            clockTimer = null;
         }
     }
 
@@ -247,21 +145,6 @@ public class ChannelListTVOverlay extends Fragment {
                 ((TextView) getView().findViewById(R.id.tvoverlaydate)).setText(date);
                 ((TextView) getView().findViewById(R.id.tvoverlaytime)).setText(time);
             });
-    }
-
-    public void showOverlays() {
-        isShown = true;
-        int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(getContext()) - 1;
-        tvOverlayRecyclerAdapter.selectedChannel = lastSelectedChannel + 1;
-        tvOverlayRecyclerAdapter.notifyDataSetChanged();
-        getView().setVisibility(View.VISIBLE);
-        recyclerView.scrollToPosition(lastSelectedChannel);
-
-    }
-
-    public void hideOverlays() {
-        isShown = false;
-        getView().setVisibility(View.GONE);
     }
 
 }

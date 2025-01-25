@@ -133,7 +133,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         holder.cardView.setOnClickListener(v -> {
             if (context instanceof ChannelListTVOverlay) {
                 ChannelListTVOverlay overlay = (ChannelListTVOverlay) context;
-                overlay.hideOverlays();
+                overlay.context.popOverlayFragment();
                 ChannelUtils.updateLastSelectedChannel(((ChannelListTVOverlay) context).context, item.number);
                 overlay.context.launchPlayer(false);
             } else if (context instanceof EditChannelListTVOverlay) {

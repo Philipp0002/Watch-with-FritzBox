@@ -1,6 +1,7 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
 
-public class SelectionTVOverlay extends Fragment {
+public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
 
-    TVSettingsOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
-    RecyclerView recyclerView;
+    private RecyclerView recyclerView;
 
     public ArrayList<TVSetting> tvSettings = new ArrayList<TVSetting>();
     public String title = null;
@@ -44,7 +45,7 @@ public class SelectionTVOverlay extends Fragment {
             ((TextView) view.findViewById(R.id.tvoverlayrecyclerTitle)).setText(title);
         }
 
-        tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings);
+        TVSettingsOverlayRecyclerAdapter tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings);
         final LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
@@ -61,4 +62,12 @@ public class SelectionTVOverlay extends Fragment {
         });
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+            ((TVPlayerActivity)getActivity()).popOverlayFragment();
+            return true;
+        }
+        return false;
+    }
 }

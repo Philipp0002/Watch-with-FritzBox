@@ -10,10 +10,14 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -29,6 +33,7 @@ import org.videolan.libvlc.MediaPlayer;
 import de.hahnphilipp.watchwithfritzbox.epg.LogcatEpgReader;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
 public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
 
@@ -83,7 +88,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         ivlcVout.setSubtitlesView(subtitlesView);
         ivlcVout.attachViews();
 
-        final ViewTreeObserver observer= surfaceView.getViewTreeObserver();
+        final ViewTreeObserver observer = surfaceView.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(() -> {
             // Set rendering size
             ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
@@ -94,33 +99,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     private void initializeOverlay() {
-        if (mChannelOverlayFragment != null)
-            return;
-
-        mChannelOverlayFragment = (ChannelListTVOverlay) getSupportFragmentManager().findFragmentByTag("channels_video_overlay_fragment");
-        if (mChannelOverlayFragment != null)
-            return;
-
         mChannelOverlayFragment = new ChannelListTVOverlay();
         mChannelOverlayFragment.context = this;
         mChannelOverlayFragment.setArguments(getIntent().getExtras());
-        FragmentTransaction ftChannel = getSupportFragmentManager().beginTransaction();
-        ftChannel.replace(R.id.overlayChannels, mChannelOverlayFragment, "channels_video_overlay_fragment");
-        ftChannel.commit();
 
-        if (mSettingsOverlayFragment != null)
-            return;
-
-        mSettingsOverlayFragment = (SettingsTVOverlay) getSupportFragmentManager().findFragmentByTag("settings_video_overlay_fragment");
-        if (mSettingsOverlayFragment != null)
-            return;
 
         mSettingsOverlayFragment = new SettingsTVOverlay();
         mSettingsOverlayFragment.context = this;
         mSettingsOverlayFragment.setArguments(getIntent().getExtras());
-        FragmentTransaction ftSettings = getSupportFragmentManager().beginTransaction();
-        ftSettings.replace(R.id.overlaySettings, mSettingsOverlayFragment, "settings_video_overlay_fragment");
-        ftSettings.commit();
     }
 
     @Override
@@ -132,19 +118,103 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     @Override
     protected void onResume() {
         super.onResume();
-        //mOverlayFragment.showOverlays();
+    }
+
+    public void addOverlayFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.overlayMenu, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void popOverlayFragment() {
+        getSupportFragmentManager().popBackStack();
+    }
+
+    public void zapChannel(boolean toNext) {
+        Animation a = AnimationUtils.loadAnimation(TVPlayerActivity.this, toNext ? R.anim.slide_up : R.anim.slide_down);
+        a.setInterpolator(new AccelerateDecelerateInterpolator());
+        a.setFillEnabled(false);
+        a.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                ChannelUtils.Channel toChannel =
+                        toNext ?
+                                ChannelUtils.getNextChannel(TVPlayerActivity.this, ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this)) :
+                                ChannelUtils.getPreviousChannel(TVPlayerActivity.this, ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this));
+                ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, toChannel.number);
+                launchPlayer(true);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        findViewById(R.id.video_layout).startAnimation(a);
     }
 
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return mChannelOverlayFragment.onKeyDown(keyCode, event) || mSettingsOverlayFragment.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+        Fragment overlayFragment = getSupportFragmentManager().findFragmentById(R.id.overlayMenu);
+        if (overlayFragment instanceof KeyDownReceiver) {
+            return ((KeyDownReceiver) overlayFragment).onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+        }
+
+        if (overlayFragment == null && event.getAction() == KeyEvent.ACTION_DOWN) {
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_UP) {
+                zapChannel(true);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN) {
+                zapChannel(false);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                addOverlayFragment(mChannelOverlayFragment);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                addOverlayFragment(mSettingsOverlayFragment);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_0) {
+                enterNumber(0);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_1) {
+                enterNumber(1);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_2) {
+                enterNumber(2);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_3) {
+                enterNumber(3);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_4) {
+                enterNumber(4);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_5) {
+                enterNumber(5);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_6) {
+                enterNumber(6);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_7) {
+                enterNumber(7);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_8) {
+                enterNumber(8);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_9) {
+                enterNumber(9);
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
     protected void onPause() {
-        mChannelOverlayFragment.hideOverlays();
-        mSettingsOverlayFragment.hideOverlays();
         super.onPause();
     }
 
@@ -159,7 +229,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     Timer switchChannelTimer = null;
 
     public void launchPlayer(boolean withWaitInterval) {
-        if(logcatEpgReader != null){
+        if (logcatEpgReader != null) {
             logcatEpgReader.stopLogcatRead();
         }
         logcatEpgReader = new LogcatEpgReader(this);

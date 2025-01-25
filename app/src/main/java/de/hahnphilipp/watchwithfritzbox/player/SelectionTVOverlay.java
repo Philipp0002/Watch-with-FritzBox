@@ -29,7 +29,7 @@ public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.overlay_selectiontv, container, false);
+        return inflater.inflate(R.layout.overlay_selection, container, false);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +39,7 @@ public class EditChannelListTVOverlay extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         INSTANCE = this;
-        return inflater.inflate(R.layout.editchannellisttvoverlay, container, false);
+        return inflater.inflate(R.layout.overlay_edit_channel_list, container, false);
     }
 
     public void updateChannelList() {

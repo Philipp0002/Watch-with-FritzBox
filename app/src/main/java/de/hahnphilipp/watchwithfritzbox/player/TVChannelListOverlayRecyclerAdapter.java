@@ -3,11 +3,7 @@ package de.hahnphilipp.watchwithfritzbox.player;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.net.Uri;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +46,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
 
     @Override
     public ChannelInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.tv_overlay_channel_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.overlay_channel_list_item, parent, false);
         return new ChannelInfoViewHolder(v);
     }
 

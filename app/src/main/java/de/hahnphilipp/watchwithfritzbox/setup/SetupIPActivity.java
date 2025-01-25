@@ -45,7 +45,7 @@ public class SetupIPActivity extends AppCompatActivity {
             overridePendingTransition(0, 0);
             return;
         }
-        setContentView(R.layout.setup_ip_activity);
+        setContentView(R.layout.activity_setup_ip);
 
         ((EditText)findViewById(R.id.setup_ip_address_input_et)).setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {

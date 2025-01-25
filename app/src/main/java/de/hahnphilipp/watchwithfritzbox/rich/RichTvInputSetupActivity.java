@@ -1,14 +1,9 @@
 package de.hahnphilipp.watchwithfritzbox.rich;
 
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.IntentFilter;
 import android.media.tv.TvContract;
-import android.media.tv.TvInputInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.tvprovider.media.tv.Channel;
 
@@ -26,7 +21,7 @@ public class RichTvInputSetupActivity extends Activity /*implements SyncStatusBr
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.richtvinputsetupactivity);
+        setContentView(R.layout.activity_rich_tv_input_setup);
 
         getApplicationContext().getContentResolver().delete(TvContract.Channels.CONTENT_URI, null, null);
 

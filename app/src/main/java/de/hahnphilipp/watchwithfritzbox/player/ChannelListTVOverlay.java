@@ -49,7 +49,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
                              Bundle savedInstanceState) {
         INSTANCE = this;
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.channellisttvoverlay, container, false);
+        return inflater.inflate(R.layout.overlay_channellisttv, container, false);
     }
 
     @Override

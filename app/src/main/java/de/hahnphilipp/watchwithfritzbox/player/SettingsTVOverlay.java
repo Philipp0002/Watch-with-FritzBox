@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.videolan.libvlc.MediaPlayer;
 
 import java.util.ArrayList;
-import java.util.Timer;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.epg.EpgTimelineFragment;
@@ -39,7 +38,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.settingstvoverlay, container, false);
+        return inflater.inflate(R.layout.overlay_settingstv, container, false);
     }
 
     @Override

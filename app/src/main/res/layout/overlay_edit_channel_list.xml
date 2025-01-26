@@ -29,6 +29,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/view">
+        <!--android:nextFocusForward="@id/editChannelListImportRecycler"
+        android:nextFocusRight="@id/editChannelListImportRecycler"-->
 
         <requestFocus />
     </androidx.recyclerview.widget.RecyclerView>
@@ -67,7 +69,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editChannelListInfoImage" />
+            app:layout_constraintTop_toBottomOf="@id/editChannelListInfoImage" />
 
         <TextView
             android:id="@+id/editChannelListInfoText2"
@@ -80,7 +82,26 @@
             android:textColor="#fff"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editChannelListInfoText" />
+            app:layout_constraintTop_toBottomOf="@id/editChannelListInfoText" />
+
+        <!--TextView
+            android:id="@+id/editChannelListImportTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_reorder_channels_import"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editChannelListInfoText2"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/editChannelListImportRecycler"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:nextFocusLeft="@id/tvoverlayrecycler"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editChannelListImportTitle" /-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,9 +3,18 @@ package de.hahnphilipp.watchwithfritzbox.webserver;
 import android.content.Context;
 
 import com.koushikdutta.async.http.server.AsyncHttpServer;
+import com.w3ma.m3u8parser.data.Playlist;
+import com.w3ma.m3u8parser.data.Track;
+import com.w3ma.m3u8parser.exception.PlaylistParseException;
+import com.w3ma.m3u8parser.parser.M3U8Parser;
+import com.w3ma.m3u8parser.scanner.M3U8ItemScanner;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.util.ArrayList;
 
 import de.hahnphilipp.watchwithfritzbox.player.ChannelListTVOverlay;
 import de.hahnphilipp.watchwithfritzbox.player.EditChannelListTVOverlay;
@@ -57,6 +66,36 @@ public class TVWebServer {
             response.send("There was an error");
         });
 
+        server.get("/downloadChannelList", (request, response) -> {
+            String channels = ChannelUtils.getAllChannelsM3U(context);
+
+            response.setContentType("audio/x-mpegurl");
+            response.getHeaders().add("Content-Disposition", "attachment; filename=channelList.m3u");
+            response.send(channels);
+        });
+
+        server.post("/uploadChannelList", (request, response) -> {
+            String channelListString = (String) request.getBody().get();
+            M3U8Parser m3U8ParserSD = new M3U8Parser(new ByteArrayInputStream(channelListString.getBytes(StandardCharsets.UTF_8)), M3U8ItemScanner.Encoding.UTF_8);
+            try {
+                Playlist playlist = m3U8ParserSD.parse();
+                int channelNumber = 1;
+                ArrayList<ChannelUtils.Channel> channels = new ArrayList<>();
+                for (Track t : playlist.getTrackSetMap().get("")) {
+                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.SD);
+                    channels.add(channel);
+                    channelNumber++;
+                }
+                ChannelUtils.setChannels(context, channels);
+                response.send("{\"msg\": \"success\"}");
+                EditChannelListTVOverlay.notifyChannelListChanged();
+                ChannelListTVOverlay.notifyChannelListChanged();
+                return;
+            } catch (IOException | ParseException | PlaylistParseException e) {
+                e.printStackTrace();
+            }
+            response.send("There was an error");
+        });
 
         server.get("/asset", (request, response) -> {
             String assetString = request.getQuery().getString("name");

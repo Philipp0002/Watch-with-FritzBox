@@ -8,15 +8,54 @@
 <h1>Watch with FritzBox</h1>
 <div id="channelCards">
     <a href="reorder">
-        <div class="card" draggable="true">
+        <div class="card">
             <img src="asset?name=reorder.svg&contentType=image/svg+xml">
             <div>
                 Reorder channels
             </div>
         </div>
     </a>
+    <a href="downloadChannelList">
+        <div class="card">
+            <img src="asset?name=download.svg&contentType=image/svg+xml">
+            <div>
+                Download channel list from tv
+            </div>
+        </div>
+    </a>
+    <div class="card" onclick="uploadFile()">
+        <img src="asset?name=upload.svg&contentType=image/svg+xml">
+        <div>
+            Upload channel list to tv
+        </div>
+    </div>
 </div>
 </body>
+
+<script>
+    function uploadFile() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.m3u';
+        input.onchange = () => {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+                const data = reader.result;
+                fetch('uploadChannelList', {
+                    method: 'POST',
+                    body: data
+                }).then(() => {
+                    alert('Channel list uploaded successfully');
+                }).catch(() => {
+                    alert('An error occurred while uploading the channel list');
+                });
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    }
+</script>
 
 <style>
 
@@ -47,7 +86,7 @@
         border-radius: 25px;
         background-color: #2a2939 !important;
         width: min(calc(97% - 50px), 550px);
-        height: 300px;
+        height: 160px;
         margin-top: 25px;
         margin-bottom: 25px;
         margin-right: 25px;
@@ -70,7 +109,6 @@
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        filter: invert(1);
     }
 
     .card > div {

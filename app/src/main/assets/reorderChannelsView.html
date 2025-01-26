@@ -52,7 +52,7 @@
         border-radius: 25px;
         background-color: #2a2939 !important;
         width: min(calc(97% - 50px), 550px);
-        height: 160px;
+        height: 120px;
         margin-top: 25px;
         margin-bottom: 25px;
         margin-right: 25px;
@@ -74,15 +74,15 @@
         transform: scale(1.05) translateZ(0);
     }
 
-    .card img {
+    .cardLogo {
         grid-area: logo;
         width: 100%;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
     }
 
-    .card > div {
+    .card > div:not(.cardLogo) {
         grid-area: info;
         width: 100%;
         position: absolute;

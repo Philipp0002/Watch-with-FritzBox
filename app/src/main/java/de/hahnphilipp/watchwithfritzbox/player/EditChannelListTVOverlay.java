@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
@@ -37,12 +39,22 @@ public class EditChannelListTVOverlay extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         INSTANCE = this;
-        return inflater.inflate(R.layout.editchannellisttvoverlay, container, false);
+        return inflater.inflate(R.layout.overlay_edit_channel_list, container, false);
     }
 
     public void updateChannelList() {
-        tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
-        getActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
+        ArrayList<Integer> changedPositions = new ArrayList<>();
+        ArrayList<ChannelUtils.Channel> newChannels = ChannelUtils.getAllChannels(requireContext());
+        for(int i = 0; i < tvOverlayRecyclerAdapter.objects.size(); i++) {
+            ChannelUtils.Channel oldChannel = tvOverlayRecyclerAdapter.objects.get(i);
+            ChannelUtils.Channel newChannel = newChannels.get(i);
+            if (!oldChannel.equals(newChannel)) {
+                changedPositions.add(i);
+            }
+        }
+
+        tvOverlayRecyclerAdapter.objects = newChannels;
+        getActivity().runOnUiThread(() -> changedPositions.stream().forEach(pos -> tvOverlayRecyclerAdapter.notifyItemChanged(pos)));
     }
 
     @Override
@@ -52,7 +64,7 @@ public class EditChannelListTVOverlay extends Fragment {
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(getContext()), recyclerView);
+        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(requireContext()), recyclerView);
         llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);

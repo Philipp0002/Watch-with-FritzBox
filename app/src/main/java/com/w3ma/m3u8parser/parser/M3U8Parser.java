@@ -26,6 +26,8 @@ import com.w3ma.m3u8parser.util.Constants;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -78,8 +80,8 @@ public class M3U8Parser {
             trackList.add(track);
         }
 
-        final Map<String, Set<Track>> trackSetMap = trackList.stream().collect(
-                Collectors.groupingBy(t -> t.getExtInfo().getGroupTitle(), Collectors.toSet()));
+        final Map<String, Set<Track>> trackSetMap = new HashMap<>();
+        trackSetMap.put("", new LinkedHashSet<>(trackList));
 
         playlist.setTrackSetMap(trackSetMap);
 

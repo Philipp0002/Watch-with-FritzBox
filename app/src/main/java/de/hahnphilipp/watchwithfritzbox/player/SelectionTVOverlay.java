@@ -1,6 +1,7 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,25 +12,24 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.widget.BrowseFrameLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
 
-public class SelectionTVOverlay extends Fragment {
+public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
 
-    TVSettingsOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
-    RecyclerView recyclerView;
+    private RecyclerView recyclerView;
 
     public ArrayList<TVSetting> tvSettings = new ArrayList<TVSetting>();
     public String title = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.selectiontvoverlay, container, false);
+        return inflater.inflate(R.layout.overlay_selection, container, false);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class SelectionTVOverlay extends Fragment {
             ((TextView) view.findViewById(R.id.tvoverlayrecyclerTitle)).setText(title);
         }
 
-        tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings);
+        TVSettingsOverlayRecyclerAdapter tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings);
         final LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
@@ -61,4 +61,12 @@ public class SelectionTVOverlay extends Fragment {
         });
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+            ((TVPlayerActivity)getActivity()).popOverlayFragment();
+            return true;
+        }
+        return false;
+    }
 }

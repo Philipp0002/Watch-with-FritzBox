@@ -19,7 +19,7 @@ public class ShowcaseGesturesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         SharedPreferences sp = getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        setContentView(R.layout.showcase_gestures_activity);
+        setContentView(R.layout.activity_showcase_gestures);
 
 
         findViewById(R.id.showcase_continue).setOnClickListener(new View.OnClickListener() {

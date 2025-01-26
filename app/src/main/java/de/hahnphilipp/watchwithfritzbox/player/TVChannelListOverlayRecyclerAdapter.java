@@ -3,17 +3,14 @@ package de.hahnphilipp.watchwithfritzbox.player;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.net.Uri;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.widget.ImageViewCompat;
@@ -49,16 +46,19 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
 
     @Override
     public ChannelInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.tv_overlay_channel_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.overlay_channel_list_item, parent, false);
         return new ChannelInfoViewHolder(v);
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull final ChannelInfoViewHolder holder) {
+        Glide.with(context).clear(holder.channelIcon);
+        holder.channelIcon.setImageDrawable(null);
     }
 
     @Override
     public void onBindViewHolder(final ChannelInfoViewHolder holder, final int position) {
         //holder.setIsRecyclable(false);
-        Glide.with(context).clear(holder.channelIcon);
-        CardView card = holder.cardView;
-
         final ChannelUtils.Channel item = objects.get(position);
         holder.channelName.setText(item.title);
         holder.channelNumber.setText("CH " + item.number);
@@ -87,13 +87,9 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
 
         holder.cardView.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                if (context instanceof EditChannelListTVOverlay) {
-                    card.setCardBackgroundColor(Color.parseColor(item.number == selectedChannel ? "#c7c7f2" : "#f5f5f7"));
-                } else {
-                    //card.setCardBackgroundColor(Color.parseColor("#f5f5f7"));
+                if (!(context instanceof EditChannelListTVOverlay)) {
                     if (recyclerView != null) {
                         recyclerView.scrollToPosition(position);
-                        //centerItem(holder.itemView);
                     }
                     holder.mainView.setElevation(12);
                     AnimationUtils.scaleView(holder.mainView, 1F, 1.025F, 1F, 1.025F, 100L);
@@ -116,7 +112,6 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
 
                 }
             } else {
-                //card.setCardBackgroundColor(Color.parseColor("#2a2939"));
                 holder.channelEvent.setTextColor(Color.parseColor("#c4c3c8"));
                 holder.channelNumber.setTextColor(Color.parseColor("#c4c3c8"));
                 holder.channelNumberLayout.setBackgroundResource(R.drawable.channel_number_outline_white);
@@ -134,7 +129,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         holder.cardView.setOnClickListener(v -> {
             if (context instanceof ChannelListTVOverlay) {
                 ChannelListTVOverlay overlay = (ChannelListTVOverlay) context;
-                overlay.hideOverlays();
+                overlay.context.popOverlayFragment();
                 ChannelUtils.updateLastSelectedChannel(((ChannelListTVOverlay) context).context, item.number);
                 overlay.context.launchPlayer(false);
             } else if (context instanceof EditChannelListTVOverlay) {
@@ -144,13 +139,11 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 ImageView editChannelListInfoImage = overlay.getView().findViewById(R.id.editChannelListInfoImage);
                 if (selectedChannel == -1) {
                     selectedChannel = item.number;
-                    card.setCardBackgroundColor(Color.parseColor("#c7c7f2"));
                     editChannelListInfoText.setText(R.string.settings_reorder_channels_move);
                     editChannelListInfoText2.setText("");
                     editChannelListInfoImage.setImageResource(R.drawable.round_swap_vert);
                 } else {
                     selectedChannel = -1;
-                    card.setCardBackgroundColor(Color.parseColor("#f5f5f7"));
                     editChannelListInfoText.setText(R.string.settings_reorder_channels_select);
                     if (overlay.ip != null) {
                         editChannelListInfoText2.setText(context.getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d", overlay.ip));
@@ -167,24 +160,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 selectedChannel = -1;
             }
         }
-
-
     }
-
-    public void centerItem(View view) {
-        int[] location = new int[2];
-        view.getLocationOnScreen(location);
-        int y = location[1] + (view.getHeight() / 2);
-
-        DisplayMetrics displaymetrics = context.getResources().getDisplayMetrics();
-        int height = displaymetrics.heightPixels;
-
-        int scrollby = y - (height / 2);
-        Log.d("scrollby", y + " - " + (height / 2) + " = " + scrollby);
-
-        recyclerView.smoothScrollBy(0, scrollby);
-    }
-
 
     @Override
     public int getItemCount() {

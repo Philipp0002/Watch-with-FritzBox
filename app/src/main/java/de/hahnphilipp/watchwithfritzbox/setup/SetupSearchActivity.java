@@ -1,8 +1,6 @@
 package de.hahnphilipp.watchwithfritzbox.setup;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -12,15 +10,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
 import com.w3ma.m3u8parser.data.Track;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,7 +34,7 @@ public class SetupSearchActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.setup_search_activity);
+        setContentView(R.layout.activity_setup_search);
 
         ip = getIntent().getStringExtra("ip");
 
@@ -135,7 +130,7 @@ public class SetupSearchActivity extends AppCompatActivity {
 
             ChannelUtils.setChannels(SetupSearchActivity.this, channels);
 
-            setContentView(R.layout.setup_order_activity);
+            setContentView(R.layout.activity_setup_order);
             findViewById(R.id.setup_order_no_button).setOnClickListener(view -> skipToNext());
             findViewById(R.id.setup_order_yes_button).setOnClickListener(view -> presortChannels());
         });

@@ -88,20 +88,20 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         //tvSettings.add(new TVSetting(getString(R.string.settings_open_epg), R.drawable.round_remote, () -> showEpg(), true));
 
         if (descriptionsAudio != null && descriptionsAudio.length != 0) {
-            tvSettings.add(new TVSetting(getString(R.string.audio_tracks), R.drawable.round_audiotrack, this::showAudioTrackSelection, true));
+            tvSettings.add(new TVSetting(context.getString(R.string.audio_tracks), R.drawable.round_audiotrack, this::showAudioTrackSelection, true));
         }
 
         if (descriptionsSubtitle != null && descriptionsSubtitle.length != 0) {
-            tvSettings.add(new TVSetting(getString(R.string.subtitles), R.drawable.round_closed_caption, this::showSubtitleTrackSelection, true));
+            tvSettings.add(new TVSetting(context.getString(R.string.subtitles), R.drawable.round_closed_caption, this::showSubtitleTrackSelection, true));
         }
 
         if (ChannelUtils.getChannelByNumber(context, ChannelUtils.getLastSelectedChannel(context)).type != ChannelUtils.ChannelType.RADIO) {
-            tvSettings.add(new TVSetting(getString(R.string.video_aspect), R.drawable.round_video_settings, this::showVideoFormatSelection, true));
+            tvSettings.add(new TVSetting(context.getString(R.string.video_aspect), R.drawable.round_video_settings, this::showVideoFormatSelection, true));
         }
 
-        tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration), R.drawable.round_speed, this::showHWAcelerationSelection, false));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration), R.drawable.round_speed, this::showHWAcelerationSelection, false));
 
-        tvSettings.add(new TVSetting(getString(R.string.settings_reorder_channels), R.drawable.round_reorder, this::showChannelEditor, false));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_reorder_channels), R.drawable.round_reorder, this::showChannelEditor, false));
 
         if (tvOverlayRecyclerAdapter != null) {
             tvOverlayRecyclerAdapter.objects = tvSettings;
@@ -124,24 +124,24 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
     public void showHWAcelerationSelection() {
         SharedPreferences sp = context.getSharedPreferences(
-                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
-        selectionTVOverlay.title = getString(R.string.settings_hardware_acceleration);
-        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_disable), R.drawable.round_power_off, () -> {
+        selectionTVOverlay.title = context.getString(R.string.settings_hardware_acceleration);
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration_disable), R.drawable.round_power_off, () -> {
             editor.putInt("setting_hwaccel", 0);
             editor.commit();
             context.launchPlayer(false);
             context.popOverlayFragment();
         }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_auto), R.drawable.round_auto_awesome, () -> {
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration_auto), R.drawable.round_auto_awesome, () -> {
             editor.putInt("setting_hwaccel", 1);
             editor.commit();
             context.launchPlayer(false);
             context.popOverlayFragment();
         }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(getString(R.string.settings_hardware_acceleration_force), R.drawable.round_power, () -> {
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration_force), R.drawable.round_power, () -> {
             editor.putInt("setting_hwaccel", 2);
             editor.commit();
             context.launchPlayer(false);
@@ -153,7 +153,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     public void showVideoFormatSelection() {
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         final MediaPlayer player = context.mMediaPlayer;
-        selectionTVOverlay.title = getString(R.string.video_aspect);
+        selectionTVOverlay.title = context.getString(R.string.video_aspect);
         String[] aspect_ratios = {"16:9", "4:3", "21:9", "16:10"};
         //this should actually never be true, but just to be sure we do it anyways
         for (String aspect : aspect_ratios) {
@@ -169,7 +169,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     public void showSubtitleTrackSelection() {
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         final MediaPlayer player = context.mMediaPlayer;
-        selectionTVOverlay.title = getString(R.string.subtitles);
+        selectionTVOverlay.title = context.getString(R.string.subtitles);
         MediaPlayer.TrackDescription[] descriptions = player.getSpuTracks();
         //this should actually never be true, but just to be sure we do it anyways
         if (descriptions == null || descriptions.length == 0) {
@@ -189,7 +189,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     public void showAudioTrackSelection() {
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         final MediaPlayer player = context.mMediaPlayer;
-        selectionTVOverlay.title = getString(R.string.audio_tracks);
+        selectionTVOverlay.title = context.getString(R.string.audio_tracks);
         MediaPlayer.TrackDescription[] descriptions = player.getAudioTracks();
         //this should actually never be true, but just to be sure we do it anyways
         if (descriptions == null || descriptions.length == 0) {

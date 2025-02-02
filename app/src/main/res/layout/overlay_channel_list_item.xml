@@ -73,21 +73,24 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="EVENT"
-                    android:textColor="#fff"
+                    android:textColor="@color/item_card_channel_number_text"
                     android:textSize="16sp"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    android:duplicateParentState="true" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp">
+                    android:layout_marginTop="8dp"
+                    android:duplicateParentState="true">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/tvoverlaychannel_number_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:background="@drawable/channel_number_outline_white">
+                        android:background="@drawable/channel_number_outline"
+                        android:duplicateParentState="true">
 
                         <TextView
                             android:id="@+id/tvoverlaychannel_number"
@@ -98,12 +101,13 @@
                             android:layout_marginEnd="4dp"
                             android:layout_marginBottom="2dp"
                             android:text="CH 1"
-                            android:textColor="#c4c3c8"
+                            android:textColor="@color/item_card_channel_number_text"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:duplicateParentState="true" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <ImageView
@@ -111,14 +115,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:background="@drawable/channel_quality_bg_white"
-                        android:tint="#2a2939"
+                        android:background="@drawable/channel_quality_bg"
+                        android:tint="@color/item_card_channel_quality_text"
                         android:layout_gravity="center"
                         app:layout_constraintBottom_toBottomOf="@+id/tvoverlaychannel_number_layout"
                         app:layout_constraintStart_toEndOf="@+id/tvoverlaychannel_number_layout"
                         app:layout_constraintTop_toTopOf="@+id/tvoverlaychannel_number_layout"
                         app:srcCompat="@drawable/high_definition"
-                        app:tint="#2a2939" />
+                        app:tint="@color/item_card_channel_quality_text"
+                        android:duplicateParentState="true" />
                 </LinearLayout>
             </LinearLayout>
 

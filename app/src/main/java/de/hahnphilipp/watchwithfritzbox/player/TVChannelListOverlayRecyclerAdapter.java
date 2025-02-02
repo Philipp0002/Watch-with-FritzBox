@@ -44,6 +44,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
     }
 
 
+    @NonNull
     @Override
     public ChannelInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.overlay_channel_list_item, parent, false);
@@ -94,31 +95,14 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                     holder.mainView.setElevation(12);
                     AnimationUtils.scaleView(holder.mainView, 1F, 1.025F, 1F, 1.025F, 100L);
                     focus = position;
-                }
-                holder.channelEvent.setTextColor(Color.parseColor("#52525a"));
-                holder.channelNumber.setTextColor(Color.parseColor("#52525a"));
-                holder.channelNumberLayout.setBackgroundResource(R.drawable.channel_number_outline_black);
-                holder.channelTypeIcon.setBackgroundResource(R.drawable.channel_quality_bg_black);
-                ImageViewCompat.setImageTintMode(holder.channelTypeIcon, PorterDuff.Mode.SRC_ATOP);
-                ImageViewCompat.setImageTintList(holder.channelTypeIcon, ColorStateList.valueOf(Color.parseColor("#ffffff")));
-
-
-                if (context instanceof EditChannelListTVOverlay) {
+                } else {
                     if (item.number != selectedChannel && selectedChannel != -1) {
                         ChannelUtils.moveChannelToPosition(context.getContext(), selectedChannel, item.number);
                         selectedChannel = item.number;
                         ((EditChannelListTVOverlay) context).updateChannelList();
                     }
-
                 }
             } else {
-                holder.channelEvent.setTextColor(Color.parseColor("#c4c3c8"));
-                holder.channelNumber.setTextColor(Color.parseColor("#c4c3c8"));
-                holder.channelNumberLayout.setBackgroundResource(R.drawable.channel_number_outline_white);
-                holder.channelTypeIcon.setBackgroundResource(R.drawable.channel_quality_bg_white);
-                ImageViewCompat.setImageTintMode(holder.channelTypeIcon, PorterDuff.Mode.SRC_ATOP);
-                ImageViewCompat.setImageTintList(holder.channelTypeIcon, ColorStateList.valueOf(Color.parseColor("#2a2939")));
-
                 if (!(context instanceof EditChannelListTVOverlay)) {
                     AnimationUtils.scaleView(holder.mainView, 1.025F, 1F, 1.025F, 1F, 20L);
                     holder.mainView.setElevation(3);

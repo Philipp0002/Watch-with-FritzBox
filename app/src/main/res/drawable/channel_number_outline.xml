@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#52525a"></solid>
-    <stroke android:width="2dp" android:color="#52525a" />
+    <stroke android:width="2dp" android:color="@color/item_card_channel_number_text" />
     <corners android:radius="2dp"/>
     <padding android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="0dp" />
 </shape>

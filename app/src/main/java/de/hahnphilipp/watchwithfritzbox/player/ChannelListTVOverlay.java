@@ -151,8 +151,16 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
 
         if (context != null)
             context.runOnUiThread(() -> {
-                ((TextView) getView().findViewById(R.id.tvoverlaydate)).setText(date);
-                ((TextView) getView().findViewById(R.id.tvoverlaytime)).setText(time);
+                if(getView() != null) {
+                    TextView dateView = getView().findViewById(R.id.tvoverlaydate);
+                    TextView timeView = getView().findViewById(R.id.tvoverlaytime);
+                    if (dateView == null || timeView == null) {
+                        return;
+                    }
+
+                    dateView.setText(date);
+                    timeView.setText(time);
+                }
             });
     }
 

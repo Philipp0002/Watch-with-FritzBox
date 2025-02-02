@@ -47,7 +47,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/channel_number_outline_white"
+            android:background="@drawable/channel_number_outline"
             app:layout_constraintBottom_toTopOf="@+id/player_skip_timer"
             app:layout_constraintStart_toStartOf="parent">
 
@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/channel_quality_bg_white"
+            android:background="@drawable/channel_quality_bg"
             android:tint="#2a2939"
             app:layout_constraintBottom_toBottomOf="@+id/player_number_layout"
             app:layout_constraintStart_toEndOf="@+id/player_number_layout"

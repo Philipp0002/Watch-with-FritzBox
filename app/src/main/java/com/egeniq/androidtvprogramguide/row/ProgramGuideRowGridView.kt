@@ -25,9 +25,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.egeniq.androidtvprogramguide.ProgramGuideHolder
 import com.egeniq.androidtvprogramguide.ProgramGuideManager
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideChannel
+import com.egeniq.androidtvprogramguide.item.ProgramGuideItemView
 import com.egeniq.androidtvprogramguide.timeline.ProgramGuideTimelineGridView
 import com.egeniq.androidtvprogramguide.util.ProgramGuideUtil
-import com.egeniq.androidtvprogramguide.item.ProgramGuideItemView
 import de.hahnphilipp.watchwithfritzbox.R
 import java.util.concurrent.TimeUnit
 import kotlin.math.max

@@ -1,5 +1,9 @@
 package de.hahnphilipp.watchwithfritzbox.rich;
 
+import static android.media.tv.TvTrackInfo.TYPE_AUDIO;
+import static android.media.tv.TvTrackInfo.TYPE_SUBTITLE;
+import static android.media.tv.TvTrackInfo.TYPE_VIDEO;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.media.tv.TvInputManager;
@@ -8,11 +12,9 @@ import android.media.tv.TvTrackInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
-
 
 import org.videolan.libvlc.IVLCVout;
 import org.videolan.libvlc.LibVLC;
@@ -23,13 +25,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
-import static android.media.tv.TvTrackInfo.TYPE_AUDIO;
-import static android.media.tv.TvTrackInfo.TYPE_SUBTITLE;
-import static android.media.tv.TvTrackInfo.TYPE_VIDEO;
-
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
-import kotlin.Unit;
-import kotlinx.coroutines.CompletableDeferred;
 
 public class RichTvInputService extends TvInputService {
 

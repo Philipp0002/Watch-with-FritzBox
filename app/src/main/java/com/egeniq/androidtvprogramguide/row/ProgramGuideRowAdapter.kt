@@ -34,8 +34,6 @@ import com.egeniq.androidtvprogramguide.ProgramGuideManager
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideChannel
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule
 import de.hahnphilipp.watchwithfritzbox.R
-import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils
-import java.util.*
 
 /**
  * Adapts the [ProgramGuideListAdapter] list to the body of the program guide table.

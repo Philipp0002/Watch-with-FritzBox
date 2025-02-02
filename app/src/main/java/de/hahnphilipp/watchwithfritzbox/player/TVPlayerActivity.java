@@ -19,20 +19,19 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
-
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.videolan.libvlc.IVLCVout;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.epg.LogcatEpgReader;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
-import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
 public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {

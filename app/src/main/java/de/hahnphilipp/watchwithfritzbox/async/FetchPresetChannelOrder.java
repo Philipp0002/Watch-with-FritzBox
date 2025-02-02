@@ -2,7 +2,6 @@ package de.hahnphilipp.watchwithfritzbox.async;
 
 import android.os.AsyncTask;
 
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 

@@ -1,16 +1,12 @@
 package de.hahnphilipp.watchwithfritzbox.epg;
 
 import android.os.Bundle;
+import android.text.Spanned;
+import android.text.SpannedString;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.text.Spanned;
-import android.text.SpannedString;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.egeniq.androidtvprogramguide.ProgramGuideFragment;
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideChannel;
@@ -24,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 

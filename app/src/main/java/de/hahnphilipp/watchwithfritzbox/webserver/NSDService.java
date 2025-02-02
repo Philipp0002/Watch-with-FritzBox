@@ -5,13 +5,9 @@ import static androidx.core.content.ContextCompat.getSystemService;
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
-import android.net.wifi.WifiManager;
-import android.text.format.Formatter;
 import android.util.Log;
 
 import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
 

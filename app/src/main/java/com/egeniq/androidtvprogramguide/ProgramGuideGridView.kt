@@ -26,9 +26,9 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.leanback.widget.VerticalGridView
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule
+import com.egeniq.androidtvprogramguide.item.ProgramGuideItemView
 import com.egeniq.androidtvprogramguide.util.OnRepeatedKeyInterceptListener
 import com.egeniq.androidtvprogramguide.util.ProgramGuideUtil
-import com.egeniq.androidtvprogramguide.item.ProgramGuideItemView
 import de.hahnphilipp.watchwithfritzbox.R
 import java.util.concurrent.TimeUnit
 import kotlin.math.max

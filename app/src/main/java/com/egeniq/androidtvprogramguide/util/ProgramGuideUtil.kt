@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import android.view.ViewParent
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule
 import com.egeniq.androidtvprogramguide.item.ProgramGuideItemView
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 object ProgramGuideUtil {

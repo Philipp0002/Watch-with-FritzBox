@@ -1,8 +1,5 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,9 +27,9 @@ import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TVChannelListOverlayRecyclerAdapter.ChannelInfoViewHolder> {
 
     public ArrayList<ChannelUtils.Channel> objects;
-    private Fragment context;
+    private final Fragment context;
     public int selectedChannel = -1;
-    private RecyclerView recyclerView;
+    private final RecyclerView recyclerView;
 
     int focus = 0;
 
@@ -42,7 +38,6 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         this.context = context;
         this.recyclerView = recyclerView;
     }
-
 
     @NonNull
     @Override

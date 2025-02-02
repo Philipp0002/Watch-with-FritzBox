@@ -1,9 +1,7 @@
 package de.hahnphilipp.watchwithfritzbox.epg;
 
 import android.content.Context;
-import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import de.hahnphilipp.watchwithfritzbox.async.AsyncLogcatReader;

@@ -56,7 +56,7 @@ import org.threeten.bp.ZoneId
 import org.threeten.bp.ZoneOffset
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 abstract class ProgramGuideFragment<T> : Fragment(), ProgramGuideManager.Listener,

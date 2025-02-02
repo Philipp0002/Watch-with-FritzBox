@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<TextView xmlns:tools="http://schemas.android.com/tools"
     style="@style/ProgramGuide.Text.Time"
     tools:background="@color/programguide_content_background"
     tools:text="8:00" />

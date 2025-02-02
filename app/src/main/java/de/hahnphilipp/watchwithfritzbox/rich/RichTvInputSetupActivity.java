@@ -7,7 +7,6 @@ import android.os.Bundle;
 
 import androidx.tvprovider.media.tv.Channel;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 

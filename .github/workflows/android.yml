@@ -28,9 +28,9 @@ jobs:
       run: ./gradlew build
     - name: Build Debug APK
       run: ./gradlew assembleDebug
-    - name: Upload Artifact
+    - name: Upload Artifact - Release Unsigned
       uses: actions/upload-artifact@main
       with:
         name: build
-        path: ./app/build
+        path: ./app/build/outputs/apk/release/app-release-unsigned.apk
         if-no-files-found: error

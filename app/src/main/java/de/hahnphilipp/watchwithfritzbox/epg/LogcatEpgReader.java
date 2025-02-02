@@ -60,7 +60,7 @@ public class LogcatEpgReader {
             lastReferencedServiceId = Integer.parseInt(serviceId);
         } else if (line.startsWith("- type=")) {
             int providerIndex = line.indexOf("provider=") + "provider=".length();
-            int providerEndIndex = line.indexOf(" ", providerIndex);
+            int providerEndIndex = line.indexOf("name=", providerIndex);
             int nameIndex = line.indexOf("name=") + "name=".length();
 
             String provider = line.substring(providerIndex, providerEndIndex);
@@ -69,7 +69,7 @@ public class LogcatEpgReader {
             ChannelUtils.Channel ch = ChannelUtils.getChannelByTitle(context, name);
             if (ch == null) return;
             ChannelUtils.Channel originalCh = ch.copy();
-            if (ch != null && lastReferencedServiceId != -1) {
+            if (lastReferencedServiceId != -1) {
                 ch.serviceId = lastReferencedServiceId;
                 ch.provider = provider;
                 ChannelUtils.updateChannel(context, originalCh, ch);

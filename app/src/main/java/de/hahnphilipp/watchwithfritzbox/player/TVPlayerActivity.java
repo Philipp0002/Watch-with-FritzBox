@@ -93,7 +93,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
         });
 
-
         initializeOverlay();
     }
 

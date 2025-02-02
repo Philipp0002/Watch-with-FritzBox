@@ -85,7 +85,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             descriptionsSubtitle = player.getSpuTracks();
         }
 
-        //tvSettings.add(new TVSetting(getString(R.string.settings_open_epg), R.drawable.round_remote, () -> showEpg(), true));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_open_epg), R.drawable.round_remote, this::showEpg, true));
 
         if (descriptionsAudio != null && descriptionsAudio.length != 0) {
             tvSettings.add(new TVSetting(context.getString(R.string.audio_tracks), R.drawable.round_audiotrack, this::showAudioTrackSelection, true));

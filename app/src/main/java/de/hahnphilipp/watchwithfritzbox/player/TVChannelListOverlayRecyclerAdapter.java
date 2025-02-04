@@ -1,6 +1,10 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
+import android.content.Context;
+import android.graphics.PointF;
 import android.net.Uri;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -168,6 +174,51 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
             channelTypeIcon = itemView.findViewById(R.id.tvoverlaychannel_type);
             cardView = itemView.findViewById(R.id.tvoverlaychannel_cardView);
 
+        }
+    }
+
+    public void scrollToPositionCentered(int position) {
+        RecyclerView.SmoothScroller smoothScroller = new CenterSmoothScroller(recyclerView.getContext());
+        smoothScroller.setTargetPosition(position);
+        recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
+    }
+
+    public class CenterSmoothScroller extends LinearSmoothScroller {
+        public CenterSmoothScroller(Context context) {
+            super(context);
+        }
+
+        public float getSlowness() {
+            return 400f;
+        }
+
+        @Override
+        protected int getVerticalSnapPreference() {
+            return SNAP_TO_START;
+        }
+
+        @Override
+        public PointF computeScrollVectorForPosition(int targetPosition) {
+            return ((LinearLayoutManager) getLayoutManager()).computeScrollVectorForPosition(targetPosition);
+        }
+
+        @Override
+        protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
+            int itemHeight = targetView.getHeight();
+            int screenHeight = recyclerView.getHeight();
+            int dy = (targetView.getTop() - (screenHeight / 2)) + (itemHeight / 2);
+            action.update(0, dy, calculateTimeForScrolling(Math.abs(dy)), mDecelerateInterpolator);
+        }
+        @Override
+        protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+            float slowness = getSlowness();
+            Log.d("TVChannelListOverlay", "Speed: " + slowness);
+            return slowness / displayMetrics.densityDpi;
+        }
+
+        @Override
+        protected int calculateTimeForScrolling(int dx) {
+            return super.calculateTimeForScrolling(dx) / 2; // Beschleunigt das Scrolling
         }
     }
 

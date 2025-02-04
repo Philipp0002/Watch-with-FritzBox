@@ -72,7 +72,10 @@ public class SetupSearchActivity extends AppCompatActivity {
                 boolean supportedFritzBox = false;
                 NodeList friendlyNames = doc.getElementsByTagName("friendlyName");
                 for (int i = 0; i < friendlyNames.getLength(); i++) {
-                    if (friendlyNames.item(i).getTextContent().toLowerCase().contains("cable")) {
+                    if (friendlyNames.item(i).getTextContent().toLowerCase().contains("cable") ||
+                            friendlyNames.item(i).getTextContent().toLowerCase().contains("dvbc") ||
+                            friendlyNames.item(i).getTextContent().toLowerCase().contains("dvb-c")
+                    ) {
                         supportedFritzBox = true;
                         break;
                     }

@@ -59,6 +59,24 @@ public class EpgUtils {
         }
     }
 
+    public static EpgEvent getEventNow(Context context, int channelNumber) {
+        return getEventAtTime(context, channelNumber, System.currentTimeMillis() / 1000);
+    }
+
+    public static EpgEvent getEventNext(Context context, int channelNumber) {
+        HashMap<Long, EpgEvent> allEvents = getAllEvents(context, channelNumber);
+        long nearestEventTime = -1;
+        for (long eventTime : allEvents.keySet()) {
+            if (eventTime > System.currentTimeMillis() / 1000) {
+                if (nearestEventTime == -1 || eventTime < nearestEventTime) {
+                    nearestEventTime = eventTime;
+                }
+            }
+        }
+
+        return allEvents.get(nearestEventTime);
+    }
+
     public static class EpgEvent {
 
         public long id;

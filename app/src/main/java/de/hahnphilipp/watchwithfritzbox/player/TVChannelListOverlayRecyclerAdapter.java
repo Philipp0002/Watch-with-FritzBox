@@ -48,7 +48,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
     @NonNull
     @Override
     public ChannelInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.overlay_channel_list_item_new, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.overlay_channel_list_item, parent, false);
         return new ChannelInfoViewHolder(v);
     }
 
@@ -74,7 +74,6 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         }
 
         EpgUtils.EpgEvent eventNow = EpgUtils.getEventNow(context.getContext(), item.number);
-        EpgUtils.EpgEvent eventNext = EpgUtils.getEventNext(context.getContext(), item.number);
         if (eventNow != null) {
             holder.channelProgramNow.setText(eventNow.title);
             holder.channelProgramNow.setVisibility(View.VISIBLE);
@@ -83,20 +82,12 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
             holder.channelProgramNow.setVisibility(View.GONE);
         }
 
-        if (eventNext != null) {
-            holder.channelProgramNext.setText(eventNext.title);
-            holder.channelProgramNext.setVisibility(View.VISIBLE);
-        } else {
-            holder.channelProgramNext.setText("");
-            holder.channelProgramNext.setVisibility(View.GONE);
-        }
-
         Glide.with(context)
                 .load(Uri.parse(ChannelUtils.getIconURL(item)))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.channelIcon);
 
-        holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
+        holder.cardView.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 if (!(context instanceof EditChannelListTVOverlay)) {
                     if (recyclerView != null) {
@@ -106,7 +97,6 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                     AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
                     focus = position;
                     holder.channelProgramNow.setSelected(true);
-                    holder.channelProgramNext.setSelected(true);
                 } else {
                     if (item.number != selectedChannel && selectedChannel != -1) {
                         ChannelUtils.moveChannelToPosition(context.getContext(), selectedChannel, item.number);
@@ -119,7 +109,6 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                     AnimationUtils.scaleView(holder.cardView, 1.025F, 1F, 1.025F, 1F, 20L);
                     holder.cardView.setElevation(0);
                     holder.channelProgramNow.setSelected(false);
-                    holder.channelProgramNext.setSelected(false);
                 }
             }
         });
@@ -175,14 +164,12 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         public View mainView;
         public CardView cardView;
         public TextView channelProgramNow;
-        public TextView channelProgramNext;
 
         public ChannelInfoViewHolder(View itemView) {
             super(itemView);
             mainView = itemView;
             channelName = itemView.findViewById(R.id.tvoverlaychannel_name);
-            channelProgramNow = itemView.findViewById(R.id.tvoverlaychannel_program_now);
-            channelProgramNext = itemView.findViewById(R.id.tvoverlaychannel_program_next);
+            channelProgramNow = itemView.findViewById(R.id.tvoverlaychannel_event_now);
             channelNumber = itemView.findViewById(R.id.tvoverlaychannel_number);
             channelNumberLayout = itemView.findViewById(R.id.tvoverlaychannel_number_layout);
             channelIcon = itemView.findViewById(R.id.tvoverlaychannel_logo);

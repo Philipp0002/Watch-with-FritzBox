@@ -11,7 +11,8 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/tvoverlaychannel_cardView"
         android:layout_width="350dp"
-        android:layout_height="110dp"
+        android:layout_height="wrap_content"
+        android:minHeight="110dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:focusable="true"
@@ -26,7 +27,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:duplicateParentState="true">
+            android:duplicateParentState="true"
+            android:paddingVertical="8dp">
 
             <ImageView
                 android:id="@+id/tvoverlaychannel_logo"
@@ -66,13 +68,13 @@
                     android:duplicateParentState="true"/>
 
                 <TextView
-                    android:id="@+id/tvoverlaychannel_event"
+                    android:id="@+id/tvoverlaychannel_event_now"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="EVENT"
+                    android:text="EVENT1"
                     android:textColor="@color/item_card_channel_number_text"
                     android:textSize="16sp"
                     android:layout_marginTop="4dp"

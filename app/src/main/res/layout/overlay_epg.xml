@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="false"
+    android:background="@color/panel_background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/epgdetails"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:id="@+id/epgchanneltitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Channel Name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/epgtitle"/>
+
+        <TextView
+            android:id="@+id/epgtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="EPG title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/epgmetadata"/>
+
+        <TextView
+            android:id="@+id/epgmetadata"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="EPG metadata"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/epgdescription"/>
+
+        <TextView
+            android:id="@+id/epgdescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="EPG description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/epgtimelineRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/epgdetails"
+        tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:orientation="horizontal"
+        tools:listitem="@layout/epg_time_slot_item"
+        android:layout_marginStart="172dp"/>
+
+    <androidx.leanback.widget.BrowseFrameLayout
+        android:id="@+id/epgchannelsrecyclerBrowse"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/epgtimelineRecycler">
+
+    <de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView
+        android:id="@+id/epgchannelsrecycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusedByDefault="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        tools:listitem="@layout/epg_channel_row">
+        <requestFocus/>
+    </de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView>
+
+    </androidx.leanback.widget.BrowseFrameLayout>
+
+    <View
+        android:id="@+id/live_time_line"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="#FF0000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/epgtimelineRecycler"
+        app:layout_constraintTop_toTopOf="@id/epgtimelineRecycler" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

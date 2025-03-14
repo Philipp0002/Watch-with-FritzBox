@@ -44,6 +44,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public ChannelListTVOverlay mChannelOverlayFragment;
     public SettingsTVOverlay mSettingsOverlayFragment;
+    public EPGOverlay mEPGOverlayFragment;
 
     private LogcatEpgReader logcatEpgReader;
 
@@ -101,10 +102,13 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mChannelOverlayFragment.context = this;
         mChannelOverlayFragment.setArguments(getIntent().getExtras());
 
-
         mSettingsOverlayFragment = new SettingsTVOverlay();
         mSettingsOverlayFragment.context = this;
         mSettingsOverlayFragment.setArguments(getIntent().getExtras());
+
+        mEPGOverlayFragment = new EPGOverlay();
+        mEPGOverlayFragment.context = this;
+        mEPGOverlayFragment.setArguments(getIntent().getExtras());
     }
 
     @Override

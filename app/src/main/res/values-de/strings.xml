@@ -73,4 +73,6 @@
     <string name="programguide_content_description_large_thumbnail">Vorschaubild</string>
     <string name="programguide_content_description_channel_logo">Kanallogo</string>
     <string name="programguide_content_description_dropdown_icon">Nach unten Symbol</string>
+
+    <string name="epg_no_program">No epg info</string>
 </resources>

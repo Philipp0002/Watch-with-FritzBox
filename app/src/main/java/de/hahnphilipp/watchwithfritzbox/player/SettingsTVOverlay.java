@@ -116,9 +116,9 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public void showEpg() {
-        EpgTimelineFragment epgTimelineFragment = new EpgTimelineFragment();
+        //EpgTimelineFragment epgTimelineFragment = new EpgTimelineFragment();
 
-        context.addOverlayFragment(epgTimelineFragment);
+        context.addOverlayFragment(context.mEPGOverlayFragment);
     }
 
 

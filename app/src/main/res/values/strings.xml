@@ -82,4 +82,6 @@
     <string name="programguide_content_description_large_thumbnail">Program thumbnail</string>
     <string name="programguide_content_description_channel_logo">Channel logo</string>
     <string name="programguide_content_description_dropdown_icon">Dropdown icon</string>
+
+    <string name="epg_no_program">No epg info</string>
 </resources>

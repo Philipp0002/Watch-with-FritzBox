@@ -2,12 +2,14 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.Random;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 
@@ -77,6 +79,10 @@ public class EpgUtils {
         return allEvents.get(nearestEventTime);
     }
 
+    public static int secondsToPx(float seconds) {
+        return (int) (seconds / 8 * Resources.getSystem().getDisplayMetrics().density);
+    }
+
     public static class EpgEvent {
 
         public long id;
@@ -86,6 +92,17 @@ public class EpgUtils {
         public String title;
         public String subtitle;
         public String description;
+        public boolean isEmpty = false;
+
+        public static EpgEvent createEmptyEvent(Context context, long startTime, long duration) {
+            EpgEvent event = new EpgEvent();
+            event.id = -new Random().nextLong();
+            event.startTime = startTime;
+            event.duration = duration;
+            event.title = context.getString(R.string.epg_no_program);
+            event.isEmpty = true;
+            return event;
+        }
 
     }
 

@@ -155,12 +155,15 @@ public class EPGOverlay extends Fragment {
     public void startUpdateTimer() {
         if (clockTimer == null) {
             clockTimer = new Timer();
-            clockTimer.scheduleAtFixedRate(new TimerTask() {
+            clockTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    updateInfo();
+                    requireActivity().runOnUiThread(() -> {
+                        //updateInfo();
+                        updateLiveTimeLine();
+                    });
                 }
-            }, 0, 1000);
+            }, 0, 30000);
         }
     }
 
@@ -195,19 +198,16 @@ public class EPGOverlay extends Fragment {
         DateFormat dftime = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault());
         final String time = dftime.format(new Date());
 
-        if (context != null)
-            context.runOnUiThread(() -> {
-                if(getView() != null) {
-                    TextView dateView = getView().findViewById(R.id.tvoverlaydate);
-                    TextView timeView = getView().findViewById(R.id.tvoverlaytime);
-                    if (dateView == null || timeView == null) {
-                        return;
-                    }
+        if(getView() != null) {
+            TextView dateView = getView().findViewById(R.id.tvoverlaydate);
+            TextView timeView = getView().findViewById(R.id.tvoverlaytime);
+            if (dateView == null || timeView == null) {
+                return;
+            }
 
-                    dateView.setText(date);
-                    timeView.setText(time);
-                }
-            });
+            dateView.setText(date);
+            timeView.setText(time);
+        }
     }
 
 }

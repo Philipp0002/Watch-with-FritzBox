@@ -1,6 +1,7 @@
 package de.hahnphilipp.watchwithfritzbox.epg;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,7 +22,7 @@ public class LogcatEpgReader {
 
     int lastReferencedServiceId = -1;
     boolean lastReferencedServiceFree = true;
-    int lastReferencedServiceIdForEvents = -1;
+    ChannelUtils.Channel lastReferencedChannel;
     HashMap<Integer, Integer> serviceIdToChannelNr;
 
     public LogcatEpgReader(Context context) {
@@ -45,14 +46,6 @@ public class LogcatEpgReader {
                             ).trim();
                     processLine(line);
                 }
-                /*if(line.contains("* service")){
-                    lastReferencedServiceId = line;
-                }
-                if(line.contains("- type=")){
-                    lastReferencedChannel = line;
-                    Log.d("EPGREAD", lastReferencedServiceId);
-                    Log.d("EPGREAD", lastReferencedChannel);
-                }*/
             }
         });
         asyncLogcatReader.execute();
@@ -66,6 +59,7 @@ public class LogcatEpgReader {
             boolean freeChannel = map.get("id").equals("0");
             lastReferencedServiceId = Integer.parseInt(serviceId);
             lastReferencedServiceFree = freeChannel;
+            lastReferencedEvent = null;
         } else if (line.startsWith("- type=")) {
             Map<String, String> map = parseKeyValue(line.substring(2));
             String provider = map.get("provider");
@@ -93,10 +87,12 @@ public class LogcatEpgReader {
                 ChannelUtils.updateChannel(context, originalCh, ch);
             }
             lastReferencedServiceId = -1;
+            lastReferencedEvent = null;
         } else if (line.startsWith("new EIT ")) {
             Map<String, String> map = parseKeyValue(line.substring(8));
             String serviceId = map.get("service_id");
-            lastReferencedServiceIdForEvents = Integer.parseInt(serviceId);
+            lastReferencedChannel = ChannelUtils.getChannelByServiceId(context, Integer.parseInt(serviceId));
+            lastReferencedEvent = null;
         } else if (line.startsWith("* event ")) {
             Map<String, String> map = parseKeyValue(line.substring(8));
 
@@ -131,24 +127,21 @@ public class LogcatEpgReader {
                 lastReferencedEvent.subtitle = subtitle.equalsIgnoreCase("(null)") ? null : subtitle;
                 lastReferencedEvent.title = title;
             }
-        } else {
-            if (lastReferencedEvent != null) {
-                ChannelUtils.Channel ch = ChannelUtils.getChannelByServiceId(context, lastReferencedServiceIdForEvents);
-                if (ch != null) {
-                    EpgUtils.addEvent(context, ch.number, lastReferencedEvent);
-                    //Log.d("ADDEVENTWAT", ch.number + " " + ch.title + " / " + lastReferencedEvent.title + " - " + lastReferencedEvent.subtitle + " (" + lastReferencedEvent.startTime + " " + lastReferencedEvent.duration + ")");
-                } else {
-                    lastReferencedServiceIdForEvents = -1;
-                }
-                lastReferencedEvent = null;
-            }
         }
+        saveLastReferencedEvent();
     }
 
     public void stopLogcatRead() {
         if (asyncLogcatReader != null) {
             asyncLogcatReader.stop = true;
             asyncLogcatReader = null;
+        }
+    }
+
+    public void saveLastReferencedEvent() {
+        if (lastReferencedEvent != null && lastReferencedChannel != null) {
+            EpgUtils.addEvent(context, lastReferencedChannel.number, lastReferencedEvent);
+            Log.d("ADDEVENTWAT", lastReferencedChannel.number + " " + lastReferencedChannel.title + " / " + lastReferencedEvent.title + " - " + lastReferencedEvent.subtitle + " (" + lastReferencedEvent.startTime + " " + lastReferencedEvent.duration + ")");
         }
     }
 

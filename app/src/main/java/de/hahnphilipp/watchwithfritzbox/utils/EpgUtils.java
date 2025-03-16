@@ -48,7 +48,8 @@ public class EpgUtils {
         editor.commit();
     }
 
-    public static EpgEvent getEventAtTime(Context context, int channelNumber, long timeInSec) {
+    public static EpgEvent getEventAtTime(Context context, int channelNumber, LocalDateTime localDateTime) {
+        long timeInSec = localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
         HashMap<Long, EpgEvent> allEvents = getAllEvents(context, channelNumber);
         long nearestEventTime = -1;
         for (long eventTime : allEvents.keySet()) {
@@ -68,7 +69,7 @@ public class EpgUtils {
     }
 
     public static EpgEvent getEventNow(Context context, int channelNumber) {
-        return getEventAtTime(context, channelNumber, System.currentTimeMillis() / 1000);
+        return getEventAtTime(context, channelNumber, LocalDateTime.now());
     }
 
     public static EpgEvent getEventNext(Context context, int channelNumber) {

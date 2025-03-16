@@ -12,6 +12,7 @@ import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,16 +25,23 @@ import com.bumptech.glide.request.target.Target;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 
 public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.ChannelViewHolder> {
 
     private List<ChannelUtils.Channel> channels;
+    private List<ArrayList<EpgUtils.EpgEvent>> eventList;
     private EPGOverlay epgOverlay;
     private LocalDateTime initTime;
     private EPGEventsAdapter.OnEventListener listener;
@@ -46,6 +54,11 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
         this.epgOverlay = epgOverlay;
         this.initTime = initTime;
         this.listener = listener;
+        this.eventList = new ArrayList<>();
+        for(ChannelUtils.Channel channel : channels) {
+            eventList.add(new ArrayList<>());
+            loadEvents(channel);
+        }
     }
 
     @NonNull
@@ -82,21 +95,70 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
                 })
                 .into(holder.channelIcon);
 
+        holder.channelCard.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+                    listener.onEventSelected(channel, EpgUtils.getEventNow(epgOverlay.requireContext(), channel.number));
+                }
+            }
+        });
+
         // Set Adapter für horizontale RecyclerView
-        EPGEventsAdapter eventAdapter = new EPGEventsAdapter(epgOverlay.requireContext(), channel, initTime, listener);
+        EPGEventsAdapter eventAdapter = new EPGEventsAdapter(epgOverlay.requireContext(), channel, eventList.get(position), initTime, listener);
         holder.eventRecyclerView.setAdapter(eventAdapter);
         holder.eventRecyclerView.setItemViewCacheSize(10);
+        holder.eventRecyclerView.setScrollingTouchSlop(RecyclerView.TOUCH_SLOP_PAGING);
 
         // RecyclerView zum Tracking hinzufügen
-        if (!allEventRecyclerViews.contains(holder.eventRecyclerView)) {
-            allEventRecyclerViews.add(holder.eventRecyclerView);
-        }
-
-        // Scroll-Listener setzen
-        holder.eventRecyclerView.addOnScrollListener(epgOverlay.syncScrollListener);
+        allEventRecyclerViews.add(holder.eventRecyclerView);
 
         // Start-Position synchronisieren
         holder.eventRecyclerView.scrollBy(epgOverlay.currentScrollX, 0);
+
+        // Scroll-Listener setzen
+        holder.eventRecyclerView.addOnScrollListener(epgOverlay.syncScrollListener);
+    }
+
+    public void loadEvents(ChannelUtils.Channel channel) {
+        int channelIndex = channels.indexOf(channel);
+        List<EpgUtils.EpgEvent> eventList = this.eventList.get(channelIndex);
+        if(eventList == null) {
+            eventList = new ArrayList<>();
+        }
+
+        List<EpgUtils.EpgEvent> fetchedEvents = new ArrayList<>(EpgUtils.getAllEvents(epgOverlay.requireContext(), channel.number).values());
+
+        // Filter & Sortieren nach Startzeit
+        fetchedEvents = fetchedEvents.stream()
+                .filter(entry -> entry.getEndLocalDateTime().isAfter(initTime))
+                .sorted(Comparator.comparingLong(o -> o.startTime))
+                .collect(Collectors.toList());
+
+        eventList.clear();
+
+        if(fetchedEvents.size() == 1) {
+            EpgUtils.EpgEvent firstEvent = fetchedEvents.get(0);
+            if(firstEvent.getStartLocalDateTime().isAfter(initTime)) {
+                eventList.add(EpgUtils.EpgEvent.createEmptyEvent(epgOverlay.requireContext(), initTime.atZone(ZoneId.systemDefault()).toEpochSecond(), initTime.until(firstEvent.getStartLocalDateTime(), ChronoUnit.SECONDS)));
+            }
+        }
+        LocalDateTime lastEndTime = initTime;
+        for (EpgUtils.EpgEvent event : fetchedEvents) {
+            // Prüfen, ob eine Lücke vorhanden ist
+            if (event.getStartLocalDateTime().isAfter(lastEndTime)) {
+                long gapDuration = lastEndTime.until(event.getStartLocalDateTime(), ChronoUnit.SECONDS);
+
+                eventList.add(EpgUtils.EpgEvent.createEmptyEvent(epgOverlay.requireContext(), lastEndTime.atZone(ZoneId.systemDefault()).toEpochSecond(), gapDuration));
+            }
+
+            // Aktuelles Event hinzufügen
+            eventList.add(event);
+
+            // Endzeit aktualisieren
+            lastEndTime = event.getEndLocalDateTime();
+        }
+        eventList.add(EpgUtils.EpgEvent.createEmptyEvent(epgOverlay.requireContext(), lastEndTime.atZone(ZoneId.systemDefault()).toEpochSecond(), Long.MAX_VALUE / 2));
     }
 
     @Override
@@ -108,18 +170,22 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
     public void onViewRecycled(@NonNull final ChannelViewHolder holder) {
         Glide.with(epgOverlay.requireContext()).clear(holder.channelIcon);
         holder.channelIcon.setImageDrawable(null);
+        allEventRecyclerViews.remove(holder.eventRecyclerView);
+        holder.eventRecyclerView.removeOnScrollListener(epgOverlay.syncScrollListener);
     }
 
     static class ChannelViewHolder extends RecyclerView.ViewHolder {
         ImageView channelIcon;
         TextView channelName;
         RecyclerView eventRecyclerView;
+        CardView channelCard;
 
         public ChannelViewHolder(View itemView) {
             super(itemView);
             channelName = itemView.findViewById(R.id.channel_name);
             channelIcon = itemView.findViewById(R.id.channel_icon);
             eventRecyclerView = itemView.findViewById(R.id.event_recycler);
+            channelCard = itemView.findViewById(R.id.epg_channel_cardView);
 
 
             eventRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));

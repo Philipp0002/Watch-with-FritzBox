@@ -57,7 +57,8 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
     public RecyclerView.OnScrollListener syncScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            if (isSyncingScroll) return; // Verhindert Endlosschleife
+            if (isSyncingScroll || dx == 0) return; // Verhindert Endlosschleife
+            Log.d("SCROLL", recyclerView.hashCode() + "");
 
             isSyncingScroll = true;
 
@@ -66,58 +67,20 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
             // Alle anderen RecyclerViews auf dieselbe Position setzen
             for (RecyclerView otherRecycler : epgChannelsAdapter.allEventRecyclerViews) {
                 if (otherRecycler != recyclerView) {
+                    otherRecycler.removeOnScrollListener(syncScrollListener);
                     otherRecycler.scrollBy(dx, 0);
+                    otherRecycler.addOnScrollListener(syncScrollListener);
                 }
             }
             if (timeRecyclerView != recyclerView) {
+                timeRecyclerView.removeOnScrollListener(syncScrollListener);
                 timeRecyclerView.scrollBy(dx, 0);
+                timeRecyclerView.removeOnScrollListener(syncScrollListener);
             }
             updateLiveTimeLine();
             isSyncingScroll = false;
         }
     };
-
-    /*public RecyclerView.OnScrollListener syncScrollListener = new RecyclerView.OnScrollListener() {
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            if (isSyncingScroll) return; // Verhindert Endlosschleife
-
-            isSyncingScroll = true;
-
-            // Hole das erste sichtbare Item und dessen Offset
-            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-            int firstVisiblePos = layoutManager.findFirstVisibleItemPosition();
-            View firstView = recyclerView.getChildAt(0);
-            int offset = (firstView == null) ? 0 : firstView.getLeft(); // Pixel-Offset
-
-            // Alle anderen RecyclerViews exakt anpassen
-            for (RecyclerView otherRecycler : epgChannelsAdapter.allEventRecyclerViews) {
-                if (otherRecycler != recyclerView) {
-                    LinearLayoutManager otherLayoutManager = (LinearLayoutManager) otherRecycler.getLayoutManager();
-                    if (otherLayoutManager != null) {
-                        otherLayoutManager.scrollToPositionWithOffset(firstVisiblePos, offset);
-                    }
-                }
-            }
-
-            // Zeitleiste auch synchronisieren
-            if (timeRecyclerView != recyclerView) {
-                LinearLayoutManager timeLayoutManager = (LinearLayoutManager) timeRecyclerView.getLayoutManager();
-                if (timeLayoutManager != null) {
-                    timeLayoutManager.scrollToPositionWithOffset(firstVisiblePos, offset);
-                }
-            }
-
-            updateLiveTimeLine();
-            isSyncingScroll = false;
-        }
-    };*/
-
-
-    /*public void updateChannelList() {
-        tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
-        getActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
-    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -143,15 +106,16 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         epgMetadata = view.findViewById(R.id.epgmetadata);
         epgDescription = view.findViewById(R.id.epgdescription);
 
-        epgChannelsAdapter = new EPGChannelsAdapter(this, ChannelUtils.getAllChannels(context), initTime, this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setAdapter(epgChannelsAdapter);
-
         timeRecyclerView = view.findViewById(R.id.epgtimelineRecycler);
         timeRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
         timeRecyclerView.setAdapter(new EPGTimeSlotAdapter(initTime));
-
+        currentScrollX = EpgUtils.secondsToPx(initTime.until(LocalDateTime.now(), ChronoUnit.SECONDS)) - (timeRecyclerView.getWidth()/2);
+        timeRecyclerView.scrollBy(currentScrollX, 0);
         timeRecyclerView.addOnScrollListener(syncScrollListener);
+
+        epgChannelsAdapter = new EPGChannelsAdapter(this, ChannelUtils.getAllChannels(context), initTime, this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setAdapter(epgChannelsAdapter);
 
         updateLiveTimeLine();
 
@@ -173,6 +137,10 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
     }
 
     private void setDetails(ChannelUtils.Channel channel, EpgUtils.EpgEvent epgEvent) {
+        if(epgEvent == null) {
+            return;
+        }
+
         LocalDateTime startTime = epgEvent.getStartLocalDateTime();
         LocalDateTime endTime = epgEvent.getEndLocalDateTime();
 

@@ -2,6 +2,7 @@ package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,12 +31,12 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
     private Context context;
     private OnEventListener listener;
 
-    public EPGEventsAdapter(Context context, ChannelUtils.Channel channel, LocalDateTime initTime, OnEventListener listener) {
+    public EPGEventsAdapter(Context context, ChannelUtils.Channel channel, ArrayList<EpgUtils.EpgEvent> eventList, LocalDateTime initTime, OnEventListener listener) {
         this.channel = channel;
         this.context = context;
         this.initTime = initTime;
         this.listener = listener;
-        loadEvents();
+        this.eventList = eventList;
     }
 
     @NonNull
@@ -51,7 +52,7 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
 
         long duration = event.duration;
         if(event.getStartLocalDateTime().isBefore(initTime)) {
-            duration -= initTime.toEpochSecond(ZoneOffset.UTC) - event.startTime;
+            duration -= initTime.toEpochSecond(ZoneOffset.UTC) - event.getStartLocalDateTime().toEpochSecond(ZoneOffset.UTC);
         }
 
         holder.itemView.setLayoutParams(new LinearLayout.LayoutParams(EpgUtils.secondsToPx(duration), ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -82,50 +83,6 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
     @Override
     public long getItemId(int position) {
         return eventList.get(position).id;
-    }
-
-    public void loadEvents() {
-        if(eventList == null) {
-            eventList = new ArrayList<>();
-        }
-
-        List<EpgUtils.EpgEvent> fetchedEvents = new ArrayList<>(EpgUtils.getAllEvents(context, channel.number).values());
-
-        // Filter & Sortieren nach Startzeit
-        fetchedEvents = fetchedEvents.stream()
-                .filter(entry -> entry.getEndLocalDateTime().isAfter(initTime))
-                .sorted(Comparator.comparingLong(o -> o.startTime))
-                .collect(Collectors.toList());
-
-        eventList.clear();
-
-        if(!fetchedEvents.isEmpty()) {
-            EpgUtils.EpgEvent firstEvent = fetchedEvents.get(0);
-            if(firstEvent.getStartLocalDateTime().isAfter(initTime)) {
-                eventList.add(EpgUtils.EpgEvent.createEmptyEvent(context, initTime.toEpochSecond(ZoneOffset.UTC), firstEvent.startTime - initTime.toEpochSecond(ZoneOffset.UTC)));
-            }
-        }
-        long lastEndTime = 0;
-        for (EpgUtils.EpgEvent event : fetchedEvents) {
-            // Erste Event-Zeit setzen
-            if (lastEndTime == 0) {
-                lastEndTime = event.startTime;
-            }
-
-            // Prüfen, ob eine Lücke vorhanden ist
-            if (event.startTime > lastEndTime) {
-                long gapDuration = event.startTime - lastEndTime;
-
-                eventList.add(EpgUtils.EpgEvent.createEmptyEvent(context, lastEndTime, gapDuration));
-            }
-
-            // Aktuelles Event hinzufügen
-            eventList.add(event);
-
-            // Endzeit aktualisieren
-            lastEndTime = event.startTime + event.duration;
-        }
-        eventList.add(EpgUtils.EpgEvent.createEmptyEvent(context, Long.min(lastEndTime, System.currentTimeMillis() / 1000), Long.MAX_VALUE / 2));
     }
 
     static class EventViewHolder extends RecyclerView.ViewHolder {

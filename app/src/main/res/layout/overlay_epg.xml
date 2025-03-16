@@ -30,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="EPG title"
+            android:textSize="24sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@id/epgmetadata"/>
 
@@ -60,7 +61,9 @@
         tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:orientation="horizontal"
         tools:listitem="@layout/epg_time_slot_item"
-        android:layout_marginStart="172dp"/>
+        android:layout_marginStart="172dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
     <androidx.leanback.widget.BrowseFrameLayout
         android:id="@+id/epgchannelsrecyclerBrowse"

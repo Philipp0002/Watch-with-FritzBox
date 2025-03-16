@@ -12,7 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
@@ -24,6 +27,8 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
     private ArrayList<EpgUtils.EpgEvent> eventList;
     private Context context;
     private OnEventListener listener;
+
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault());
 
     public EPGEventsAdapter(Context context, ChannelUtils.Channel channel, ArrayList<EpgUtils.EpgEvent> eventList, LocalDateTime initTime, OnEventListener listener) {
         this.channel = channel;
@@ -57,6 +62,24 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
             holder.containerView.setTranslationX(Math.max(offset,0f));
             holder.containerView.setTranslationZ(offset < 0 ? 2f : 0);
         });
+
+        LocalDateTime startTime = event.getStartLocalDateTime();
+        LocalDateTime endTime = event.getEndLocalDateTime();
+        if(endTime == null) {
+            if(eventList.size() > 1) {
+                holder.eventTime.setText(context.getString(R.string.epg_starting_from, startTime.format(timeFormatter)));
+            }
+        } else {
+            if(startTime.isBefore(LocalDateTime.now()) && endTime.isAfter(LocalDateTime.now())) {
+                holder.eventTime.setText( context.getString(R.string.epg_until, endTime.format(timeFormatter)) );
+            } else {
+                holder.eventTime.setText( startTime.format(timeFormatter) + " - " + endTime.format(timeFormatter) );
+            }
+        }
+
+
+
+
 
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus) {

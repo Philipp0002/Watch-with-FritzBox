@@ -12,7 +12,6 @@
         android:id="@+id/tvoverlaychannel_cardView"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:minHeight="110dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:focusable="true"
@@ -28,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:duplicateParentState="true"
+            android:minHeight="110dp"
             android:paddingVertical="8dp">
 
             <ImageView

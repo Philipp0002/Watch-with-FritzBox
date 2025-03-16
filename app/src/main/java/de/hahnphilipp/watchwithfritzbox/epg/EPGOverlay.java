@@ -20,11 +20,14 @@ import com.google.gson.GsonBuilder;
 import java.text.DateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
@@ -45,6 +48,9 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
     private TextView epgDescription;
 
     private LocalDateTime initTime;
+
+    public boolean recyclerViewSelected = true;
+    public boolean recyclerViewSelectedInit = false;
 
     public int currentScrollX = 0;
     private boolean isSyncingScroll = false;
@@ -138,28 +144,31 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
 
         LocalDateTime startTime = epgEvent.getStartLocalDateTime();
         LocalDateTime endTime = epgEvent.getEndLocalDateTime();
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.getDefault());
 
-        StringBuilder metadata = new StringBuilder();
-        metadata.append(epgEvent.subtitle);
-        metadata.append(" | ");
+        ArrayList<String> metadataInfos = new ArrayList<>();
+
+        if(epgEvent.subtitle != null && !epgEvent.subtitle.isEmpty()) {
+            metadataInfos.add(epgEvent.subtitle);
+        }
         if(epgEvent.duration < Long.MAX_VALUE / 2) {
             long durationMin = epgEvent.duration / 60;
-            metadata.append(durationMin);
-            metadata.append(" min | ");
+            metadataInfos.add(durationMin + " min");
         }
         if(endTime == null) {
-            if(epgEvent.startTime != 0) {
-                metadata.append(context.getString(R.string.epg_starting_from, startTime.format(DateTimeFormatter.ISO_LOCAL_TIME)));
-            }
+            metadataInfos.add(context.getString(R.string.epg_starting_from, startTime.format(timeFormatter)));
         } else {
-            metadata.append(startTime.format(DateTimeFormatter.ISO_LOCAL_TIME));
-            metadata.append(" - ");
-            metadata.append(endTime.format(DateTimeFormatter.ISO_LOCAL_TIME));
+            if (startTime.toLocalDate().equals(endTime.toLocalDate())) {
+                metadataInfos.add(startTime.format(timeFormatter) + " - " + endTime.format(timeFormatter));
+            } else {
+                metadataInfos.add(startTime.format(dateTimeFormatter) + " - " + endTime.format(dateTimeFormatter));
+            }
         }
 
         channelTitle.setText(channel.title);
         epgTitle.setText(epgEvent.title);
-        epgMetadata.setText(metadata);
+        epgMetadata.setText(metadataInfos.stream().collect(Collectors.joining(" | ")));
         epgDescription.setText(epgEvent.description);
 
         Log.d("EPGOverlay", new GsonBuilder().setPrettyPrinting().create().toJson(epgEvent));

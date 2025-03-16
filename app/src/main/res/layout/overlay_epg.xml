@@ -15,7 +15,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:paddingHorizontal="16dp">
+        android:paddingHorizontal="16dp"
+        android:focusable="false">
 
         <TextView
             android:id="@+id/epgchanneltitle"
@@ -63,12 +64,13 @@
         tools:listitem="@layout/epg_time_slot_item"
         android:layout_marginStart="172dp"
         android:focusable="false"
-        android:focusableInTouchMode="false"/>
+        android:focusableInTouchMode="false" />
 
     <androidx.leanback.widget.BrowseFrameLayout
         android:id="@+id/epgchannelsrecyclerBrowse"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -30,6 +30,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.epg.EPGOverlay;
 import de.hahnphilipp.watchwithfritzbox.epg.LogcatEpgReader;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;

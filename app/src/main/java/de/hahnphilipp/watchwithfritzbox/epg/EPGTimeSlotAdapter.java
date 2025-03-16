@@ -1,4 +1,4 @@
-package de.hahnphilipp.watchwithfritzbox.player;
+package de.hahnphilipp.watchwithfritzbox.epg;
 
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
@@ -13,8 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatterBuilder;
 
 import de.hahnphilipp.watchwithfritzbox.R;

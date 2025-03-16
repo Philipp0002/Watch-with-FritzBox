@@ -15,9 +15,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.text.DateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Locale;
@@ -28,7 +36,7 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 
-public class EPGOverlay extends Fragment {
+public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventListener {
 
     public TVPlayerActivity context;
     private EPGChannelsAdapter epgChannelsAdapter;
@@ -36,8 +44,12 @@ public class EPGOverlay extends Fragment {
     private RecyclerView timeRecyclerView;
     private View liveTimeline;
     private Timer clockTimer;
+    private TextView channelTitle;
+    private TextView epgTitle;
+    private TextView epgMetadata;
+    private TextView epgDescription;
 
-    private OffsetDateTime initTime;
+    private LocalDateTime initTime;
 
     public int currentScrollX = 0;
     private boolean isSyncingScroll = false;
@@ -48,6 +60,7 @@ public class EPGOverlay extends Fragment {
             if (isSyncingScroll) return; // Verhindert Endlosschleife
 
             isSyncingScroll = true;
+
             currentScrollX = recyclerView.computeHorizontalScrollOffset(); // Neue Position speichern
 
             // Alle anderen RecyclerViews auf dieselbe Position setzen
@@ -63,6 +76,43 @@ public class EPGOverlay extends Fragment {
             isSyncingScroll = false;
         }
     };
+
+    /*public RecyclerView.OnScrollListener syncScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            if (isSyncingScroll) return; // Verhindert Endlosschleife
+
+            isSyncingScroll = true;
+
+            // Hole das erste sichtbare Item und dessen Offset
+            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            int firstVisiblePos = layoutManager.findFirstVisibleItemPosition();
+            View firstView = recyclerView.getChildAt(0);
+            int offset = (firstView == null) ? 0 : firstView.getLeft(); // Pixel-Offset
+
+            // Alle anderen RecyclerViews exakt anpassen
+            for (RecyclerView otherRecycler : epgChannelsAdapter.allEventRecyclerViews) {
+                if (otherRecycler != recyclerView) {
+                    LinearLayoutManager otherLayoutManager = (LinearLayoutManager) otherRecycler.getLayoutManager();
+                    if (otherLayoutManager != null) {
+                        otherLayoutManager.scrollToPositionWithOffset(firstVisiblePos, offset);
+                    }
+                }
+            }
+
+            // Zeitleiste auch synchronisieren
+            if (timeRecyclerView != recyclerView) {
+                LinearLayoutManager timeLayoutManager = (LinearLayoutManager) timeRecyclerView.getLayoutManager();
+                if (timeLayoutManager != null) {
+                    timeLayoutManager.scrollToPositionWithOffset(firstVisiblePos, offset);
+                }
+            }
+
+            updateLiveTimeLine();
+            isSyncingScroll = false;
+        }
+    };*/
+
 
     /*public void updateChannelList() {
         tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
@@ -80,7 +130,7 @@ public class EPGOverlay extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initTime = OffsetDateTime.now(ZoneOffset.UTC)
+        initTime = LocalDateTime.now()
                 .withMinute(0)
                 .withSecond(0)
                 .withNano(0)
@@ -88,8 +138,12 @@ public class EPGOverlay extends Fragment {
 
         liveTimeline = view.findViewById(R.id.live_time_line);
         recyclerView = view.findViewById(R.id.epgchannelsrecycler);
+        channelTitle = view.findViewById(R.id.epgchanneltitle);
+        epgTitle = view.findViewById(R.id.epgtitle);
+        epgMetadata = view.findViewById(R.id.epgmetadata);
+        epgDescription = view.findViewById(R.id.epgdescription);
 
-        epgChannelsAdapter = new EPGChannelsAdapter(this, ChannelUtils.getAllChannels(context), initTime);
+        epgChannelsAdapter = new EPGChannelsAdapter(this, ChannelUtils.getAllChannels(context), initTime, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(epgChannelsAdapter);
 
@@ -118,10 +172,38 @@ public class EPGOverlay extends Fragment {
 
     }
 
-    private void updateLiveTimeLine() {
-        OffsetDateTime nowTime = OffsetDateTime.now(ZoneOffset.UTC);
+    private void setDetails(ChannelUtils.Channel channel, EpgUtils.EpgEvent epgEvent) {
+        LocalDateTime startTime = epgEvent.getStartLocalDateTime();
+        LocalDateTime endTime = epgEvent.getEndLocalDateTime();
 
-        long secondsDiff = initTime.until(nowTime, ChronoUnit.SECONDS);
+        StringBuilder metadata = new StringBuilder();
+        metadata.append(epgEvent.subtitle);
+        metadata.append(" | ");
+        if(epgEvent.duration < Long.MAX_VALUE / 2) {
+            long durationMin = epgEvent.duration / 60;
+            metadata.append(durationMin);
+            metadata.append(" min | ");
+        }
+        if(endTime == null) {
+            if(epgEvent.startTime != 0) {
+                metadata.append(context.getString(R.string.epg_starting_from, startTime.format(DateTimeFormatter.ISO_LOCAL_TIME)));
+            }
+        } else {
+            metadata.append(startTime.format(DateTimeFormatter.ISO_LOCAL_TIME));
+            metadata.append(" - ");
+            metadata.append(endTime.format(DateTimeFormatter.ISO_LOCAL_TIME));
+        }
+
+        channelTitle.setText(channel.title);
+        epgTitle.setText(epgEvent.title);
+        epgMetadata.setText(metadata);
+        epgDescription.setText(epgEvent.description);
+
+        Log.d("EPGOverlay", new GsonBuilder().setPrettyPrinting().create().toJson(epgEvent));
+    }
+
+    private void updateLiveTimeLine() {
+        long secondsDiff = initTime.until(LocalDateTime.now(), ChronoUnit.SECONDS);
         int scrollOffset = timeRecyclerView.computeHorizontalScrollOffset();
 
         int px = EpgUtils.secondsToPx(secondsDiff);
@@ -210,4 +292,18 @@ public class EPGOverlay extends Fragment {
         }
     }
 
+    @Override
+    public void onEventSelected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event) {
+        requireActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setDetails(channel, event);
+            }
+        });
+    }
+
+    @Override
+    public void onEventClicked(ChannelUtils.Channel channel, EpgUtils.EpgEvent event) {
+
+    }
 }

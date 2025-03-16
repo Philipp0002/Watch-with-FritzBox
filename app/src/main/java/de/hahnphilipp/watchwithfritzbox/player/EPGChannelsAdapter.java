@@ -22,8 +22,10 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import de.hahnphilipp.watchwithfritzbox.R;
@@ -33,15 +35,17 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
 
     private List<ChannelUtils.Channel> channels;
     private EPGOverlay epgOverlay;
-    private OffsetDateTime initTime;
+    private LocalDateTime initTime;
+    private EPGEventsAdapter.OnEventListener listener;
 
-    ArrayList<RecyclerView> allEventRecyclerViews = new ArrayList<>();
+    public HashSet<RecyclerView> allEventRecyclerViews = new HashSet<>();
 
 
-    public EPGChannelsAdapter(EPGOverlay epgOverlay, List<ChannelUtils.Channel> channels, OffsetDateTime initTime) {
+    public EPGChannelsAdapter(EPGOverlay epgOverlay, List<ChannelUtils.Channel> channels, LocalDateTime initTime, EPGEventsAdapter.OnEventListener listener) {
         this.channels = channels;
         this.epgOverlay = epgOverlay;
         this.initTime = initTime;
+        this.listener = listener;
     }
 
     @NonNull
@@ -79,8 +83,9 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
                 .into(holder.channelIcon);
 
         // Set Adapter für horizontale RecyclerView
-        EPGEventsAdapter eventAdapter = new EPGEventsAdapter(epgOverlay.requireContext(), channel, initTime);
+        EPGEventsAdapter eventAdapter = new EPGEventsAdapter(epgOverlay.requireContext(), channel, initTime, listener);
         holder.eventRecyclerView.setAdapter(eventAdapter);
+        holder.eventRecyclerView.setItemViewCacheSize(10);
 
         // RecyclerView zum Tracking hinzufügen
         if (!allEventRecyclerViews.contains(holder.eventRecyclerView)) {

@@ -11,7 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -22,17 +24,17 @@ import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 
 public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.EventViewHolder> {
-    private OffsetDateTime initTime;
+    private LocalDateTime initTime;
     private ChannelUtils.Channel channel;
     private ArrayList<EpgUtils.EpgEvent> eventList;
     private Context context;
-    private float displayDensity;
+    private OnEventListener listener;
 
-    public EPGEventsAdapter(Context context, ChannelUtils.Channel channel, OffsetDateTime initTime) {
+    public EPGEventsAdapter(Context context, ChannelUtils.Channel channel, LocalDateTime initTime, OnEventListener listener) {
         this.channel = channel;
         this.context = context;
-        this.displayDensity = Resources.getSystem().getDisplayMetrics().density;
         this.initTime = initTime;
+        this.listener = listener;
         loadEvents();
     }
 
@@ -48,8 +50,8 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
         EpgUtils.EpgEvent event = eventList.get(position);
 
         long duration = event.duration;
-        if(event.startTime < initTime.toEpochSecond()) {
-            duration -= initTime.toEpochSecond() - event.startTime;
+        if(event.getStartLocalDateTime().isBefore(initTime)) {
+            duration -= initTime.toEpochSecond(ZoneOffset.UTC) - event.startTime;
         }
 
         holder.itemView.setLayoutParams(new LinearLayout.LayoutParams(EpgUtils.secondsToPx(duration), ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -60,6 +62,16 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
             holder.containerView.setTranslationX(Math.max(offset,0f));
             holder.containerView.setTranslationZ(offset < 0 ? 2f : 0);
         });
+
+        holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
+            if(hasFocus) {
+                listener.onEventSelected(channel, event);
+            }
+        });
+
+        holder.itemView.setOnClickListener(v -> listener.onEventClicked(channel, event));
+
+        //if(ChannelUtils.getLastSelectedChannel(context) == channel.number && )
     }
 
     @Override
@@ -81,7 +93,7 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
 
         // Filter & Sortieren nach Startzeit
         fetchedEvents = fetchedEvents.stream()
-                .filter(entry -> entry.startTime + entry.duration > initTime.toEpochSecond())
+                .filter(entry -> entry.getEndLocalDateTime().isAfter(initTime))
                 .sorted(Comparator.comparingLong(o -> o.startTime))
                 .collect(Collectors.toList());
 
@@ -89,8 +101,8 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
 
         if(!fetchedEvents.isEmpty()) {
             EpgUtils.EpgEvent firstEvent = fetchedEvents.get(0);
-            if(firstEvent.startTime > initTime.toEpochSecond()) {
-                eventList.add(EpgUtils.EpgEvent.createEmptyEvent(context, initTime.toEpochSecond(), firstEvent.startTime - initTime.toEpochSecond()));
+            if(firstEvent.getStartLocalDateTime().isAfter(initTime)) {
+                eventList.add(EpgUtils.EpgEvent.createEmptyEvent(context, initTime.toEpochSecond(ZoneOffset.UTC), firstEvent.startTime - initTime.toEpochSecond(ZoneOffset.UTC)));
             }
         }
         long lastEndTime = 0;
@@ -127,5 +139,10 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
             eventTime = itemView.findViewById(R.id.event_time);
             containerView = itemView.findViewById(R.id.event_container);
         }
+    }
+
+    public static interface OnEventListener {
+        void onEventSelected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event);
+        void onEventClicked(ChannelUtils.Channel channel, EpgUtils.EpgEvent event);
     }
 }

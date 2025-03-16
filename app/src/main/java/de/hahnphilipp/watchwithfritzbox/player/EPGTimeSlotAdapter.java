@@ -21,9 +21,9 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 
 public class EPGTimeSlotAdapter extends RecyclerView.Adapter<EPGTimeSlotAdapter.TimeSlotViewHolder> {
-    private OffsetDateTime initTime;
+    private LocalDateTime initTime;
 
-    public EPGTimeSlotAdapter(OffsetDateTime initTime) {
+    public EPGTimeSlotAdapter(LocalDateTime initTime) {
         this.initTime = initTime;
     }
 
@@ -36,7 +36,7 @@ public class EPGTimeSlotAdapter extends RecyclerView.Adapter<EPGTimeSlotAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull TimeSlotViewHolder holder, int position) {
-        LocalDateTime time = initTime.plusHours(position).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime time = initTime.plusHours(position);
 
         int seconds = 60 * 60;
         /*if (time.isBefore(LocalDateTime.now())) {

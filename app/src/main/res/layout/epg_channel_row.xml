@@ -43,7 +43,7 @@
 
     </androidx.cardview.widget.CardView>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView
         android:id="@+id/event_recycler"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

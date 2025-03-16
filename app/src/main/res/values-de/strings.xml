@@ -75,4 +75,5 @@
     <string name="programguide_content_description_dropdown_icon">Nach unten Symbol</string>
 
     <string name="epg_no_program">No epg info</string>
+    <string name="epg_starting_from">ab %s</string>
 </resources>

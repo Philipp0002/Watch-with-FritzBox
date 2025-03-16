@@ -3,6 +3,10 @@ package de.hahnphilipp.watchwithfritzbox.epg;
 import android.content.Context;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.hahnphilipp.watchwithfritzbox.async.AsyncLogcatReader;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
@@ -16,6 +20,7 @@ public class LogcatEpgReader {
     EpgUtils.EpgEvent lastReferencedEvent;
 
     int lastReferencedServiceId = -1;
+    boolean lastReferencedServiceFree = true;
     int lastReferencedServiceIdForEvents = -1;
     HashMap<Integer, Integer> serviceIdToChannelNr;
 
@@ -54,17 +59,18 @@ public class LogcatEpgReader {
     }
 
     private void processLine(String line) {
-        if (line.startsWith("* service")) {
-            int idIndex = line.indexOf("id=") + "id=".length();
-            String serviceId = line.substring(idIndex, idIndex + 5);
+        if (line.startsWith("* service ")) {
+            line = line.replace("eit ", "");
+            Map<String, String> map = parseKeyValue(line.substring(10));
+            String serviceId = map.get("id");
+            boolean freeChannel = map.get("id").equals("0");
             lastReferencedServiceId = Integer.parseInt(serviceId);
+            lastReferencedServiceFree = freeChannel;
         } else if (line.startsWith("- type=")) {
-            int providerIndex = line.indexOf("provider=") + "provider=".length();
-            int providerEndIndex = line.indexOf("name=", providerIndex);
-            int nameIndex = line.indexOf("name=") + "name=".length();
-
-            String provider = line.substring(providerIndex, providerEndIndex);
-            String name = line.substring(nameIndex);
+            Map<String, String> map = parseKeyValue(line.substring(2));
+            String provider = map.get("provider");
+            String name = map.get("name");
+            String type = map.get("type");
 
             ChannelUtils.Channel ch = ChannelUtils.getChannelByTitle(context, name);
             if (ch == null) return;
@@ -72,25 +78,31 @@ public class LogcatEpgReader {
             if (lastReferencedServiceId != -1) {
                 ch.serviceId = lastReferencedServiceId;
                 ch.provider = provider;
+                ch.free = lastReferencedServiceFree;
+                switch (type) {
+                    case "1":
+                        ch.type = ChannelUtils.ChannelType.SD;
+                        break;
+                    case "25":
+                        ch.type = ChannelUtils.ChannelType.HD;
+                        break;
+                    case "2":
+                        ch.type = ChannelUtils.ChannelType.RADIO;
+                        break;
+                }
                 ChannelUtils.updateChannel(context, originalCh, ch);
             }
             lastReferencedServiceId = -1;
-        } else if (line.startsWith("new EIT")) {
-            int serviceIdIndex = line.indexOf("service_id=") + "service_id=".length();
-            int serviceIdEndIndex = line.indexOf(" ", serviceIdIndex);
-            String serviceId = line.substring(serviceIdIndex, serviceIdEndIndex);
+        } else if (line.startsWith("new EIT ")) {
+            Map<String, String> map = parseKeyValue(line.substring(8));
+            String serviceId = map.get("service_id");
             lastReferencedServiceIdForEvents = Integer.parseInt(serviceId);
-        } else if (line.startsWith("* event")) {
-            int idIndex = line.indexOf("id=") + "id=".length();
-            int idEndIndex = line.indexOf(" ", idIndex);
-            int startTimeIndex = line.indexOf("start_time:") + "start_time:".length();
-            int startTimeEndIndex = line.indexOf(" ", startTimeIndex);
-            int durationIndex = line.indexOf("duration=") + "duration=".length();
-            int durationEndIndex = line.indexOf(" ", durationIndex);
+        } else if (line.startsWith("* event ")) {
+            Map<String, String> map = parseKeyValue(line.substring(8));
 
-            String _eventId = line.substring(idIndex, idEndIndex);
-            String _startTime = line.substring(startTimeIndex, startTimeEndIndex);
-            String _duration = line.substring(durationIndex, durationEndIndex);
+            String _eventId = map.get("id");
+            String _startTime = map.get("start_time");
+            String _duration = map.get("duration");
 
             int eventId = Integer.parseInt(_eventId);
             long startTime = Long.parseLong(_startTime);
@@ -138,5 +150,18 @@ public class LogcatEpgReader {
             asyncLogcatReader.stop = true;
             asyncLogcatReader = null;
         }
+    }
+
+    private Map<String, String> parseKeyValue(String input) {
+        Map<String, String> map = new LinkedHashMap<>();
+        Pattern pattern = Pattern.compile("(\\w+)[:=]([^:=]+?)(?=\\s+\\w+[:=]|$)");
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+            String key = matcher.group(1);
+            String value = matcher.group(2).trim();
+            map.put(key, value);
+        }
+        return map;
     }
 }

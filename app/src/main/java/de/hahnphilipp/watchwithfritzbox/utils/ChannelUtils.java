@@ -9,6 +9,9 @@ import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -214,12 +217,14 @@ public class ChannelUtils {
 
         public int serviceId;
         public String provider;
+        public boolean free;
 
         public Channel(int number, String title, String url, ChannelType type) {
             this.number = number;
             this.title = title;
             this.url = url;
             this.type = type;
+            this.free = true;
         }
 
         @Override
@@ -245,6 +250,7 @@ public class ChannelUtils {
             copy.serviceId = serviceId;
             return copy;
         }
+
     }
 
     public enum ChannelType {

@@ -8,8 +8,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 
@@ -33,6 +38,7 @@ public class EpgUtils {
         SharedPreferences.Editor editor = sp.edit();
 
         HashMap<Long, EpgEvent> allEvents = getAllEvents(context, channelNumber);
+        allEvents = new HashMap<>(allEvents.entrySet().stream().filter(entry -> entry.getValue().id != epgEvent.id).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
         allEvents.put(epgEvent.startTime, epgEvent);
 
         Type eventMapType = new TypeToken<HashMap<Long, EpgEvent>>() {
@@ -102,6 +108,18 @@ public class EpgUtils {
             event.title = context.getString(R.string.epg_no_program);
             event.isEmpty = true;
             return event;
+        }
+
+        public LocalDateTime getStartLocalDateTime() {
+            return Instant.ofEpochSecond(this.startTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        }
+
+        public LocalDateTime getEndLocalDateTime() {
+            try {
+                return Instant.ofEpochSecond(this.startTime + this.duration).atZone(ZoneId.systemDefault()).toLocalDateTime();
+            } catch (Exception e) {
+                return null;
+            }
         }
 
     }

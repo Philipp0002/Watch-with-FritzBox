@@ -25,13 +25,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toBottomOf="@+id/tvoverlayrecyclerTitle">
+        app:layout_constraintTop_toBottomOf="@+id/tvoverlayrecyclerTitle"
+        android:focusable="false">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tvoverlayrecycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <requestFocus/>
+        android:layout_height="match_parent"
+        android:focusable="false">
     </androidx.recyclerview.widget.RecyclerView>
 
     </androidx.leanback.widget.BrowseFrameLayout>

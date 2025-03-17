@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.EPGLinearLayoutManager;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 
 public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.ChannelViewHolder> {
@@ -104,7 +105,6 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
         EPGEventsAdapter eventAdapter = new EPGEventsAdapter(epgOverlay.requireContext(), channel, eventList.get(position), initTime, listener);
         holder.eventRecyclerView.setAdapter(eventAdapter);
         holder.eventRecyclerView.setItemViewCacheSize(10);
-        holder.eventRecyclerView.setScrollingTouchSlop(RecyclerView.TOUCH_SLOP_PAGING);
 
         // RecyclerView zum Tracking hinzufügen
         allEventRecyclerViews.add(holder.eventRecyclerView);
@@ -175,6 +175,7 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
         TextView channelName;
         RecyclerView eventRecyclerView;
         CardView channelCard;
+        EPGLinearLayoutManager layoutManager;
 
         public ChannelViewHolder(View itemView) {
             super(itemView);
@@ -182,9 +183,9 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
             channelIcon = itemView.findViewById(R.id.channel_icon);
             eventRecyclerView = itemView.findViewById(R.id.event_recycler);
             channelCard = itemView.findViewById(R.id.epg_channel_cardView);
+            layoutManager = new EPGLinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
 
-
-            eventRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
+            eventRecyclerView.setLayoutManager(layoutManager);
         }
     }
 }

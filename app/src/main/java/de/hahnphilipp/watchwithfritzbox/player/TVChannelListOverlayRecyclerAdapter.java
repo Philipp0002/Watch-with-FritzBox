@@ -87,7 +87,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.channelIcon);
 
-        holder.cardView.setOnFocusChangeListener((v, hasFocus) -> {
+        holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 if (!(context instanceof EditChannelListTVOverlay)) {
                     if (recyclerView != null) {
@@ -113,7 +113,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
             }
         });
 
-        holder.cardView.setOnClickListener(v -> {
+        holder.itemView.setOnClickListener(v -> {
             if (context instanceof ChannelListTVOverlay) {
                 ChannelListTVOverlay overlay = (ChannelListTVOverlay) context;
                 overlay.context.popOverlayFragment();

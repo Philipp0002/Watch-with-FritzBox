@@ -1,7 +1,9 @@
 package de.hahnphilipp.watchwithfritzbox.utils;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

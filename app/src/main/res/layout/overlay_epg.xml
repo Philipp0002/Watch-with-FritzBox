@@ -24,7 +24,8 @@
             android:layout_height="wrap_content"
             tools:text="Channel Name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/epgtitle"/>
+            app:layout_constraintBottom_toTopOf="@id/epgtitle"
+            android:focusable="false"/>
 
         <TextView
             android:id="@+id/epgtitle"
@@ -33,7 +34,8 @@
             tools:text="EPG title"
             android:textSize="24sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/epgmetadata"/>
+            app:layout_constraintBottom_toTopOf="@id/epgmetadata"
+            android:focusable="false"/>
 
         <TextView
             android:id="@+id/epgmetadata"
@@ -41,7 +43,8 @@
             android:layout_height="wrap_content"
             tools:text="EPG metadata"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/epgdescription"/>
+            app:layout_constraintBottom_toTopOf="@id/epgdescription"
+            android:focusable="false"/>
 
         <TextView
             android:id="@+id/epgdescription"
@@ -49,7 +52,8 @@
             android:layout_height="wrap_content"
             tools:text="EPG description"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:focusable="false"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

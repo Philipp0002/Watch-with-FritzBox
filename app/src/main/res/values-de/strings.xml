@@ -60,7 +60,7 @@
     <string name="video_aspect">Seitenverhältnis</string>
     <string name="audio_tracks_desc">Wähle den Audiokanal</string>
 
-    <string name="epg_no_program">No epg info</string>
+    <string name="epg_no_program">Keine EPG Daten</string>
     <string name="epg_starting_from">ab %s</string>
     <string name="epg_until">bis %s</string>
 </resources>

@@ -33,12 +33,13 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView;
 
 public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventListener {
 
     public TVPlayerActivity context;
     private EPGChannelsAdapter epgChannelsAdapter;
-    private RecyclerView recyclerView;
+    private FocusRecyclerView recyclerView;
     private RecyclerView timeRecyclerView;
     private View liveTimeline;
     private Timer clockTimer;
@@ -49,7 +50,6 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
 
     private LocalDateTime initTime;
 
-    public boolean recyclerViewSelected = true;
     public boolean recyclerViewSelectedInit = false;
 
     public int currentScrollX = 0;
@@ -59,8 +59,6 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             if (isSyncingScroll || dx == 0) return; // Verhindert Endlosschleife
-            Log.d("SCROLL", recyclerView.hashCode() + "");
-
             isSyncingScroll = true;
 
             currentScrollX = recyclerView.computeHorizontalScrollOffset(); // Neue Position speichern
@@ -117,24 +115,12 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         epgChannelsAdapter = new EPGChannelsAdapter(this, ChannelUtils.getAllChannels(context), initTime, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(epgChannelsAdapter);
+        recyclerView.customEpgVerticalFocusSearch = true;
 
         updateLiveTimeLine();
 
         int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(context) - 1;
-        //TODO epgChannelsAdapter.selectedChannel = lastSelectedChannel + 1;
-        //recyclerView.scrollToPosition(lastSelectedChannel);
-
-        /*BrowseFrameLayout browseFrameLayout = view.findViewById(R.id.epgchannelsrecyclerBrowse);
-        browseFrameLayout.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
-            @Override
-            public View onFocusSearch(View focused, int direction) {
-                if (recyclerView.hasFocus())
-                    return focused; // keep focus on recyclerview! DO NOT return recyclerview, but focused, which is a child of the recyclerview
-                else
-                    return null; // someone else will find the next focus
-            }
-        });*/
-
+        recyclerView.scrollToPosition(lastSelectedChannel);
     }
 
     private void setDetails(ChannelUtils.Channel channel, EpgUtils.EpgEvent epgEvent) {
@@ -272,6 +258,11 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
                 setDetails(channel, event);
             }
         });
+    }
+
+    @Override
+    public void onEventDeselected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event) {
+
     }
 
     @Override

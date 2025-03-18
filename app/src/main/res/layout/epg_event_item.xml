@@ -30,7 +30,9 @@
                 android:maxLines="1"
                 android:textSize="18sp"
                 tools:text="EPG Event"
-                android:duplicateParentState="true" />
+                android:duplicateParentState="true"
+                android:ellipsize="end"
+                />
 
             <TextView
                 android:id="@+id/event_time"

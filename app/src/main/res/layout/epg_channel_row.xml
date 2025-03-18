@@ -20,6 +20,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:duplicateParentState="true"
             android:padding="4dp">
 
             <ImageView
@@ -37,13 +38,16 @@
                 android:textAlignment="center"
                 android:gravity="center"
                 android:textSize="16sp"
-                tools:text="Channel Name"/>
+                tools:text="Channel Name"
+                android:textColor="@color/epg_channel_card_text"
+                android:duplicateParentState="true"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
 
     <de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView
+        android:focusable="false"
         android:id="@+id/event_recycler"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

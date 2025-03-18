@@ -27,11 +27,13 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
     private ArrayList<EpgUtils.EpgEvent> eventList;
     private Context context;
     private OnEventListener listener;
+    private EPGOverlay epgOverlay;
 
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault());
 
-    public EPGEventsAdapter(Context context, ChannelUtils.Channel channel, ArrayList<EpgUtils.EpgEvent> eventList, LocalDateTime initTime, OnEventListener listener) {
+    public EPGEventsAdapter(Context context, EPGOverlay epgOverlay, ChannelUtils.Channel channel, ArrayList<EpgUtils.EpgEvent> eventList, LocalDateTime initTime, OnEventListener listener) {
         this.channel = channel;
+        this.epgOverlay = epgOverlay;
         this.context = context;
         this.initTime = initTime;
         this.listener = listener;
@@ -50,7 +52,7 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
         EpgUtils.EpgEvent event = eventList.get(position);
 
         long duration = event.duration;
-        if(event.getStartLocalDateTime().isBefore(initTime)) {
+        if (event.getStartLocalDateTime().isBefore(initTime)) {
             duration -= initTime.toEpochSecond(ZoneOffset.UTC) - event.getStartLocalDateTime().toEpochSecond(ZoneOffset.UTC);
         }
 
@@ -58,38 +60,42 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
 
         holder.eventTitle.setText(event.title);
         holder.itemView.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            float offset = (float) - holder.itemView.getLeft();
-            holder.containerView.setTranslationX(Math.max(offset,0f));
+            float offset = (float) -holder.itemView.getLeft();
+            holder.containerView.setTranslationX(Math.max(offset, 0f));
             holder.containerView.setTranslationZ(offset < 0 ? 2f : 0);
         });
 
         LocalDateTime startTime = event.getStartLocalDateTime();
         LocalDateTime endTime = event.getEndLocalDateTime();
-        if(endTime == null) {
-            if(eventList.size() > 1) {
+        if (endTime == null) {
+            if (eventList.size() > 1) {
                 holder.eventTime.setText(context.getString(R.string.epg_starting_from, startTime.format(timeFormatter)));
             }
         } else {
-            if(startTime.isBefore(LocalDateTime.now()) && endTime.isAfter(LocalDateTime.now())) {
-                holder.eventTime.setText( context.getString(R.string.epg_until, endTime.format(timeFormatter)) );
+            if (startTime.isBefore(LocalDateTime.now()) && endTime.isAfter(LocalDateTime.now())) {
+                holder.eventTime.setText(context.getString(R.string.epg_until, endTime.format(timeFormatter)));
             } else {
-                holder.eventTime.setText( startTime.format(timeFormatter) + " - " + endTime.format(timeFormatter) );
+                holder.eventTime.setText(startTime.format(timeFormatter) + " - " + endTime.format(timeFormatter));
             }
         }
 
-
-
-
-
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus) {
+            if (hasFocus) {
                 listener.onEventSelected(channel, event);
+            } else {
+                listener.onEventDeselected(channel, event);
             }
         });
 
         holder.itemView.setOnClickListener(v -> listener.onEventClicked(channel, event));
 
-        //if(ChannelUtils.getLastSelectedChannel(context) == channel.number && )
+        if (!epgOverlay.recyclerViewSelectedInit &&
+                ChannelUtils.getLastSelectedChannel(context) == channel.number &&
+                event.getStartLocalDateTime().isBefore(LocalDateTime.now()) &&
+                (event.getEndLocalDateTime() == null || event.getEndLocalDateTime().isAfter(LocalDateTime.now()))) {
+            epgOverlay.recyclerViewSelectedInit = true;
+            holder.itemView.requestFocus();
+        }
     }
 
     @Override
@@ -117,6 +123,9 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
 
     public static interface OnEventListener {
         void onEventSelected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event);
+
+        void onEventDeselected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event);
+
         void onEventClicked(ChannelUtils.Channel channel, EpgUtils.EpgEvent event);
     }
 }

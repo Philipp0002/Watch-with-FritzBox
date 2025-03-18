@@ -34,6 +34,7 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EPGLinearLayoutManager;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView;
 
 public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.ChannelViewHolder> {
 
@@ -92,19 +93,28 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
                 })
                 .into(holder.channelIcon);
 
-        holder.channelCard.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        // Set Adapter für horizontale RecyclerView
+        EPGEventsAdapter eventAdapter = new EPGEventsAdapter(epgOverlay.requireContext(), epgOverlay, channel, eventList.get(position), initTime, new EPGEventsAdapter.OnEventListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    listener.onEventSelected(channel, EpgUtils.getEventNow(epgOverlay.requireContext(), channel.number));
-                }
+            public void onEventSelected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event) {
+                listener.onEventSelected(channel, event);
+                holder.channelCard.setActivated(true);
+            }
+
+            @Override
+            public void onEventDeselected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event) {
+                listener.onEventDeselected(channel, event);
+                holder.channelCard.setActivated(false);
+            }
+
+            @Override
+            public void onEventClicked(ChannelUtils.Channel channel, EpgUtils.EpgEvent event) {
+                listener.onEventClicked(channel, event);
             }
         });
-
-        // Set Adapter für horizontale RecyclerView
-        EPGEventsAdapter eventAdapter = new EPGEventsAdapter(epgOverlay.requireContext(), channel, eventList.get(position), initTime, listener);
         holder.eventRecyclerView.setAdapter(eventAdapter);
         holder.eventRecyclerView.setItemViewCacheSize(10);
+        holder.eventRecyclerView.customEpgHorizontalFocusSearch = true;
 
         // RecyclerView zum Tracking hinzufügen
         allEventRecyclerViews.add(holder.eventRecyclerView);
@@ -173,7 +183,7 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
     static class ChannelViewHolder extends RecyclerView.ViewHolder {
         ImageView channelIcon;
         TextView channelName;
-        RecyclerView eventRecyclerView;
+        FocusRecyclerView eventRecyclerView;
         CardView channelCard;
         EPGLinearLayoutManager layoutManager;
 

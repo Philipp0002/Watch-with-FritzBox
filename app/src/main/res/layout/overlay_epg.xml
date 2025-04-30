@@ -8,7 +8,7 @@
     android:focusable="false"
     android:background="@color/panel_background">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/epgdetails"
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -16,7 +16,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:paddingHorizontal="16dp"
-        android:focusable="false">
+        android:orientation="vertical"
+        android:focusable="false"
+        android:gravity="bottom">
 
         <TextView
             android:id="@+id/epgchanneltitle"
@@ -34,17 +36,41 @@
             tools:text="EPG title"
             android:textSize="24sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/epgmetadata"
+            app:layout_constraintBottom_toTopOf="@id/epgsubtitle"
             android:focusable="false"/>
 
+
         <TextView
-            android:id="@+id/epgmetadata"
+            android:id="@+id/epgsubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="EPG metadata"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@id/epgdescription"
             android:focusable="false"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="4dp">
+
+                    <TextView
+                        android:id="@+id/epgtime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:drawablePadding="4dp"
+                        android:paddingVertical="2dp"
+                        android:paddingHorizontal="4dp"
+                        android:drawableStart="@drawable/round_clock"
+                        tools:text="30 min | 12:30 - 13:00"/>
+
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/epgdescription"
@@ -56,7 +82,7 @@
             android:focusable="false"/>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/epgtimelineRecycler"

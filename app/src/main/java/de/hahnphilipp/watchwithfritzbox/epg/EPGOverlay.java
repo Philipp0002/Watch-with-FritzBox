@@ -1,5 +1,8 @@
 package de.hahnphilipp.watchwithfritzbox.epg;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,7 +48,8 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
     private Timer clockTimer;
     private TextView channelTitle;
     private TextView epgTitle;
-    private TextView epgMetadata;
+    private TextView epgSubtitle;
+    private TextView epgTime;
     private TextView epgDescription;
 
     private LocalDateTime initTime;
@@ -102,7 +106,8 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         recyclerView = view.findViewById(R.id.epgchannelsrecycler);
         channelTitle = view.findViewById(R.id.epgchanneltitle);
         epgTitle = view.findViewById(R.id.epgtitle);
-        epgMetadata = view.findViewById(R.id.epgmetadata);
+        epgTime = view.findViewById(R.id.epgtime);
+        epgSubtitle = view.findViewById(R.id.epgsubtitle);
         epgDescription = view.findViewById(R.id.epgdescription);
 
         timeRecyclerView = view.findViewById(R.id.epgtimelineRecycler);
@@ -133,28 +138,30 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault());
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.getDefault());
 
-        ArrayList<String> metadataInfos = new ArrayList<>();
-
-        if(epgEvent.subtitle != null && !epgEvent.subtitle.isEmpty()) {
-            metadataInfos.add(epgEvent.subtitle);
-        }
+        ArrayList<String> timeInfos = new ArrayList<>();
         if(epgEvent.duration < Long.MAX_VALUE / 2) {
             long durationMin = epgEvent.duration / 60;
-            metadataInfos.add(durationMin + " min");
+            timeInfos.add(durationMin + " min");
         }
         if(endTime == null) {
-            metadataInfos.add(context.getString(R.string.epg_starting_from, startTime.format(timeFormatter)));
+            timeInfos.add(context.getString(R.string.epg_starting_from, startTime.format(timeFormatter)));
         } else {
             if (startTime.toLocalDate().equals(endTime.toLocalDate())) {
-                metadataInfos.add(startTime.format(timeFormatter) + " - " + endTime.format(timeFormatter));
+                timeInfos.add(startTime.format(timeFormatter) + " - " + endTime.format(timeFormatter));
             } else {
-                metadataInfos.add(startTime.format(dateTimeFormatter) + " - " + endTime.format(dateTimeFormatter));
+                timeInfos.add(startTime.format(dateTimeFormatter) + " - " + endTime.format(dateTimeFormatter));
             }
         }
 
         channelTitle.setText(channel.title);
         epgTitle.setText(epgEvent.title);
-        epgMetadata.setText(metadataInfos.stream().collect(Collectors.joining(" | ")));
+        if(epgEvent.subtitle != null && !epgEvent.subtitle.isEmpty()) {
+            epgSubtitle.setVisibility(VISIBLE);
+            epgSubtitle.setText(epgEvent.subtitle);
+        } else {
+            epgSubtitle.setVisibility(GONE);
+        }
+        epgTime.setText(timeInfos.stream().collect(Collectors.joining(" | ")));
         epgDescription.setText(epgEvent.description);
 
         Log.d("EPGOverlay", new GsonBuilder().setPrettyPrinting().create().toJson(epgEvent));
@@ -173,7 +180,7 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         if(px < 0) {
             liveTimeline.setVisibility(View.INVISIBLE);
         } else {
-            liveTimeline.setVisibility(View.VISIBLE);
+            liveTimeline.setVisibility(VISIBLE);
         }
     }
 
@@ -252,12 +259,7 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
 
     @Override
     public void onEventSelected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event) {
-        requireActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setDetails(channel, event);
-            }
-        });
+        requireActivity().runOnUiThread(() -> setDetails(channel, event));
     }
 
     @Override

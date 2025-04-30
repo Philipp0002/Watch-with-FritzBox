@@ -66,4 +66,5 @@
     <string name="epg_no_program">No epg info</string>
     <string name="epg_starting_from">from %s</string>
     <string name="epg_until">until %s</string>
+    <string name="epg_no_program_load_info">Watch this channel for a few minutes to receive epg data</string>
 </resources>

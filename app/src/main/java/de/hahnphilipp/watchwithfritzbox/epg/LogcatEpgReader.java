@@ -24,6 +24,7 @@ public class LogcatEpgReader {
     boolean lastReferencedServiceFree = true;
     ChannelUtils.Channel lastReferencedChannel;
     HashMap<Integer, Integer> serviceIdToChannelNr;
+    boolean lastEpgDescNotFinished = false;
 
     public LogcatEpgReader(Context context) {
         this.context = context;
@@ -37,22 +38,32 @@ public class LogcatEpgReader {
             public void onLineRead(String lineUntrimmed) {
                 if (lineUntrimmed.contains("EPGREAD")) return;
 
-                if (lineUntrimmed.contains("D VLC") && lineUntrimmed.contains("ts demux:")) {
-                    String line = lineUntrimmed
-                            .substring(
-                                    lineUntrimmed
-                                            .indexOf("ts demux:") +
-                                            "ts demux:".length()
-                            ).trim();
-                    processLine(line);
+                if (lineUntrimmed.contains("D VLC     :")) {
+                    if(lineUntrimmed.contains("ts demux:")) {
+                        String line = lineUntrimmed
+                                .substring(
+                                        lineUntrimmed
+                                                .indexOf("ts demux:") +
+                                                "ts demux:".length()
+                                ).trim();
+                        processLine(line, true);
+                    } else {
+                        String line = lineUntrimmed
+                                .substring(
+                                        lineUntrimmed
+                                                .indexOf("D VLC     :") +
+                                                "D VLC     :".length()
+                                ).trim();
+                        processLine(line, false);
+                    }
                 }
             }
         });
         asyncLogcatReader.execute();
     }
 
-    private void processLine(String line) {
-        if (line.startsWith("* service ")) {
+    private void processLine(String line, boolean isTsDemux) {
+        if (isTsDemux && line.startsWith("* service ")) {
             line = line.replace("eit ", "");
             Map<String, String> map = parseKeyValue(line.substring(10));
             String serviceId = map.get("id");
@@ -60,7 +71,8 @@ public class LogcatEpgReader {
             lastReferencedServiceId = Integer.parseInt(serviceId);
             lastReferencedServiceFree = freeChannel;
             lastReferencedEvent = null;
-        } else if (line.startsWith("- type=")) {
+            lastEpgDescNotFinished = false;
+        } else if (isTsDemux && line.startsWith("- type=")) {
             Map<String, String> map = parseKeyValue(line.substring(2));
             String provider = map.get("provider");
             String name = map.get("name");
@@ -88,12 +100,14 @@ public class LogcatEpgReader {
             }
             lastReferencedServiceId = -1;
             lastReferencedEvent = null;
-        } else if (line.startsWith("new EIT ")) {
+            lastEpgDescNotFinished = false;
+        } else if (isTsDemux && line.startsWith("new EIT ")) {
             Map<String, String> map = parseKeyValue(line.substring(8));
             String serviceId = map.get("service_id");
             lastReferencedChannel = ChannelUtils.getChannelByServiceId(context, Integer.parseInt(serviceId));
             lastReferencedEvent = null;
-        } else if (line.startsWith("* event ")) {
+            lastEpgDescNotFinished = false;
+        } else if (isTsDemux && line.startsWith("* event ") && isTsDemux) {
             Map<String, String> map = parseKeyValue(line.substring(8));
 
             String _eventId = map.get("id");
@@ -108,7 +122,8 @@ public class LogcatEpgReader {
             lastReferencedEvent.id = eventId;
             lastReferencedEvent.startTime = startTime;
             lastReferencedEvent.duration = duration;
-        } else if (line.startsWith("- short event")) {
+            lastEpgDescNotFinished = false;
+        } else if (isTsDemux && line.startsWith("- short event")) {
             if (lastReferencedEvent != null) {
                 int langIndex = line.indexOf("lang=") + "lang=".length();
                 int langEndIndex = line.indexOf(" ", langIndex);
@@ -126,6 +141,34 @@ public class LogcatEpgReader {
                 lastReferencedEvent.lang = lang;
                 lastReferencedEvent.subtitle = subtitle.equalsIgnoreCase("(null)") ? null : subtitle;
                 lastReferencedEvent.title = title;
+                lastEpgDescNotFinished = false;
+            }
+        } else if (isTsDemux && line.startsWith("- text='")) {
+            if (lastReferencedEvent != null) {
+                int descIndex = line.indexOf("text='") + "text='".length();
+                int descEndIndex = line.charAt(line.length() - 1) == '\'' ? line.length() - 1 : line.length();
+
+                String desc = line.substring(descIndex, descEndIndex);
+
+                if(lastReferencedEvent.description == null) {
+                    lastReferencedEvent.description = "";
+                }
+                lastReferencedEvent.description += desc;
+                if(!line.endsWith("'")) {
+                    lastEpgDescNotFinished = true;
+                }
+            }
+        }else if (!isTsDemux && !line.trim().isEmpty() && lastEpgDescNotFinished) {
+            if (lastReferencedEvent != null && lastReferencedEvent.description != null) {
+                int descIndex = 0;
+                int descEndIndex = line.charAt(line.length() - 1) == '\'' ? line.length() - 1 : line.length();
+
+                String desc = line.substring(descIndex, descEndIndex);
+
+                lastReferencedEvent.description += "\n" + desc;
+                if(line.endsWith("'")) {
+                    lastEpgDescNotFinished = false;
+                }
             }
         }
         saveLastReferencedEvent();
@@ -141,7 +184,6 @@ public class LogcatEpgReader {
     public void saveLastReferencedEvent() {
         if (lastReferencedEvent != null && lastReferencedChannel != null) {
             EpgUtils.addEvent(context, lastReferencedChannel.number, lastReferencedEvent);
-            Log.d("ADDEVENTWAT", lastReferencedChannel.number + " " + lastReferencedChannel.title + " / " + lastReferencedEvent.title + " - " + lastReferencedEvent.subtitle + " (" + lastReferencedEvent.startTime + " " + lastReferencedEvent.duration + ")");
         }
     }
 

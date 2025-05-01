@@ -148,6 +148,11 @@ public class LogcatEpgReader {
                 int descIndex = line.indexOf("text='") + "text='".length();
                 int descEndIndex = line.charAt(line.length() - 1) == '\'' ? line.length() - 1 : line.length();
 
+                //Caused by: java.lang.StringIndexOutOfBoundsException: String index out of range: -1
+                /*if(line.length() ) {
+                    return;
+                }*/
+
                 String desc = line.substring(descIndex, descEndIndex);
 
                 if(lastReferencedEvent.description == null) {

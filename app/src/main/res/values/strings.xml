@@ -39,7 +39,7 @@
 
     <string name="settings_title">Settings</string>
     <string name="settings_reorder_channels">Reorder channels</string>
-    <string name="settings_hardware_acceleration">Hardware Acceleration</string>
+    <string name="settings_hardware_acceleration">HW Acceleration</string>
     <string name="settings_hardware_acceleration_disable">Disable</string>
     <string name="settings_hardware_acceleration_auto">Enable (Auto)</string>
     <string name="settings_hardware_acceleration_force">Enable (Force)</string>
@@ -67,4 +67,7 @@
     <string name="epg_starting_from">from %s</string>
     <string name="epg_until">until %s</string>
     <string name="epg_no_program_load_info">Watch this channel for a few minutes to receive epg data</string>
+
+
+    <string name="test_lorem_ipsum" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</string>
 </resources>

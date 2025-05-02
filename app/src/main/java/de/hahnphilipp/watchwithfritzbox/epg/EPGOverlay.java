@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.leanback.widget.VerticalGridView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,7 +43,7 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
 
     public TVPlayerActivity context;
     private EPGChannelsAdapter epgChannelsAdapter;
-    private FocusRecyclerView recyclerView;
+    private VerticalGridView recyclerView;
     private RecyclerView timeRecyclerView;
     private View liveTimeline;
     private Timer clockTimer;
@@ -118,9 +119,7 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         timeRecyclerView.addOnScrollListener(syncScrollListener);
 
         epgChannelsAdapter = new EPGChannelsAdapter(this, ChannelUtils.getAllChannels(context), initTime, this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(epgChannelsAdapter);
-        recyclerView.customEpgVerticalFocusSearch = true;
 
         updateLiveTimeLine();
 

@@ -30,12 +30,12 @@
         app:layout_constraintTop_toBottomOf="@+id/tvoverlaytime"
         android:focusable="false">
 
-    <de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView
+    <androidx.leanback.widget.VerticalGridView
         android:id="@+id/tvoverlayrecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:focusable="false">
-    </de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView>
+    </androidx.leanback.widget.VerticalGridView>
 
     </androidx.leanback.widget.BrowseFrameLayout>
 

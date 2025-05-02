@@ -12,8 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.widget.BrowseFrameLayout;
+import androidx.leanback.widget.VerticalGridView;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -29,7 +29,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
 
     public TVPlayerActivity context;
     private TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
-    private RecyclerView recyclerView;
+    private VerticalGridView recyclerView;
     private Timer clockTimer;
 
     private static ChannelListTVOverlay INSTANCE;

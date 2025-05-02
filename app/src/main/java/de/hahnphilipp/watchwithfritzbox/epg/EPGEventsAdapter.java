@@ -65,20 +65,6 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
             holder.containerView.setTranslationZ(offset < 0 ? 2f : 0);
         });
 
-        LocalDateTime startTime = event.getStartLocalDateTime();
-        LocalDateTime endTime = event.getEndLocalDateTime();
-        if (endTime == null) {
-            if (eventList.size() > 1) {
-                holder.eventTime.setText(context.getString(R.string.epg_starting_from, startTime.format(timeFormatter)));
-            }
-        } else {
-            if (startTime.isBefore(LocalDateTime.now()) && endTime.isAfter(LocalDateTime.now())) {
-                holder.eventTime.setText(context.getString(R.string.epg_until, endTime.format(timeFormatter)));
-            } else {
-                holder.eventTime.setText(startTime.format(timeFormatter) + " - " + endTime.format(timeFormatter));
-            }
-        }
-
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 listener.onEventSelected(channel, event);
@@ -110,13 +96,11 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
 
     static class EventViewHolder extends RecyclerView.ViewHolder {
         TextView eventTitle;
-        TextView eventTime;
         View containerView;
 
         public EventViewHolder(View itemView) {
             super(itemView);
             eventTitle = itemView.findViewById(R.id.event_title);
-            eventTime = itemView.findViewById(R.id.event_time);
             containerView = itemView.findViewById(R.id.event_container);
         }
     }

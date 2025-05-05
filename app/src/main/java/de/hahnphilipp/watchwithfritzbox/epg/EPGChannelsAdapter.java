@@ -2,6 +2,7 @@ package de.hahnphilipp.watchwithfritzbox.epg;
 
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,8 +120,27 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
         // RecyclerView zum Tracking hinzufügen
         allEventRecyclerViews.add(holder.eventRecyclerView);
 
+
         // Start-Position synchronisieren
-        holder.eventRecyclerView.scrollBy(epgOverlay.currentScrollX, 0);
+        //holder.eventRecyclerView.scrollBy(epgOverlay.currentScrollX, 0);
+
+
+
+
+
+        int targetScrollX = epgOverlay.currentScrollX;
+        LinearLayoutManager layoutManager = (LinearLayoutManager) holder.eventRecyclerView.getLayoutManager();
+
+// Hier musst du eine Methode haben, die basierend auf `targetScrollX` das passende Item und den Offset berechnet
+        Pair<Integer, Integer> positionAndOffset = findItemPositionAndOffset(holder.eventRecyclerView, targetScrollX, eventList.get(position));
+
+        if (positionAndOffset != null) {
+            layoutManager.scrollToPositionWithOffset(positionAndOffset.first, -positionAndOffset.second);
+        }
+
+
+
+
 
         // Scroll-Listener setzen
         holder.eventRecyclerView.addOnScrollListener(epgOverlay.syncScrollListener);
@@ -165,6 +185,30 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
             lastEndTime = event.getEndLocalDateTime();
         }
         eventList.add(EpgUtils.EpgEvent.createEmptyEvent(epgOverlay.requireContext(), lastEndTime.atZone(ZoneId.systemDefault()).toEpochSecond(), Long.MAX_VALUE / 2));
+    }
+
+    private Pair<Integer, Integer> findItemPositionAndOffset(RecyclerView recyclerView, int scrollX, List<EpgUtils.EpgEvent> eventListForChannel) {
+        RecyclerView.Adapter adapter = recyclerView.getAdapter();
+        if (adapter == null) return null;
+
+        int totalWidth = 0;
+        for (int i = 0; i < adapter.getItemCount(); i++) {
+            View view = recyclerView.getLayoutManager().findViewByPosition(i);
+            int itemWidth;
+            if (view != null) {
+                itemWidth = view.getWidth();
+            } else {
+                // Optional: Annahme oder eigene Breitenberechnung z.B. über Metadaten
+                itemWidth = EpgUtils.secondsToPx(eventListForChannel.get(i).duration);
+            }
+
+            if (totalWidth + itemWidth > scrollX) {
+                int offset = scrollX - totalWidth;
+                return new Pair<>(i, offset);
+            }
+            totalWidth += itemWidth;
+        }
+        return null;
     }
 
     @Override

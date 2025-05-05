@@ -29,7 +29,6 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
     private OnEventListener listener;
     private EPGOverlay epgOverlay;
 
-    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault());
 
     public EPGEventsAdapter(Context context, EPGOverlay epgOverlay, ChannelUtils.Channel channel, ArrayList<EpgUtils.EpgEvent> eventList, LocalDateTime initTime, OnEventListener listener) {
         this.channel = channel;
@@ -58,7 +57,12 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
 
         holder.itemView.setLayoutParams(new LinearLayout.LayoutParams(EpgUtils.secondsToPx(duration), ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        holder.eventTitle.setText(event.title);
+        if(event.isEmpty) {
+            holder.eventTitle.setText(R.string.epg_no_program);
+            holder.eventTitle.setAlpha(.7f);
+        } else {
+            holder.eventTitle.setText(event.title);
+        }
         holder.itemView.getViewTreeObserver().addOnScrollChangedListener(() -> {
             float offset = (float) -holder.itemView.getLeft();
             holder.containerView.setTranslationX(Math.max(offset, 0f));

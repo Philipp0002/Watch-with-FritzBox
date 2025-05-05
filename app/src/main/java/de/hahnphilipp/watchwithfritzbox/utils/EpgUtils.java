@@ -12,13 +12,13 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 
 public class EpgUtils {
+
+    private static final long REMOVE_EVENT_TIME = 60 * 60; // 1 hour
 
 
     public static HashMap<Long, EpgEvent> getAllEvents(Context context, int channelNumber) {
@@ -29,8 +29,11 @@ public class EpgUtils {
         }.getType();
 
         HashMap<Long, EpgEvent> events = new Gson().fromJson(sp.getString("events" + channelNumber, "[]"), eventMapType);
+
         return events;
     }
+
+
 
     public static void addEvent(Context context, int channelNumber, EpgEvent epgEvent) {
         SharedPreferences sp = context.getSharedPreferences(
@@ -38,8 +41,13 @@ public class EpgUtils {
         SharedPreferences.Editor editor = sp.edit();
 
         HashMap<Long, EpgEvent> allEvents = getAllEvents(context, channelNumber);
-        allEvents = new HashMap<>(allEvents.entrySet().stream().filter(entry -> entry.getValue().id != epgEvent.id).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-        allEvents.put(epgEvent.startTime, epgEvent);
+        allEvents.put(epgEvent.id, epgEvent);
+        // CLEANUP OLD EVENTS
+        allEvents.entrySet().forEach(entry -> {
+            if (entry.getValue().eitReceivedTimeMillis + (REMOVE_EVENT_TIME*1000) < System.currentTimeMillis()) {
+                allEvents.remove(entry.getKey());
+            }
+        });
 
         Type eventMapType = new TypeToken<HashMap<Long, EpgEvent>>() {
         }.getType();
@@ -51,21 +59,12 @@ public class EpgUtils {
     public static EpgEvent getEventAtTime(Context context, int channelNumber, LocalDateTime localDateTime) {
         long timeInSec = localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
         HashMap<Long, EpgEvent> allEvents = getAllEvents(context, channelNumber);
-        long nearestEventTime = -1;
-        for (long eventTime : allEvents.keySet()) {
-            if (eventTime <= timeInSec) {
-                if (timeInSec - eventTime < timeInSec - nearestEventTime) {
-                    nearestEventTime = eventTime;
-                }
+        for (EpgEvent event : allEvents.values()) {
+            if (event.startTime <= timeInSec && event.startTime + event.duration >= timeInSec) {
+                return event;
             }
         }
-
-        EpgEvent event = allEvents.get(nearestEventTime);
-        if (event != null && nearestEventTime + event.duration >= timeInSec) {
-            return event;
-        } else {
-            return null;
-        }
+        return null;
     }
 
     public static EpgEvent getEventNow(Context context, int channelNumber) {
@@ -93,6 +92,7 @@ public class EpgUtils {
     public static class EpgEvent {
 
         public long id;
+        public long eitReceivedTimeMillis;
         public long startTime;
         public long duration;
         public String lang;

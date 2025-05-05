@@ -39,7 +39,7 @@ public class LogcatEpgReader {
                 if (lineUntrimmed.contains("EPGREAD")) return;
 
                 if (lineUntrimmed.contains("D VLC     :")) {
-                    if(lineUntrimmed.contains("ts demux:")) {
+                    if (lineUntrimmed.contains("ts demux:")) {
                         String line = lineUntrimmed
                                 .substring(
                                         lineUntrimmed
@@ -63,123 +63,121 @@ public class LogcatEpgReader {
     }
 
     private void processLine(String line, boolean isTsDemux) {
-        if (isTsDemux && line.startsWith("* service ")) {
-            line = line.replace("eit ", "");
-            Map<String, String> map = parseKeyValue(line.substring(10));
-            String serviceId = map.get("id");
-            boolean freeChannel = map.get("id").equals("0");
-            lastReferencedServiceId = Integer.parseInt(serviceId);
-            lastReferencedServiceFree = freeChannel;
-            lastReferencedEvent = null;
-            lastEpgDescNotFinished = false;
-        } else if (isTsDemux && line.startsWith("- type=")) {
-            Map<String, String> map = parseKeyValue(line.substring(2));
-            String provider = map.get("provider");
-            String name = map.get("name");
-            String type = map.get("type");
-
-            ChannelUtils.Channel ch = ChannelUtils.getChannelByTitle(context, name);
-            if (ch == null) return;
-            ChannelUtils.Channel originalCh = ch.copy();
-            if (lastReferencedServiceId != -1) {
-                ch.serviceId = lastReferencedServiceId;
-                ch.provider = provider;
-                ch.free = lastReferencedServiceFree;
-                switch (type) {
-                    case "1":
-                        ch.type = ChannelUtils.ChannelType.SD;
-                        break;
-                    case "25":
-                        ch.type = ChannelUtils.ChannelType.HD;
-                        break;
-                    case "2":
-                        ch.type = ChannelUtils.ChannelType.RADIO;
-                        break;
-                }
-                ChannelUtils.updateChannel(context, originalCh, ch);
-            }
-            lastReferencedServiceId = -1;
-            lastReferencedEvent = null;
-            lastEpgDescNotFinished = false;
-        } else if (isTsDemux && line.startsWith("new EIT ")) {
-            Map<String, String> map = parseKeyValue(line.substring(8));
-            String serviceId = map.get("service_id");
-            lastReferencedChannel = ChannelUtils.getChannelByServiceId(context, Integer.parseInt(serviceId));
-            lastReferencedEvent = null;
-            lastEpgDescNotFinished = false;
-        } else if (isTsDemux && line.startsWith("* event ") && isTsDemux) {
-            Map<String, String> map = parseKeyValue(line.substring(8));
-
-            String _eventId = map.get("id");
-            String _startTime = map.get("start_time");
-            String _duration = map.get("duration");
-
-            int eventId = Integer.parseInt(_eventId);
-            long startTime = Long.parseLong(_startTime);
-            long duration = Long.parseLong(_duration);
-
-            lastReferencedEvent = new EpgUtils.EpgEvent();
-            lastReferencedEvent.id = eventId;
-            lastReferencedEvent.startTime = startTime;
-            lastReferencedEvent.duration = duration;
-            lastEpgDescNotFinished = false;
-        } else if (isTsDemux && line.startsWith("- short event")) {
-            if (lastReferencedEvent != null) {
-                int langIndex = line.indexOf("lang=") + "lang=".length();
-                int langEndIndex = line.indexOf(" ", langIndex);
-
-                String lang = line.substring(langIndex, langEndIndex);
-
-                int titleIndex = line.indexOf('\'') + 1;
-                int endOfTitleIndex = line.indexOf('\'', titleIndex + 1);
-                String title = line.substring(titleIndex, endOfTitleIndex);
-
-                int subtitleIndex = line.indexOf('\'', endOfTitleIndex + 1) + 1;
-                String subtitle = line.substring(subtitleIndex, line.length() - 1);
-
-
-                lastReferencedEvent.lang = lang;
-                lastReferencedEvent.subtitle = subtitle.equalsIgnoreCase("(null)") ? null : subtitle;
-                lastReferencedEvent.title = title;
+        try {
+            if (isTsDemux && line.startsWith("* service ")) {
+                line = line.replace("eit ", "");
+                Map<String, String> map = parseKeyValue(line.substring(10));
+                String serviceId = map.get("id");
+                boolean freeChannel = map.get("id").equals("0");
+                lastReferencedServiceId = Integer.parseInt(serviceId);
+                lastReferencedServiceFree = freeChannel;
+                lastReferencedEvent = null;
                 lastEpgDescNotFinished = false;
-            }
-        } else if (isTsDemux && line.startsWith("- text='")) {
-            if (lastReferencedEvent != null) {
-                int descIndex = line.indexOf("text='") + "text='".length();
-                int descEndIndex = line.charAt(line.length() - 1) == '\'' ? line.length() - 1 : line.length();
+            } else if (isTsDemux && line.startsWith("- type=")) {
+                Map<String, String> map = parseKeyValue(line.substring(2));
+                String provider = map.get("provider");
+                String name = map.get("name");
+                String type = map.get("type");
 
-                try {
+                ChannelUtils.Channel ch = ChannelUtils.getChannelByTitle(context, name);
+                if (ch == null) return;
+                ChannelUtils.Channel originalCh = ch.copy();
+                if (lastReferencedServiceId != -1) {
+                    ch.serviceId = lastReferencedServiceId;
+                    ch.provider = provider;
+                    ch.free = lastReferencedServiceFree;
+                    switch (type) {
+                        case "1":
+                            ch.type = ChannelUtils.ChannelType.SD;
+                            break;
+                        case "25":
+                            ch.type = ChannelUtils.ChannelType.HD;
+                            break;
+                        case "2":
+                            ch.type = ChannelUtils.ChannelType.RADIO;
+                            break;
+                    }
+                    ChannelUtils.updateChannel(context, originalCh, ch);
+                }
+                lastReferencedServiceId = -1;
+                lastReferencedEvent = null;
+                lastEpgDescNotFinished = false;
+            } else if (isTsDemux && line.startsWith("new EIT ")) {
+                Map<String, String> map = parseKeyValue(line.substring(8));
+                String serviceId = map.get("service_id");
+                lastReferencedChannel = ChannelUtils.getChannelByServiceId(context, Integer.parseInt(serviceId));
+                lastReferencedEvent = null;
+                lastEpgDescNotFinished = false;
+            } else if (isTsDemux && line.startsWith("* event ") && isTsDemux) {
+                Map<String, String> map = parseKeyValue(line.substring(8));
+
+                String _eventId = map.get("id");
+                String _startTime = map.get("start_time");
+                String _duration = map.get("duration");
+
+                int eventId = Integer.parseInt(_eventId);
+                long startTime = Long.parseLong(_startTime);
+                long duration = Long.parseLong(_duration);
+
+                lastReferencedEvent = new EpgUtils.EpgEvent();
+                lastReferencedEvent.id = eventId;
+                lastReferencedEvent.startTime = startTime;
+                lastReferencedEvent.duration = duration;
+                lastEpgDescNotFinished = false;
+            } else if (isTsDemux && line.startsWith("- short event")) {
+                if (lastReferencedEvent != null) {
+                    int langIndex = line.indexOf("lang=") + "lang=".length();
+                    int langEndIndex = line.indexOf(" ", langIndex);
+
+                    String lang = line.substring(langIndex, langEndIndex);
+
+                    int titleIndex = line.indexOf('\'') + 1;
+                    int endOfTitleIndex = line.indexOf('\'', titleIndex + 1);
+                    String title = line.substring(titleIndex, endOfTitleIndex);
+
+                    int subtitleIndex = line.indexOf('\'', endOfTitleIndex + 1) + 1;
+                    String subtitle = line.substring(subtitleIndex, line.length() - 1);
+
+
+                    lastReferencedEvent.lang = lang;
+                    lastReferencedEvent.subtitle = subtitle.equalsIgnoreCase("(null)") ? null : subtitle;
+                    lastReferencedEvent.title = title;
+                    lastEpgDescNotFinished = false;
+                }
+            } else if (isTsDemux && line.startsWith("- text='")) {
+                if (lastReferencedEvent != null) {
+                    int descIndex = line.indexOf("text='") + "text='".length();
+                    int descEndIndex = line.charAt(line.length() - 1) == '\'' ? line.length() - 1 : line.length();
+
+
                     String desc = line.substring(descIndex, descEndIndex);
 
-                    if(lastReferencedEvent.description == null) {
+                    if (lastReferencedEvent.description == null) {
                         lastReferencedEvent.description = "";
                     }
                     lastReferencedEvent.description += desc;
-                    if(!line.endsWith("'")) {
+                    if (!line.endsWith("'")) {
                         lastEpgDescNotFinished = true;
                     }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e("LogcatEpgReader", "Error parsing description: " + line);
                 }
+            } else if (!isTsDemux && !line.trim().isEmpty() && lastEpgDescNotFinished) {
+                if (lastReferencedEvent != null && lastReferencedEvent.description != null) {
+                    int descIndex = 0;
+                    int descEndIndex = line.charAt(line.length() - 1) == '\'' ? line.length() - 1 : line.length();
 
+                    String desc = line.substring(descIndex, descEndIndex);
 
-            }
-        }else if (!isTsDemux && !line.trim().isEmpty() && lastEpgDescNotFinished) {
-            if (lastReferencedEvent != null && lastReferencedEvent.description != null) {
-                int descIndex = 0;
-                int descEndIndex = line.charAt(line.length() - 1) == '\'' ? line.length() - 1 : line.length();
-
-                String desc = line.substring(descIndex, descEndIndex);
-
-                lastReferencedEvent.description += "\n" + desc;
-                if(line.endsWith("'")) {
-                    lastEpgDescNotFinished = false;
+                    lastReferencedEvent.description += "\n" + desc;
+                    if (line.endsWith("'")) {
+                        lastEpgDescNotFinished = false;
+                    }
                 }
             }
+            saveLastReferencedEvent();
+        } catch (Exception e) {
+            Log.e("LogcatEpgReader", "Error parsing line: " + line);
+            e.printStackTrace();
         }
-        saveLastReferencedEvent();
     }
 
     public void stopLogcatRead() {
@@ -191,6 +189,7 @@ public class LogcatEpgReader {
 
     public void saveLastReferencedEvent() {
         if (lastReferencedEvent != null && lastReferencedChannel != null) {
+            lastReferencedEvent.eitReceivedTimeMillis = System.currentTimeMillis();
             EpgUtils.addEvent(context, lastReferencedChannel.number, lastReferencedEvent);
         }
     }

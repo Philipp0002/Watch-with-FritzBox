@@ -66,7 +66,6 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
             if (isSyncingScroll || dx == 0) return; // Verhindert Endlosschleife
             isSyncingScroll = true;
 
-            currentScrollX = recyclerView.computeHorizontalScrollOffset(); // Neue Position speichern
 
             // Alle anderen RecyclerViews auf dieselbe Position setzen
             for (RecyclerView otherRecycler : epgChannelsAdapter.allEventRecyclerViews) {
@@ -81,6 +80,9 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
                 timeRecyclerView.scrollBy(dx, 0);
                 timeRecyclerView.removeOnScrollListener(syncScrollListener);
             }
+            currentScrollX += dx; // Neue Position speichern
+
+            Log.d("EPGOverlay", "Current Scroll X: " + currentScrollX);
             updateLiveTimeLine();
             isSyncingScroll = false;
         }

@@ -33,6 +33,18 @@ public class EpgUtils {
         return events;
     }
 
+    public static void swapChannelPositions(Context context, int fromChannelPos, int toChannelPos) {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        String fromEvents = sp.getString("events" + fromChannelPos, "[]");
+        String toEvents = sp.getString("events" + toChannelPos, "[]");
+        editor.putString("events" + fromChannelPos, toEvents);
+        editor.putString("events" + toChannelPos, fromEvents);
+        editor.commit();
+    }
+
 
 
     public static void addEvent(Context context, int channelNumber, EpgEvent epgEvent) {

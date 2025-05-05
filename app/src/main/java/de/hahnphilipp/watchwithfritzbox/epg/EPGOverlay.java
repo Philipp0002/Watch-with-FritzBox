@@ -5,6 +5,7 @@ import static android.view.View.VISIBLE;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +38,6 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
-import de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView;
 
 public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventListener {
 
@@ -116,9 +116,14 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         timeRecyclerView = view.findViewById(R.id.epgtimelineRecycler);
         timeRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
         timeRecyclerView.setAdapter(new EPGTimeSlotAdapter(initTime));
-        currentScrollX = EpgUtils.secondsToPx(initTime.until(LocalDateTime.now(), ChronoUnit.SECONDS)) - (timeRecyclerView.getWidth()/2);
-        timeRecyclerView.scrollBy(currentScrollX, 0);
+        //currentScrollX = EpgUtils.secondsToPx(initTime.until(LocalDateTime.now(), ChronoUnit.SECONDS)) - (timeRecyclerView.getWidth()/2);
         timeRecyclerView.addOnScrollListener(syncScrollListener);
+        timeRecyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                timeRecyclerView.scrollBy(EpgUtils.secondsToPx(initTime.until(LocalDateTime.now(), ChronoUnit.SECONDS)) - (timeRecyclerView.getWidth()/2), 0);
+            }
+        });
 
         epgChannelsAdapter = new EPGChannelsAdapter(this, ChannelUtils.getAllChannels(context), initTime, this);
         recyclerView.setAdapter(epgChannelsAdapter);
@@ -270,6 +275,8 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
 
     @Override
     public void onEventClicked(ChannelUtils.Channel channel, EpgUtils.EpgEvent event) {
-
+        ChannelUtils.updateLastSelectedChannel(context, channel.number);
+        context.launchPlayer(false);
+        context.popAllOverlayFragments();
     }
 }

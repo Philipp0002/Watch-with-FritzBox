@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -73,12 +74,16 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
             holder.channelTypeIcon.setImageResource(R.drawable.radio_tower);
         }
 
-        EpgUtils.EpgEvent eventNow = EpgUtils.getEventNow(context.getContext(), item.number);
-        if (eventNow != null) {
-            holder.channelProgramNow.setText(eventNow.title);
-            holder.channelProgramNow.setVisibility(View.VISIBLE);
+        if (!(context instanceof EditChannelListTVOverlay)) {
+            EpgUtils.EpgEvent eventNow = EpgUtils.getEventNow(context.getContext(), item.number);
+            if (eventNow != null) {
+                holder.channelProgramNow.setText(eventNow.title);
+                holder.channelProgramNow.setVisibility(View.VISIBLE);
+            } else {
+                holder.channelProgramNow.setText("");
+                holder.channelProgramNow.setVisibility(View.GONE);
+            }
         } else {
-            holder.channelProgramNow.setText("");
             holder.channelProgramNow.setVisibility(View.GONE);
         }
 
@@ -121,21 +126,13 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 overlay.context.launchPlayer(false);
             } else if (context instanceof EditChannelListTVOverlay) {
                 EditChannelListTVOverlay overlay = (EditChannelListTVOverlay) context;
-                TextView editChannelListInfoText = overlay.getView().findViewById(R.id.editChannelListInfoText);
-                TextView editChannelListInfoText2 = overlay.getView().findViewById(R.id.editChannelListInfoText2);
-                ImageView editChannelListInfoImage = overlay.getView().findViewById(R.id.editChannelListInfoImage);
+                ViewSwitcher editChannelListInfo = overlay.getView().findViewById(R.id.editChannelListInfo);
                 if (selectedChannel == -1) {
                     selectedChannel = item.number;
-                    editChannelListInfoText.setText(R.string.settings_reorder_channels_move);
-                    editChannelListInfoText2.setText("");
-                    editChannelListInfoImage.setImageResource(R.drawable.round_swap_vert);
+                    editChannelListInfo.showNext();
                 } else {
                     selectedChannel = -1;
-                    editChannelListInfoText.setText(R.string.settings_reorder_channels_select);
-                    if (overlay.ip != null) {
-                        editChannelListInfoText2.setText(context.getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d", overlay.ip));
-                    }
-                    editChannelListInfoImage.setImageResource(R.drawable.round_touch_app);
+                    editChannelListInfo.showPrevious();
                 }
             }
         });

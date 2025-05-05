@@ -60,16 +60,9 @@ public class ChannelUtils {
     public static ArrayList<Channel> moveChannelToPosition(Context context, int fromChannelPos, int toChannelPos, ArrayList<Channel> channels) {
         if (fromChannelPos == toChannelPos) return channels;
 
-        Channel toMove = null;
+        Channel toMove = channels.stream().filter(channel -> channel.number == fromChannelPos).findFirst().orElse(null);
 
-        for (Channel channel : channels) {
-            if (channel.number == fromChannelPos) {
-                toMove = channel;
-                break;
-            }
-        }
-
-        if (getLastSelectedChannel(context) == toMove.number) {
+        if (getLastSelectedChannel(context) == fromChannelPos) {
             updateLastSelectedChannel(context, toChannelPos);
         }
 
@@ -84,6 +77,7 @@ public class ChannelUtils {
             }
 
             setChannels(context, channels);
+            EpgUtils.swapChannelPositions(context, fromChannelPos, toChannelPos);
         }
         return channels;
 
@@ -257,13 +251,4 @@ public class ChannelUtils {
         SD, HD, RADIO;
     }
 
-    public static class HbbTV {
-        public String title;
-        public String url;
-
-        public HbbTV(String title, String url) {
-            this.title = title;
-            this.url = url;
-        }
-    }
 }

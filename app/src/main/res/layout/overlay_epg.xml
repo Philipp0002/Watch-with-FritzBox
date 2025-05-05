@@ -45,11 +45,12 @@
                     android:id="@+id/epgtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="EPG title"
+                    android:focusable="false"
                     android:textSize="24sp"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@id/epgsubtitle"
-                    android:focusable="false"/>
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:text="EPG title" />
 
 
                 <TextView
@@ -63,12 +64,14 @@
 
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
 
                     <androidx.cardview.widget.CardView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:cardCornerRadius="4dp">
+                        app:cardCornerRadius="4dp"
+                        app:cardBackgroundColor="#1f1c2f">
 
                         <TextView
                             android:id="@+id/epgtime"

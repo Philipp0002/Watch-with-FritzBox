@@ -1,24 +1,33 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.util.ArrayList;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
-public class EditChannelListTVOverlay extends Fragment {
+public class EditChannelListTVOverlay extends Fragment implements KeyDownReceiver {
 
     public TVPlayerActivity context;
     public String ip = null;
@@ -73,9 +82,20 @@ public class EditChannelListTVOverlay extends Fragment {
         if (!rawIP.isEmpty()) {
             ip = "http://" + rawIP + ":8080";
             ((TextView) view.findViewById(R.id.editChannelListInfoText2)).setText(getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d", ip));
+
+            try {
+                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                Bitmap bitmap = barcodeEncoder.encodeBitmap(ip, BarcodeFormat.QR_CODE, 400, 400);
+                // Sets the Bitmap to ImageView
+                ((ImageView) view.findViewById(R.id.editChannelListInfoQR)).setImageBitmap(bitmap);
+            } catch (WriterException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }
+
 
 
     @Override
@@ -83,4 +103,11 @@ public class EditChannelListTVOverlay extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK && tvOverlayRecyclerAdapter.selectedChannel != -1) {
+            return true;
+        }
+        return false;
+    }
 }

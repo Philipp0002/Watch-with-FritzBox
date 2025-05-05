@@ -68,13 +68,7 @@ public class GetPlaylists extends AsyncTask<Void, Void, Void> {
 
             if(futureRunRadio != null)
                 futureRunRadio.run();
-        } catch (IOException e) {
-            e.printStackTrace();
-            error = true;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            error = true;
-        } catch (PlaylistParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             error = true;
         }

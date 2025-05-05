@@ -56,6 +56,33 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        surfaceView = findViewById(R.id.video_layout);
+        subtitlesView = findViewById(R.id.subtitles_layout);
+
+        loadLibVLC();
+
+        initializeOverlay();
+    }
+
+    public void unloadLibVLC() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+        if (mLibVLC != null) {
+            mLibVLC.release();
+            mLibVLC = null;
+        }
+        if (ivlcVout != null) {
+            ivlcVout.detachViews();
+            ivlcVout = null;
+        }
+    }
+
+    public void loadLibVLC() {
+        SharedPreferences sp = getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvvvv");
 
@@ -78,8 +105,13 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         //args.add("live555");
         //args.add("--vbi-text");
 
-        surfaceView = findViewById(R.id.video_layout);
-        subtitlesView = findViewById(R.id.subtitles_layout);
+        if(sp.contains("setting_deinterlace")) {
+            args.add("--video-filter=deinterlace");
+            args.add("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
+            args.add("--vout-filter=" + sp.getString("setting_deinterlace", "x"));
+            args.add("--deinterlace-mode");
+            args.add(sp.getString("setting_deinterlace", "x"));
+        }
 
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
@@ -94,8 +126,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             // Set rendering size
             ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
         });
-
-        initializeOverlay();
     }
 
     private void initializeOverlay() {
@@ -132,6 +162,11 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public void popOverlayFragment() {
         getSupportFragmentManager().popBackStack();
+    }
+    public void popAllOverlayFragments() {
+        while (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStackImmediate();
+        }
     }
 
     public void zapChannel(boolean toNext) {
@@ -295,9 +330,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 media.addOption(":vbi-opaque");
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
+                media.addOption("--deinterlace=1");
+                media.addOption("--video-filter=deinterlace");
+                media.addOption("--deinterlace-mode=blend");
 
                 media.release();
                 mMediaPlayer.play();
+
+
 
             }
         }, timeWait);

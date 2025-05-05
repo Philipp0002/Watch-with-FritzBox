@@ -13,6 +13,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 
 public class FetchPresetChannelOrder extends AsyncTask<Void, Void, Void> {
@@ -31,9 +32,8 @@ public class FetchPresetChannelOrder extends AsyncTask<Void, Void, Void> {
     }
 
     public void runFetch() {
-        JsonArray obj1 = null;
         try {
-            obj1 = readJsonFromUrl("https://hahnphilipp.de/watchwithfritzbox/presetOrder.json");
+            response = readJsonFromUrl("https://hahnphilipp.de/watchwithfritzbox/presetOrder.json");
         } catch (java.io.FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -41,19 +41,12 @@ public class FetchPresetChannelOrder extends AsyncTask<Void, Void, Void> {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-        if (obj1 != null){
-            response = obj1;
-        }else{
-            response = new JsonArray();
-        }
     }
 
     public static JsonArray readJsonFromUrl(String url) throws IOException {
         InputStream is = new URL(url).openStream();
         try {
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             String jsonText = readAll(rd);
             JsonArray json = new JsonParser().parse(jsonText).getAsJsonArray();
             return json;

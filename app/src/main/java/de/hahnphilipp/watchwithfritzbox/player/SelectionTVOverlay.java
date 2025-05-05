@@ -38,13 +38,14 @@ public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        if (title == null) {
-            view.findViewById(R.id.tvoverlayrecyclerTitle).setVisibility(View.GONE);
-        } else {
-            ((TextView) view.findViewById(R.id.tvoverlayrecyclerTitle)).setText(title);
+        ArrayList<Object> tvSettingsWithTitle = new ArrayList<>();
+        if (title != null) {
+            tvSettingsWithTitle.add(title);
         }
+        tvSettingsWithTitle.addAll(tvSettings);
 
-        TVSettingsOverlayRecyclerAdapter tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings);
+
+        TVSettingsOverlayRecyclerAdapter tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettingsWithTitle);
         final LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);

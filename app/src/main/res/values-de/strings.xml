@@ -27,11 +27,12 @@
     <string name="setup_order_description">Deine Senderliste ist momentan unsortiert. Soll eine automatische Vorsortierung durchgeführt werden?</string>
     <string name="setup_order_yes">Vorsortieren</string>
     <string name="setup_order_no">Nicht vorsortieren</string>
+    <string name="setup_order_error">Fehler beim Vorsortieren. Abbruch.</string>
 
     <string name="setup_gesture_up">Sender +</string>
     <string name="setup_gesture_down">Sender -</string>
     <string name="setup_gesture_left">Senderliste</string>
-    <string name="setup_gesture_right">Einstellungen / HbbTV</string>
+    <string name="setup_gesture_right">EPG / Einstellungen</string>
     <string name="setup_gesture_continue">Zum Fortfahren klicken</string>
 
     <string name="setup_richtv_error">Konnte dem System nicht mitteilen, dass es Kanäle auslesen soll :/ Probiere es später nochmal.</string>
@@ -42,15 +43,28 @@
     <string name="settings_hardware_acceleration_disable">Deaktivieren</string>
     <string name="settings_hardware_acceleration_auto">Aktivieren (Auto)</string>
     <string name="settings_hardware_acceleration_force">Aktivieren (Erzwingen)</string>
-    <string name="settings_open_hbbtv">HbbTV (Beta)</string>
-    <string name="settings_open_hbbtv_multi_title">Mehrere HbbTV-Quellen</string>
-    <string name="settings_hbbtv_info">HbbTV verfügbar</string>
     <string name="settings_reorder_channels_move">Bewege den Sender nach oben oder unten um die Position zu verändern. Drücke OK um zu bestätigen.</string>
     <string name="settings_reorder_channels_select">Wähle den Sender, den du verschieben möchtest</string>
     <string name="settings_reorder_channels_import">Von anderem TV importieren</string>
     <string name="settings_reorder_channels_webserver_info">oder öffne %d in deinem Web-Browser</string>
-
+    <string name="playback_title">Wiedergabe</string>
     <string name="settings_open_epg">EPG</string>
+    <string name="settings_reset_app">App zurücksetzen</string>
+    <string name="settings_reset_confirm">Zurücksetzen</string>
+    <string name="settings_reset_cancel">Abbrechen</string>
+    <string name="settings_deinterlace">Deinterlace</string>
+    <string name="settings_deinterlace_disable">Deaktivieren</string>
+    <string name="settings_deinterlace_mode_auto">Automatisch</string>
+    <string name="settings_deinterlace_mode_discard">Discard Modus</string>
+    <string name="settings_deinterlace_mode_blend">Blend Modus</string>
+    <string name="settings_deinterlace_mode_mean">Mean Modus</string>
+    <string name="settings_deinterlace_mode_bob">Bob Modus</string>
+    <string name="settings_deinterlace_mode_linear">Linear Modus</string>
+    <string name="settings_deinterlace_mode_x">X Modus</string>
+    <string name="settings_deinterlace_mode_yadif">Yadif Modus</string>
+    <string name="settings_deinterlace_mode_yadifx2">Yadif2x Modus</string>
+    <string name="settings_deinterlace_mode_phosphor">Phosphor Modus</string>
+    <string name="settings_deinterlace_mode_ivtc">Ivtc Modus</string>
     <string name="radio_running">Radio läuft</string>
 
     <string name="no_audio_tracks">Keine Audiokanäle</string>

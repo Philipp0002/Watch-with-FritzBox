@@ -148,6 +148,16 @@ public class SetupSearchActivity extends AppCompatActivity {
         FetchPresetChannelOrder fetchPresetChannelOrder = new FetchPresetChannelOrder();
         fetchPresetChannelOrder.execute();
         fetchPresetChannelOrder.futurerun = () -> {
+            if(fetchPresetChannelOrder.response == null){
+                runOnUiThread(() -> {
+                    Toast.makeText(SetupSearchActivity.this, R.string.setup_order_error, Toast.LENGTH_LONG).show();
+
+                    findViewById(R.id.setup_order_no_button).setVisibility(View.VISIBLE);
+                    findViewById(R.id.setup_order_yes_button).setVisibility(View.VISIBLE);
+                    findViewById(R.id.setup_order_progressBar).setVisibility(View.GONE);
+                });
+                return;
+            }
             ArrayList<ChannelUtils.Channel> channelsList = ChannelUtils.getAllChannels(SetupSearchActivity.this);
             int position = 0;
 

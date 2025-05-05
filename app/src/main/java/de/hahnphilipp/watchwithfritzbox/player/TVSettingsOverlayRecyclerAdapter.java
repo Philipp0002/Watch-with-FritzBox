@@ -17,47 +17,70 @@ import de.hahnphilipp.watchwithfritzbox.utils.AnimationUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
 
 
-public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<TVSettingsOverlayRecyclerAdapter.SettingViewHolder> {
+public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    public List<TVSetting> objects;
+    public List<Object> objects;
     private Context context;
     private boolean firstItemSelected = false;
 
-    public TVSettingsOverlayRecyclerAdapter(Context context, List<TVSetting> objects) {
+    public TVSettingsOverlayRecyclerAdapter(Context context, List<Object> objects) {
         this.objects = objects;
         this.context = context;
     }
 
     @Override
-    public SettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.overlay_settings_item, parent, false);
-        return new SettingViewHolder(v);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if(viewType == 0) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.overlay_settings_item, parent, false);
+            return new SettingViewHolder(v);
+        } else if(viewType == 1) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.overlay_settings_title, parent, false);
+            return new TitleViewHolder(v);
+        }
+        return null;
     }
 
     @Override
-    public void onBindViewHolder(final SettingViewHolder holder, final int position) {
-
-        final TVSetting item = objects.get(position);
-
-        holder.settingName.setText(item.name);
-
-        holder.settingIcon.setImageResource(item.drawableId);
-        holder.cardView.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                AnimationUtils.scaleView(holder.mainView, 1F, 1.025F, 1F, 1.025F, 100L);
-                holder.mainView.setElevation(12);
-            } else {
-                AnimationUtils.scaleView(holder.mainView, 1.025F, 1F, 1.025F, 1F, 20L);
-                holder.mainView.setElevation(1);
-            }
-        });
-
-        holder.cardView.setOnClickListener(v -> item.onClick.run());
-
-        if (!firstItemSelected) {
-            holder.cardView.requestFocus();
-            firstItemSelected = true;
+    public int getItemViewType(int position) {
+        if(objects.get(position) instanceof TVSetting) {
+            return 0;
+        } else {
+            return 1;
         }
+    }
+
+    @Override
+    public void onBindViewHolder(final RecyclerView.ViewHolder _holder, final int position) {
+        if(_holder instanceof TitleViewHolder) {
+            TitleViewHolder holder = (TitleViewHolder) _holder;
+            holder.titleView.setText((String) objects.get(position));
+            return;
+        } else if(_holder instanceof SettingViewHolder) {
+            SettingViewHolder holder = (SettingViewHolder) _holder;
+
+            final TVSetting item = (TVSetting) objects.get(position);
+
+            holder.settingName.setText(item.name);
+
+            holder.settingIcon.setImageResource(item.drawableId);
+            holder.cardView.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus) {
+                    AnimationUtils.scaleView(holder.mainView, 1F, 1.025F, 1F, 1.025F, 100L);
+                    holder.mainView.setElevation(12);
+                } else {
+                    AnimationUtils.scaleView(holder.mainView, 1.025F, 1F, 1.025F, 1F, 20L);
+                    holder.mainView.setElevation(1);
+                }
+            });
+
+            holder.cardView.setOnClickListener(v -> item.onClick.run());
+
+            if (!firstItemSelected) {
+                holder.cardView.requestFocus();
+                firstItemSelected = true;
+            }
+        }
+
     }
 
     @Override
@@ -78,6 +101,19 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<TVSet
             settingName = itemView.findViewById(R.id.tvoverlaysetting_name);
             settingIcon = itemView.findViewById(R.id.tvoverlaysetting_logo);
             cardView = itemView.findViewById(R.id.tvoverlaysetting_cardView);
+
+        }
+    }
+
+    public static class TitleViewHolder extends RecyclerView.ViewHolder {
+
+        public TextView titleView;
+        public View mainView;
+
+        public TitleViewHolder(View itemView) {
+            super(itemView);
+            mainView = itemView;
+            titleView = itemView.findViewById(R.id.tvoverlaysetting_title);
 
         }
     }

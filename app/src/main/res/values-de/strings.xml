@@ -65,6 +65,10 @@
     <string name="settings_deinterlace_mode_yadifx2">Yadif2x Modus</string>
     <string name="settings_deinterlace_mode_phosphor">Phosphor Modus</string>
     <string name="settings_deinterlace_mode_ivtc">Ivtc Modus</string>
+    <string name="settings_audio_delay">Tonverzögerung</string>
+    <string name="settings_audio_delay_value">Tonverzögerung %s</string>
+    <string name="settings_audio_delay_plus">Delay +</string>
+    <string name="settings_audio_delay_minus">Delay -</string>
     <string name="radio_running">Radio läuft</string>
 
     <string name="no_audio_tracks">Keine Audiokanäle</string>

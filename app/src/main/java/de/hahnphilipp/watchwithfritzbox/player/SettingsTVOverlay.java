@@ -105,6 +105,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
         tvSettings.add(context.getString(R.string.settings_title));
 
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay), R.drawable.round_timeline, this::showAudioDelaySelection, false));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration), R.drawable.round_speed, this::showHWAcelerationSelection, false));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace), R.drawable.round_gradient, this::showDeinterlaceSelection, false));
 
@@ -143,6 +144,36 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             startActivity(new Intent(context, SetupIPActivity.class));
             context.finish();
             context.overridePendingTransition(0, 0);
+        }, true));
+        context.addOverlayFragment(selectionTVOverlay);
+    }
+
+    public void showAudioDelaySelection() {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
+        selectionTVOverlay.title = context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms");
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay_plus), R.drawable.round_add, () -> {
+            long val = sp.getLong("setting_audio_delay", 0);
+            val += 250;
+            editor.putLong("setting_audio_delay", val);
+            editor.commit();
+            if(context.mMediaPlayer != null) {
+                context.mMediaPlayer.setAudioDelay(val);
+            }
+            selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
+        }, true));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay_minus), R.drawable.round_minus, () -> {
+            long val = sp.getLong("setting_audio_delay", 0);
+            val -= 250;
+            editor.putLong("setting_audio_delay", val);
+            editor.commit();
+            if(context.mMediaPlayer != null) {
+                context.mMediaPlayer.setAudioDelay(val);
+            }
+            selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
         }, true));
         context.addOverlayFragment(selectionTVOverlay);
     }

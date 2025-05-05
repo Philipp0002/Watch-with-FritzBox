@@ -153,15 +153,23 @@ public class LogcatEpgReader {
                     return;
                 }*/
 
-                String desc = line.substring(descIndex, descEndIndex);
+                try {
+                    String desc = line.substring(descIndex, descEndIndex);
 
-                if(lastReferencedEvent.description == null) {
-                    lastReferencedEvent.description = "";
+                    if(lastReferencedEvent.description == null) {
+                        lastReferencedEvent.description = "";
+                    }
+                    lastReferencedEvent.description += desc;
+                    if(!line.endsWith("'")) {
+                        lastEpgDescNotFinished = true;
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("LogcatEpgReader", "Error parsing description: " + line);
                 }
-                lastReferencedEvent.description += desc;
-                if(!line.endsWith("'")) {
-                    lastEpgDescNotFinished = true;
-                }
+
+
             }
         }else if (!isTsDemux && !line.trim().isEmpty() && lastEpgDescNotFinished) {
             if (lastReferencedEvent != null && lastReferencedEvent.description != null) {

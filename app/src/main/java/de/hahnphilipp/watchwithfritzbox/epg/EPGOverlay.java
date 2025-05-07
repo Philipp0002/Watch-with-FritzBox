@@ -82,7 +82,6 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
             }
             currentScrollX += dx; // Neue Position speichern
 
-            Log.d("EPGOverlay", "Current Scroll X: " + currentScrollX);
             updateLiveTimeLine();
             isSyncingScroll = false;
         }
@@ -170,7 +169,7 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         epgTime.setText(timeInfos.stream().collect(Collectors.joining(" | ")));
         epgDescription.setText(epgEvent.description);
 
-        Log.d("EPGOverlay", new GsonBuilder().setPrettyPrinting().create().toJson(epgEvent));
+        // Log.d("EPGOverlay", new GsonBuilder().setPrettyPrinting().create().toJson(epgEvent));
     }
 
     private void updateLiveTimeLine() {

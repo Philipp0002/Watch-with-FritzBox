@@ -53,13 +53,16 @@ public class EpgUtils {
         SharedPreferences.Editor editor = sp.edit();
 
         HashMap<Long, EpgEvent> allEvents = getAllEvents(context, channelNumber);
-        allEvents.put(epgEvent.id, epgEvent);
+
         // CLEANUP OLD EVENTS
-        allEvents.entrySet().forEach(entry -> {
-            if (entry.getValue().eitReceivedTimeMillis + (REMOVE_EVENT_TIME*1000) < System.currentTimeMillis()) {
-                allEvents.remove(entry.getKey());
-            }
-        });
+        allEvents = allEvents.entrySet().stream()
+                .filter(entry -> entry.getValue().eitReceivedTimeMillis + (REMOVE_EVENT_TIME*1000) > System.currentTimeMillis())
+                .filter(entry -> entry.getValue().startTime >= epgEvent.startTime + epgEvent.duration ||
+                        epgEvent.startTime >= entry.getValue().startTime + entry.getValue().duration)
+                .collect(HashMap::new, (m, e) -> m.put(e.getKey(), e.getValue()), HashMap::putAll);
+
+
+        allEvents.put(epgEvent.id, epgEvent);
 
         Type eventMapType = new TypeToken<HashMap<Long, EpgEvent>>() {
         }.getType();

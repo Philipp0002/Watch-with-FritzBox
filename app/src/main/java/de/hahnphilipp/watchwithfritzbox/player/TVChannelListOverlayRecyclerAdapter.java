@@ -211,7 +211,6 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         @Override
         protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
             float slowness = getSlowness();
-            Log.d("TVChannelListOverlay", "Speed: " + slowness);
             return slowness / displayMetrics.densityDpi;
         }
 

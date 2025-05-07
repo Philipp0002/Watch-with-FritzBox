@@ -161,7 +161,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             editor.putLong("setting_audio_delay", val);
             editor.commit();
             if(context.mMediaPlayer != null) {
-                context.mMediaPlayer.setAudioDelay(val);
+                context.mMediaPlayer.setAudioDelay(val * 1000);
             }
             selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
         }, true));
@@ -171,7 +171,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             editor.putLong("setting_audio_delay", val);
             editor.commit();
             if(context.mMediaPlayer != null) {
-                context.mMediaPlayer.setAudioDelay(val);
+                context.mMediaPlayer.setAudioDelay(val * 1000);
             }
             selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
         }, true));

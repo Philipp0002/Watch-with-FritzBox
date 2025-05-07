@@ -116,7 +116,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mMediaPlayer.setEventListener(this);
-        mMediaPlayer.setAudioDelay(sp.getLong("setting_audio_delay", 0));
+        mMediaPlayer.setAudioDelay(sp.getLong("setting_audio_delay", 0) * 1000);
         ivlcVout = mMediaPlayer.getVLCVout();
         ivlcVout.setVideoView(surfaceView);
         ivlcVout.setSubtitlesView(subtitlesView);

@@ -16,9 +16,12 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import org.videolan.libvlc.IVLCVout;
 import org.videolan.libvlc.LibVLC;
@@ -42,6 +45,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public SurfaceView subtitlesView;
     private LibVLC mLibVLC = null;
     public MediaPlayer mMediaPlayer = null;
+    public Media media;
 
     public ChannelListTVOverlay mChannelOverlayFragment;
     public SettingsTVOverlay mSettingsOverlayFragment;
@@ -105,7 +109,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         //args.add("live555");
         //args.add("--vbi-text");
 
-        if(sp.contains("setting_deinterlace")) {
+        if (sp.contains("setting_deinterlace")) {
             args.add("--video-filter=deinterlace");
             args.add("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
             args.add("--vout-filter=" + sp.getString("setting_deinterlace", "x"));
@@ -164,6 +168,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public void popOverlayFragment() {
         getSupportFragmentManager().popBackStack();
     }
+
     public void popAllOverlayFragments() {
         while (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStackImmediate();
@@ -299,14 +304,17 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             @Override
             public void run() {
                 runOnUiThread(() -> {
-                    ((ProgressBar) findViewById(R.id.player_skip_timer)).setProgress(0);
+                    ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress(0);
                     findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
                 });
                 SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("PlaybackActivity", "Starting playback of " + channel.title + " -" + channel.url);
-                final Media media = new Media(mLibVLC, Uri.parse(channel.url));
+                if (media != null && !media.isReleased()) {
+                    media.release();
+                }
+                media = new Media(mLibVLC, Uri.parse(channel.url));
                 mMediaPlayer.setMedia(media);
                 /**
                  * --vbi-page=<integer [0 .. 7995392]>
@@ -327,7 +335,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                  *       --vbi-level={0 (1), 1 (1.5), 2 (2.5), 3 (3.5)}
                  *                                  Presentation Level
                  */
-                media.addOption(":vbi-page=150");
+                media.addOption(":vbi-page=373");
                 media.addOption(":vbi-opaque");
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
@@ -335,15 +343,11 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 media.addOption("--video-filter=deinterlace");
                 media.addOption("--deinterlace-mode=blend");
 
-                media.release();
                 mMediaPlayer.play();
-
 
 
             }
         }, timeWait);
-
-
     }
 
     String number = "0000";
@@ -376,11 +380,15 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         numberEnterTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (selection != null)
-                    ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);
+
+                media.addOption(":vbi-page="+entered);
+                mMediaPlayer.setMedia(media);
+                /*if (selection != null)
+                    ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);*/
                 runOnUiThread(() -> {
-                    if (selection != null)
-                        launchPlayer(true);
+                    /*if (selection != null)
+                        launchPlayer(true);*/
+                    Toast.makeText(TVPlayerActivity.this, media.isReleased() + "", Toast.LENGTH_SHORT).show();
                     findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
                 });
 
@@ -400,6 +408,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         ivlcVout.detachViews();
         mLibVLC.release();
         mMediaPlayer.release();
+        if (media != null) {
+            media.release();
+            media = null;
+        }
         mMediaPlayer = null;
         mLibVLC = null;
     }
@@ -409,7 +421,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         switch (event.type) {
             case MediaPlayer.Event.Buffering:
                 runOnUiThread(() -> {
-                    ((ProgressBar) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
+                    ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
 
                     if (event.getBuffering() == 100F) {
                         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);

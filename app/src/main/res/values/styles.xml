@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="@style/Theme.Material3.Dark.NoActionBar" >
+    <style name="AppTheme" parent="@style/Theme.Material3Expressive.Dark.NoActionBar" >
         <item name="android:windowBackground">@color/windowBg</item>
     </style>
 

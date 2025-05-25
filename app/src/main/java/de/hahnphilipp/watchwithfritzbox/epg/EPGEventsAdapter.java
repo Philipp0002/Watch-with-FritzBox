@@ -109,7 +109,7 @@ public class EPGEventsAdapter extends RecyclerView.Adapter<EPGEventsAdapter.Even
         }
     }
 
-    public static interface OnEventListener {
+    public interface OnEventListener {
         void onEventSelected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event);
 
         void onEventDeselected(ChannelUtils.Channel channel, EpgUtils.EpgEvent event);

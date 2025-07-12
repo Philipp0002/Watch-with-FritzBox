@@ -41,7 +41,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public void updateChannelList() {
-        tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
+        tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(requireContext());
         getActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
     }
 
@@ -137,6 +137,12 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
     public void onStop() {
         super.onStop();
         stopUpdateTimer();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        INSTANCE = null;
     }
 
     @Override

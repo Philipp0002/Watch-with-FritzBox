@@ -16,7 +16,6 @@ import androidx.leanback.widget.BrowseFrameLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.videolan.libvlc.MediaPlayer;
 
 import java.util.ArrayList;
 
@@ -71,7 +70,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
 
     public void updateTVSettings() {
-        ArrayList<TVSetting> tvSettings = new ArrayList<TVSetting>();
+        /*ArrayList<TVSetting> tvSettings = new ArrayList<TVSetting>();
 
         if (context == null)
             return;
@@ -106,7 +105,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         if (tvOverlayRecyclerAdapter != null) {
             tvOverlayRecyclerAdapter.objects = tvSettings;
             tvOverlayRecyclerAdapter.notifyDataSetChanged();
-        }
+        }*/
     }
 
     public void showChannelEditor() {
@@ -150,7 +149,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         context.addOverlayFragment(selectionTVOverlay);
     }
 
-    public void showVideoFormatSelection() {
+    /*public void showVideoFormatSelection() {
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         final MediaPlayer player = context.mMediaPlayer;
         selectionTVOverlay.title = context.getString(R.string.video_aspect);
@@ -204,7 +203,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         }
 
         context.addOverlayFragment(selectionTVOverlay);
-    }
+    }*/
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
@@ -17,14 +19,27 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.OptIn;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+import androidx.media3.extractor.DefaultExtractorsFactory;
+import androidx.media3.extractor.ts.TsExtractor;
+import androidx.media3.ui.PlayerView;
 
-import org.videolan.libvlc.IVLCVout;
-import org.videolan.libvlc.LibVLC;
-import org.videolan.libvlc.Media;
-import org.videolan.libvlc.MediaPlayer;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -34,66 +49,113 @@ import de.hahnphilipp.watchwithfritzbox.epg.LogcatEpgReader;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
-public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
+import com.arthenica.mobileffmpeg.FFmpeg;
 
-    public IVLCVout ivlcVout;
-    public SurfaceView surfaceView;
-    public SurfaceView subtitlesView;
-    private LibVLC mLibVLC = null;
-    public MediaPlayer mMediaPlayer = null;
+
+public class TVPlayerActivity extends FragmentActivity {
+
+    public PlayerView surfaceView;
 
     public ChannelListTVOverlay mChannelOverlayFragment;
     public SettingsTVOverlay mSettingsOverlayFragment;
 
     private LogcatEpgReader logcatEpgReader;
 
-    @Override
+
+    @OptIn(markerClass = UnstableApi.class) @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tvplayer);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        final ArrayList<String> args = new ArrayList<>();
-        args.add("-vvvvv");
-
-        args.add("--audio-resampler");
-        args.add("soxr");
-        args.add("--http-reconnect");
-        args.add("--sout-keep");
-        args.add("--no-audio-time-stretch");
-        args.add("--avcodec-skiploopfilter");
-        args.add("1");
-        args.add("--freetype-color=16777215");
-        args.add("--freetype-background-opacity=128");
-        args.add("--network-caching=1500");
-        args.add("--live-caching=1500");
-        args.add("--sout-mux-caching=1500");
-        args.add("--avcodec-hurry-up");
-        args.add("1");
-        //args.add("--telx-hide");
-        //args.add("--demux");
-        //args.add("live555");
-        //args.add("--vbi-text");
-
         surfaceView = findViewById(R.id.video_layout);
-        subtitlesView = findViewById(R.id.subtitles_layout);
 
-        mLibVLC = new LibVLC(this, args);
-        mMediaPlayer = new MediaPlayer(mLibVLC);
-        mMediaPlayer.setEventListener(this);
-        ivlcVout = mMediaPlayer.getVLCVout();
-        ivlcVout.setVideoView(surfaceView);
-        ivlcVout.setSubtitlesView(subtitlesView);
-        ivlcVout.attachViews();
 
-        final ViewTreeObserver observer = surfaceView.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(() -> {
-            // Set rendering size
-            ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
+        FFmpeg.execute("-encoders");
+        Log.d("AAAAAAAAA", "AAAAAAAAAAAAAAAAAAAAA");
+        int port = 5050;
+
+        File file = new File(getFilesDir(), "stream.m3u8");
+        if(file.exists()) file.delete();
+
+        // SD rtsp://192.168.178.1:554/?avm=1&freq=466&bw=8&msys=dvbc&mtype=256qam&sr=6900&specinv=1&pids=0,16,17,18,20,7830,7832,7833,7834,7838,7839
+        // HD rtsp://192.168.178.1:554/?avm=1&freq=450&bw=8&msys=dvbc&mtype=256qam&sr=6900&specinv=1&pids=0,16,17,18,20,6100,6110,6120,6121,6123,6130,6131,6170,6171,6172
+        String cmd = "-y -i rtsp://192.168.178.1:554/?avm=1&freq=450&bw=8&msys=dvbc&mtype=256qam&sr=6900&specinv=1&pids=0,16,17,18,20,6100,6110,6120,6121,6123,6130,6131,6170,6171,6172 " +
+                "-map 0:v:0 -map 0:a:0 " +
+                "-c copy " +
+                "-f hls " +
+                "-hls_time 2 " +
+                "-hls_list_size 5 " +
+                "-hls_flags delete_segments " +
+                "" + file.getAbsolutePath();
+
+
+        //String cmd = "-y -i rtsp://192.168.178.1:554/?avm=1&freq=450&bw=8&msys=dvbc&mtype=256qam&sr=6900&specinv=1&pids=0,16,17,18,20,6100,6110,6120,6121,6123,6130,6131,6170,6171,6172 -c copy -f mpegts tcp://127.0.0.1:"+port;
+        FFmpeg.executeAsync(cmd, (l, i) -> {
+
         });
 
-        initializeOverlay();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                /*try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+                InputStream inputStream;
+                try {
+                    ServerSocket serverSocket = new ServerSocket(port);
+                    Socket client = serverSocket.accept();
+
+                    Log.i("FFMPEG", "FFmpeg connected");
+
+                    inputStream = client.getInputStream();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }*/
+
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+
+                    try {
+                        ExoPlayer player = new ExoPlayer.Builder(TVPlayerActivity.this).build();
+
+                        surfaceView.setPlayer(player);
+
+                        /*DataSource.Factory factory = () -> new InputStreamDataSource(inputStream);
+                        MediaItem item = MediaItem.fromUri(Uri.parse("tcp://127.0.0.1:" + port));
+                        ProgressiveMediaSource src = new ProgressiveMediaSource.Factory(factory).createMediaSource(item);*/
+
+                        Uri uri = Uri.parse("file:/" + file.getAbsolutePath());
+                        Log.d("URIII", uri.toString());
+
+                        MediaItem item = MediaItem.fromUri(Uri.fromFile(file));
+                        /*DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+                        MediaSource src = new ProgressiveMediaSource.Factory(dataSourceFactory)
+                                .createMediaSource(item);*/
+
+
+                        player.setMediaItem(item);
+                        player.prepare();
+                        player.play();
+                    } catch (Exception e) {
+                        Log.e("FFMPEG", "Fehler im Player: " + e.getMessage(), e);
+                    }
+                });
+            }
+        }).start();
+        /*ExoPlayer player = new ExoPlayer.Builder(this).build();
+        player.setMediaSource(mediaSource);
+        player.prepare();
+        player.play();*/
+
+
+        //initializeOverlay();
     }
 
     private void initializeOverlay() {
@@ -221,7 +283,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     protected void onStart() {
         super.onStart();
         //mMediaPlayer.attachViews(mVideoLayout, null, false, false);
-        launchPlayer(false);
+        //launchPlayer(false);
     }
 
     Timer switchChannelTimer = null;
@@ -232,7 +294,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         }
         logcatEpgReader = new LogcatEpgReader(this);
         logcatEpgReader.readLogcat();
-        mMediaPlayer.pause();
+        //mMediaPlayer.pause();
         findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
         findViewById(R.id.player_skip_radio).setVisibility(View.GONE);
         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
@@ -265,8 +327,8 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("PlaybackActivity", "Starting playback of " + channel.title + " -" + channel.url);
-                final Media media = new Media(mLibVLC, Uri.parse(channel.url));
-                mMediaPlayer.setMedia(media);
+                //final Media media = new Media(mLibVLC, Uri.parse(channel.url));
+                //mMediaPlayer.setMedia(media);
                 /**
                  * --vbi-page=<integer [0 .. 7995392]>
                  *                                  Teletext page
@@ -286,13 +348,13 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                  *       --vbi-level={0 (1), 1 (1.5), 2 (2.5), 3 (3.5)}
                  *                                  Presentation Level
                  */
-                media.addOption(":vbi-page=150");
-                media.addOption(":vbi-opaque");
-                media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
+                //media.addOption(":vbi-page=150");
+                //media.addOption(":vbi-opaque");
+                //media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
 
-                media.release();
-                mMediaPlayer.play();
+                //media.release();
+                //mMediaPlayer.play();
 
             }
         }, timeWait);
@@ -350,15 +412,15 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     protected void onStop() {
         super.onStop();
 
-        mMediaPlayer.stop();
-        ivlcVout.detachViews();
-        mLibVLC.release();
-        mMediaPlayer.release();
-        mMediaPlayer = null;
-        mLibVLC = null;
+        //mMediaPlayer.stop();
+        //ivlcVout.detachViews();
+        //mLibVLC.release();
+        //mMediaPlayer.release();
+        //mMediaPlayer = null;
+        //mLibVLC = null;
     }
 
-    @Override
+    /*@Override
     public void onEvent(MediaPlayer.Event event) {
         switch (event.type) {
             case MediaPlayer.Event.Buffering:
@@ -382,5 +444,5 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             default:
                 break;
         }
-    }
+    }*/
 }

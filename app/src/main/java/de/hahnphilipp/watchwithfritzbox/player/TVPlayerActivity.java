@@ -23,10 +23,10 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
-import org.videolan.libvlc.IVLCVout;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.interfaces.IVLCVout;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -90,8 +90,8 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvvvv");
 
-        args.add("--audio-resampler");
-        args.add("soxr");
+        //args.add("--audio-resampler");
+        //args.add("soxr");
         args.add("--http-reconnect");
         args.add("--sout-keep");
         args.add("--no-audio-time-stretch");

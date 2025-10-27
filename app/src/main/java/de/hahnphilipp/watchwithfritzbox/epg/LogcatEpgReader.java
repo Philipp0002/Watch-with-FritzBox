@@ -39,12 +39,12 @@ public class LogcatEpgReader {
                 if (lineUntrimmed.contains("EPGREAD")) return;
 
                 if (lineUntrimmed.contains("D VLC     :")) {
-                    if (lineUntrimmed.contains("ts demux:")) {
+                    if (lineUntrimmed.contains("libvlc demux:")) {
                         String line = lineUntrimmed
                                 .substring(
                                         lineUntrimmed
-                                                .indexOf("ts demux:") +
-                                                "ts demux:".length()
+                                                .indexOf("libvlc demux:") +
+                                                "libvlc demux:".length()
                                 ).trim();
                         processLine(line, true);
                     } else {

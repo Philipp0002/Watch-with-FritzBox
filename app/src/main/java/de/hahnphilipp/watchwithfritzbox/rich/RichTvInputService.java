@@ -16,6 +16,11 @@ import android.view.Surface;
 
 import androidx.annotation.Nullable;
 
+import org.videolan.libvlc.LibVLC;
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.interfaces.IVLCVout;
+
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -38,16 +43,16 @@ public class RichTvInputService extends TvInputService {
         int deselectAudioTrackId = -1;
         int deselectSubtitleTrackId = -1;
 
-        /*private LibVLC libVlc;
-        public MediaPlayer player;*/
+        private LibVLC libVlc;
+        public MediaPlayer player;
 
         public RichTvInputSessionImpl(Context context) {
             super(context);
             ArrayList<String> options = new ArrayList<>();
             options.add("-vv");
 
-            /*libVlc = new LibVLC(context, options);
-            player = new MediaPlayer(libVlc);*/
+            libVlc = new LibVLC(context, options);
+            player = new MediaPlayer(libVlc);
         }
 
         @Override
@@ -57,7 +62,7 @@ public class RichTvInputService extends TvInputService {
 
         @Override
         public boolean onTune(Uri channelUri) {
-            /*player.stop();
+            player.stop();
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
 
 
@@ -68,6 +73,12 @@ public class RichTvInputService extends TvInputService {
 
             try {
                 final Media media = new Media(libVlc, Uri.parse(channel.url));
+                /*media.setHWDecoderEnabled(true, false);
+                media.addOption(":clock-jitter=0");
+                media.addOption(":clock-synchro=0");
+                media.addOption(":network-caching=1000"); // In milliseconds
+                media.addOption(":sout-keep");
+                media.addOption(":audio-time-stretch");*/
 
                 player.setMedia(media);
 
@@ -170,13 +181,13 @@ public class RichTvInputService extends TvInputService {
                     }
                 }
             });
-            notifyVideoAvailable();*/
+            notifyVideoAvailable();
             return true;
         }
 
         @Override
         public boolean onSelectTrack(int type, @Nullable String trackId) {
-            /*if(trackId == null) {
+            if(trackId == null) {
                 if(type == TYPE_AUDIO) {
                     player.setAudioTrack(deselectAudioTrackId);
                 } else if(type == TYPE_SUBTITLE) {
@@ -188,16 +199,16 @@ public class RichTvInputService extends TvInputService {
                 } else if(type == TYPE_SUBTITLE) {
                     player.setSpuTrack(Integer.parseInt(trackId));
                 }
-            }*/
+            }
             return true;
         }
 
         private void releasePlayer() {
-            /*if (player != null) {
+            if (player != null) {
                 player.stop();
                 player.release();
                 player = null;
-            }*/
+            }
         }
 
         @Override
@@ -207,19 +218,19 @@ public class RichTvInputService extends TvInputService {
 
         @Override
         public boolean onSetSurface(@Nullable Surface surface) {
-            /*if(surface == null) return false;
+            if(surface == null) return false;
             this.surface = surface;
             final IVLCVout vlcVout = player.getVLCVout();
             DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
             vlcVout.setVideoSurface(surface, null);
             vlcVout.setWindowSize(dm.widthPixels, dm.heightPixels);
-            vlcVout.attachViews();*/
+            vlcVout.attachViews();
             return true;
         }
 
         @Override
         public void onSetStreamVolume(float volume) {
-            //player.setVolume((int) (volume * 100));
+            player.setVolume((int) (volume * 100));
         }
 
 

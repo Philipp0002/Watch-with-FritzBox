@@ -7,8 +7,14 @@
     tools:context=".player.TVPlayerActivity">
 
 
-    <androidx.media3.ui.PlayerView
+    <SurfaceView
         android:id="@+id/video_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false"/>
+
+    <SurfaceView
+        android:id="@+id/subtitles_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="false"/>

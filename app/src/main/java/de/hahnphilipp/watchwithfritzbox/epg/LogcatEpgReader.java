@@ -38,7 +38,7 @@ public class LogcatEpgReader {
             public void onLineRead(String lineUntrimmed) {
                 if (lineUntrimmed.contains("EPGREAD")) return;
 
-                if (lineUntrimmed.contains("D VLC     :")) {
+                if (lineUntrimmed.contains("I VLC     :")) {
                     if (lineUntrimmed.contains("libvlc demux:")) {
                         String line = lineUntrimmed
                                 .substring(
@@ -51,8 +51,8 @@ public class LogcatEpgReader {
                         String line = lineUntrimmed
                                 .substring(
                                         lineUntrimmed
-                                                .indexOf("D VLC     :") +
-                                                "D VLC     :".length()
+                                                .indexOf("I VLC     :") +
+                                                "I VLC     :".length()
                                 ).trim();
                         processLine(line, false);
                     }

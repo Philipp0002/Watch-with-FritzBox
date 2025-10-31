@@ -21,21 +21,32 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.google.android.gms.common.util.Hex;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.interfaces.IMedia;
 import org.videolan.libvlc.interfaces.IVLCVout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HexFormat;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.epg.EPGOverlay;
 import de.hahnphilipp.watchwithfritzbox.epg.LogcatEpgReader;
+import de.hahnphilipp.watchwithfritzbox.hbbtv.AitApplication;
+import de.hahnphilipp.watchwithfritzbox.hbbtv.AitDescriptor;
+import de.hahnphilipp.watchwithfritzbox.hbbtv.HbbTVApplication;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
 public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
@@ -221,6 +232,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
                 addOverlayFragment(mSettingsOverlayFragment);
+                mMediaPlayer.setTeletext(101);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_0) {
                 enterNumber(0);
@@ -343,6 +355,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 media.addOption("--video-filter=deinterlace");
                 media.addOption("--deinterlace-mode=blend");
 
+
                 mMediaPlayer.play();
 
 
@@ -381,7 +394,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             @Override
             public void run() {
 
-                media.addOption(":vbi-page="+entered);
+                media.addOption(":vbi-page=" + entered);
                 mMediaPlayer.setMedia(media);
                 /*if (selection != null)
                     ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);*/
@@ -419,6 +432,80 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     @Override
     public void onEvent(MediaPlayer.Event event) {
         switch (event.type) {
+            case MediaPlayer.Event.CommonDescriptorsFound:
+                // HbbTV = 0x0010
+                if (event.getCommonDescriptors().getApplicationId().equals("0x0010")) {
+                    byte[] bytes = Hex.stringToBytes(event.getCommonDescriptors().getCommonDescriptorsHex().replace(" ", ""));
+                    List<AitApplication> aitApplications = AitApplication.parseAitApplicationsFromHex(bytes);
+                    List<HbbTVApplication> hbbTvApplications = aitApplications.stream().map(HbbTVApplication::fromAitApplication).toList();
+                    return;
+                }
+                break;
+            case MediaPlayer.Event.TeletextPageLoaded:
+                Log.d("TEST", event.getTeletextText().getPageNumber() + "");
+                /*for(MediaPlayer.TeletextCell[] rows : event.getTeletextText().getCells()) {
+                    StringBuilder builder = new StringBuilder();
+                    for(MediaPlayer.TeletextCell cell : rows) {
+                        builder.append(cell.getCharacter());
+                    }
+                    Log.d("TELETEXT", builder.toString());
+                }*/
+                break;
+            case MediaPlayer.Event.EpgNewEvent:
+                long a = System.currentTimeMillis();
+                MediaPlayer.EpgEvent vlcEvent = event.getEvent();
+                long b = System.currentTimeMillis();
+                ChannelUtils.Channel ch = ChannelUtils.getChannelByServiceId(TVPlayerActivity.this, Integer.parseInt(vlcEvent.getServiceId()));
+                long c = System.currentTimeMillis();
+
+                if (ch != null) {
+                    EpgUtils.EpgEvent epgEvent = new EpgUtils.EpgEvent();
+                    epgEvent.id = vlcEvent.getEventId();
+                    epgEvent.description = vlcEvent.getDescription();
+                    epgEvent.subtitle = vlcEvent.getShortDescription();
+                    epgEvent.title = vlcEvent.getName();
+                    epgEvent.duration = vlcEvent.getDuration();
+                    epgEvent.startTime = vlcEvent.getStart();
+                    epgEvent.eitReceivedTimeMillis = System.currentTimeMillis();
+                    //TODO epgEvent.lang
+
+                    long d = System.currentTimeMillis();
+                    EpgUtils.addEvent(TVPlayerActivity.this, ch.number, epgEvent);
+                    long e = System.currentTimeMillis();
+
+                    Log.d("EPGTIME", (b-a) + " " + (c-b) + " " + (d-c) + " " + (e-d));
+                }
+
+                break;
+            case MediaPlayer.Event.EpgNewServiceInfo:
+                long a1 = System.currentTimeMillis();
+                MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
+                long b1 = System.currentTimeMillis();
+                ChannelUtils.Channel originalChannel = ChannelUtils.getChannelByTitle(TVPlayerActivity.this, serviceInfo.getName());
+                long c1 = System.currentTimeMillis();
+                if (originalChannel != null) {
+                    ChannelUtils.Channel channel = originalChannel.copy();
+                    channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
+                    channel.provider = serviceInfo.getProvider();
+                    channel.free = serviceInfo.isFreeCa();
+                    switch (Math.toIntExact(serviceInfo.getTypeId())) {
+                        case 1:
+                            channel.type = ChannelUtils.ChannelType.SD;
+                            break;
+                        case 25:
+                            channel.type = ChannelUtils.ChannelType.HD;
+                            break;
+                        case 2:
+                            channel.type = ChannelUtils.ChannelType.RADIO;
+                            break;
+                    }
+                    long d1 = System.currentTimeMillis();
+                    ChannelUtils.updateChannel(TVPlayerActivity.this, originalChannel, channel);
+                    long e1 = System.currentTimeMillis();
+                    Log.d("SERVICETIME", (b1-a1) + " " + (c1-b1) + " " + (d1-c1) + " " + (e1-d1));
+                }
+
+                break;
             case MediaPlayer.Event.Buffering:
                 runOnUiThread(() -> {
                     ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
@@ -441,4 +528,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 break;
         }
     }
+
+
 }

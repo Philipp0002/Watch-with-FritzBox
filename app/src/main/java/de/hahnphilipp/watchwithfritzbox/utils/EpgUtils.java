@@ -3,6 +3,7 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -68,7 +69,7 @@ public class EpgUtils {
         }.getType();
         String channelsJson = new Gson().toJson(allEvents, eventMapType);
         editor.putString("events" + channelNumber, channelsJson);
-        editor.commit();
+        editor.apply();
     }
 
     public static EpgEvent getEventAtTime(Context context, int channelNumber, LocalDateTime localDateTime) {

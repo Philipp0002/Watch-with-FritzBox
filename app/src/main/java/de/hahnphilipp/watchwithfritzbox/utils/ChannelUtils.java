@@ -2,6 +2,7 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -23,17 +24,27 @@ import de.hahnphilipp.watchwithfritzbox.R;
 public class ChannelUtils {
 
     static int selectedChannel = -1;
+    static ArrayList<Channel> channelsCache = null;
 
     public static void setChannels(Context context, ArrayList<ChannelUtils.Channel> channels) {
+        long a = System.currentTimeMillis();
+        Collections.sort(channels, Comparator.comparingInt(o -> o.number));
+        long b = System.currentTimeMillis();
+        channelsCache = channels;
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sp.edit();
+        long c = System.currentTimeMillis();
         Type channelListType = new TypeToken<ArrayList<ChannelUtils.Channel>>() {
         }.getType();
         String channelsJson = new Gson().toJson(channels, channelListType);
+        long d = System.currentTimeMillis();
         editor.putString("channels", channelsJson);
-        editor.commit();
+        long e = System.currentTimeMillis();
+        editor.apply();
+        long f = System.currentTimeMillis();
+        Log.d("CHANUTILSTIME", (b-a) + " " + (c-b) + " " + (d-c) + " " + (e-d) + " " + (f-e));
     }
 
     public static void updateChannel(Context context, Channel oldChannel, Channel newChannel){
@@ -126,12 +137,11 @@ public class ChannelUtils {
     }
 
     public static Channel getChannelByTitle(Context context, String title) {
-        for (Channel ch : getAllChannels(context)) {
-            if (ch.title.equalsIgnoreCase(title)) {
-                return ch;
-            }
-        }
-        return null;
+        return getAllChannels(context)
+                .stream()
+                .filter(ch -> ch.title.equalsIgnoreCase(title))
+                .findFirst()
+                .orElse(null);
     }
 
     public static Channel getChannelByServiceId(Context context, int serviceId) {
@@ -144,6 +154,9 @@ public class ChannelUtils {
     }
 
     public static ArrayList<Channel> getAllChannels(Context context) {
+        if(channelsCache != null) {
+            return channelsCache;
+        }
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 

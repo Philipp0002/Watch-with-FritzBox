@@ -33,6 +33,8 @@ public class LogcatEpgReader {
 
     public void readLogcat() {
         stopLogcatRead();
+        if(true)
+            return;
         asyncLogcatReader = new AsyncLogcatReader(new AsyncLogcatReader.LogcatCallback() {
             @Override
             public void onLineRead(String lineUntrimmed) {

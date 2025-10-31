@@ -5,33 +5,44 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+import androidx.room.Room;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 
 public class EpgUtils {
 
+    private static EpgDatabase db;
+
     private static final long REMOVE_EVENT_TIME = 60 * 60; // 1 hour
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private static EpgDatabase getDatabase(Context context) {
+        if(db == null) {
+            db = Room.databaseBuilder(context, EpgDatabase.class, "epg.db").allowMainThreadQueries().build();
+        }
+        return db;
+    }
 
-    public static HashMap<Long, EpgEvent> getAllEvents(Context context, int channelNumber) {
-        SharedPreferences sp = context.getSharedPreferences(
-                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-
-        Type eventMapType = new TypeToken<HashMap<Long, EpgEvent>>() {
-        }.getType();
-
-        HashMap<Long, EpgEvent> events = new Gson().fromJson(sp.getString("events" + channelNumber, "[]"), eventMapType);
-
-        return events;
+    public static List<EpgEvent> getAllEvents(Context context, int channelNumber) {
+        return getDatabase(context).epgDao().getEventsForChannel(channelNumber);
     }
 
     public static void swapChannelPositions(Context context, int fromChannelPos, int toChannelPos) {
@@ -48,39 +59,30 @@ public class EpgUtils {
 
 
 
-    public static void addEvent(Context context, int channelNumber, EpgEvent epgEvent) {
-        SharedPreferences sp = context.getSharedPreferences(
-                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
+    public static void addEvent(Context context, EpgEvent epgEvent) {
 
-        HashMap<Long, EpgEvent> allEvents = getAllEvents(context, channelNumber);
+        getDatabase(context).epgDao().deleteExpiredAndOverlappingEvents(
+                epgEvent.channelNumber,
+                epgEvent.startTime,
+                epgEvent.duration,
+                REMOVE_EVENT_TIME,
+                System.currentTimeMillis()
+        );
+
+        getDatabase(context).epgDao().insert(epgEvent);
 
         // CLEANUP OLD EVENTS
-        allEvents = allEvents.entrySet().stream()
+        /*allEvents = allEvents.entrySet().stream()
                 .filter(entry -> entry.getValue().eitReceivedTimeMillis + (REMOVE_EVENT_TIME*1000) > System.currentTimeMillis())
                 .filter(entry -> entry.getValue().startTime >= epgEvent.startTime + epgEvent.duration ||
                         epgEvent.startTime >= entry.getValue().startTime + entry.getValue().duration)
-                .collect(HashMap::new, (m, e) -> m.put(e.getKey(), e.getValue()), HashMap::putAll);
-
-
-        allEvents.put(epgEvent.id, epgEvent);
-
-        Type eventMapType = new TypeToken<HashMap<Long, EpgEvent>>() {
-        }.getType();
-        String channelsJson = new Gson().toJson(allEvents, eventMapType);
-        editor.putString("events" + channelNumber, channelsJson);
-        editor.apply();
+                .collect(HashMap::new, (m, e) -> m.put(e.getKey(), e.getValue()), HashMap::putAll);*/
     }
 
     public static EpgEvent getEventAtTime(Context context, int channelNumber, LocalDateTime localDateTime) {
         long timeInSec = localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
-        HashMap<Long, EpgEvent> allEvents = getAllEvents(context, channelNumber);
-        for (EpgEvent event : allEvents.values()) {
-            if (event.startTime <= timeInSec && event.startTime + event.duration >= timeInSec) {
-                return event;
-            }
-        }
-        return null;
+
+        return getDatabase(context).epgDao().getEventAtTime(channelNumber, timeInSec);
     }
 
     public static EpgEvent getEventNow(Context context, int channelNumber) {
@@ -88,25 +90,30 @@ public class EpgUtils {
     }
 
     public static EpgEvent getEventNext(Context context, int channelNumber) {
-        HashMap<Long, EpgEvent> allEvents = getAllEvents(context, channelNumber);
+        List<EpgEvent> allEvents = getAllEvents(context, channelNumber);
         long nearestEventTime = -1;
-        for (long eventTime : allEvents.keySet()) {
+        EpgEvent nearestEvent = null;
+        for (EpgEvent epgEvent : allEvents) {
+            long eventTime = epgEvent.startTime;
             if (eventTime > System.currentTimeMillis() / 1000) {
                 if (nearestEventTime == -1 || eventTime < nearestEventTime) {
                     nearestEventTime = eventTime;
+                    nearestEvent = epgEvent;
                 }
             }
         }
 
-        return allEvents.get(nearestEventTime);
+        return nearestEvent;
     }
 
     public static int secondsToPx(float seconds) {
         return (int) (seconds / 8 * Resources.getSystem().getDisplayMetrics().density);
     }
 
+    @Entity(primaryKeys = {"channelNumber", "id"})
     public static class EpgEvent {
 
+        public int channelNumber;
         public long id;
         public long eitReceivedTimeMillis;
         public long startTime;
@@ -115,6 +122,7 @@ public class EpgUtils {
         public String title;
         public String subtitle;
         public String description;
+        @Ignore
         public boolean isEmpty = false;
 
         public static EpgEvent createEmptyEvent(Context context, long startTime, long duration) {

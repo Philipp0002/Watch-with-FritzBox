@@ -6,26 +6,34 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.w3ma.m3u8parser.data.Track;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import de.hahnphilipp.watchwithfritzbox.R;
-import de.hahnphilipp.watchwithfritzbox.async.FetchPresetChannelOrder;
 import de.hahnphilipp.watchwithfritzbox.async.GetFritzInfo;
 import de.hahnphilipp.watchwithfritzbox.async.GetPlaylists;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class SetupSearchActivity extends AppCompatActivity {
 
@@ -140,15 +148,23 @@ public class SetupSearchActivity extends AppCompatActivity {
 
     }
 
-    public void presortChannels(){
+    public void presortChannels() {
         findViewById(R.id.setup_order_no_button).setVisibility(View.INVISIBLE);
         findViewById(R.id.setup_order_yes_button).setVisibility(View.INVISIBLE);
         findViewById(R.id.setup_order_progressBar).setVisibility(View.VISIBLE);
 
-        FetchPresetChannelOrder fetchPresetChannelOrder = new FetchPresetChannelOrder();
-        fetchPresetChannelOrder.execute();
-        fetchPresetChannelOrder.futurerun = () -> {
-            if(fetchPresetChannelOrder.response == null){
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .build();
+        Request request = new Request.Builder()
+                .url("https://hahnphilipp.de/watchwithfritzbox/presetOrder.json")
+                .build();
+
+        // OkHttp Request
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> {
                     Toast.makeText(SetupSearchActivity.this, R.string.setup_order_error, Toast.LENGTH_LONG).show();
 
@@ -156,34 +172,37 @@ public class SetupSearchActivity extends AppCompatActivity {
                     findViewById(R.id.setup_order_yes_button).setVisibility(View.VISIBLE);
                     findViewById(R.id.setup_order_progressBar).setVisibility(View.GONE);
                 });
-                return;
             }
-            ArrayList<ChannelUtils.Channel> channelsList = ChannelUtils.getAllChannels(SetupSearchActivity.this);
-            int position = 0;
 
-            for (JsonElement element : fetchPresetChannelOrder.response) {
-                for (JsonElement element1 : element.getAsJsonArray()) {
-                    String channelName = element1.getAsString();
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                ArrayList<ChannelUtils.Channel> channelsList = ChannelUtils.getAllChannels(SetupSearchActivity.this);
+                int position = 0;
 
-                    Optional<ChannelUtils.Channel> channelToMove = channelsList
-                            .stream()
-                            .filter(channel -> channel.title.equalsIgnoreCase(channelName))
-                            .findFirst();
+                ObjectMapper objectMapper = new ObjectMapper();
+                TypeReference<List<List<String>>> serialType = new TypeReference<>() {};
+                List<List<String>> responseBody = objectMapper.readValue(response.body().string(), serialType);
+                for (List<String> channelNames : responseBody) {
+                    for (String channelName : channelNames) {
+                        Optional<ChannelUtils.Channel> channelToMove = channelsList
+                                .stream()
+                                .filter(channel -> channel.title.equalsIgnoreCase(channelName))
+                                .findFirst();
 
-                    if (channelToMove.isPresent()) {
-                        position++;
-                        channelsList = ChannelUtils.moveChannelToPosition(SetupSearchActivity.this, channelToMove.get().number, position);
-                        break;
+                        if (channelToMove.isPresent()) {
+                            position++;
+                            channelsList = ChannelUtils.moveChannelToPosition(SetupSearchActivity.this, channelToMove.get().number, position);
+                            break;
+                        }
                     }
                 }
+
+                skipToNext();
             }
-
-            skipToNext();
-
-        };
+        });
     }
 
-    public void skipToNext(){
+    public void skipToNext() {
         startActivity(new Intent(SetupSearchActivity.this, ShowcaseGesturesActivity.class));
         finish();
         overridePendingTransition(0, 0);

@@ -4,15 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,25 +23,24 @@ public class ChannelUtils {
     static int selectedChannel = -1;
     static ArrayList<Channel> channelsCache = null;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public static void setChannels(Context context, ArrayList<ChannelUtils.Channel> channels) {
-        long a = System.currentTimeMillis();
         Collections.sort(channels, Comparator.comparingInt(o -> o.number));
-        long b = System.currentTimeMillis();
         channelsCache = channels;
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sp.edit();
-        long c = System.currentTimeMillis();
-        Type channelListType = new TypeToken<ArrayList<ChannelUtils.Channel>>() {
-        }.getType();
-        String channelsJson = new Gson().toJson(channels, channelListType);
-        long d = System.currentTimeMillis();
+        String channelsJson;
+        try {
+            channelsJson = objectMapper.writeValueAsString(channels);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return;
+        }
         editor.putString("channels", channelsJson);
-        long e = System.currentTimeMillis();
         editor.apply();
-        long f = System.currentTimeMillis();
-        Log.d("CHANUTILSTIME", (b-a) + " " + (c-b) + " " + (d-c) + " " + (e-d) + " " + (f-e));
     }
 
     public static void updateChannel(Context context, Channel oldChannel, Channel newChannel){
@@ -160,10 +156,15 @@ public class ChannelUtils {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        Type channelListType = new TypeToken<ArrayList<Channel>>() {
-        }.getType();
+        TypeReference<ArrayList<Channel>> channelListType = new TypeReference<>() {};
 
-        ArrayList<Channel> channels = new Gson().fromJson(sp.getString("channels", "[]"), channelListType);
+        ArrayList<Channel> channels;
+        try {
+            channels = objectMapper.readValue(sp.getString("channels", "[]"), channelListType);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
         Collections.sort(channels, Comparator.comparingInt(o -> o.number));
         return channels;
     }
@@ -198,8 +199,13 @@ public class ChannelUtils {
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sp.edit();
-        Type channelListType = new TypeToken<Map<Long, Integer>>() {}.getType();
-        String channelsMapping = new Gson().toJson(channelIdToNumber, channelListType);
+        String channelsMapping = null;
+        try {
+            channelsMapping = objectMapper.writeValueAsString(channelIdToNumber);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return;
+        }
         editor.putString("channelMappingRichTv", channelsMapping);
         editor.commit();
     }
@@ -208,10 +214,14 @@ public class ChannelUtils {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        Type channelListType = new TypeToken<Map<Long, Integer>>() {
-        }.getType();
+        TypeReference<Map<Long, Integer>> channelListType = new TypeReference<>() {};
 
-        Map<Long, Integer> channels = new Gson().fromJson(sp.getString("channelMappingRichTv", "[]"), channelListType);
+        Map<Long, Integer> channels = null;
+        try {
+            channels = objectMapper.readValue(sp.getString("channelMappingRichTv", "[]"), channelListType);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         return channels;
     }
 
@@ -225,6 +235,10 @@ public class ChannelUtils {
         public int serviceId;
         public String provider;
         public boolean free;
+
+        public Channel() {
+
+        }
 
         public Channel(int number, String title, String url, ChannelType type) {
             this.number = number;
@@ -242,7 +256,7 @@ public class ChannelUtils {
             return Objects.equals(title, channel.title)
                     && Objects.equals(url, channel.url)
                     && type == channel.type
-                    && serviceId == serviceId
+                    && serviceId == channel.serviceId
                     && Objects.equals(provider, channel.provider);
         }
 

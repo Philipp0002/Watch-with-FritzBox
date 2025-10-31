@@ -28,6 +28,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +55,7 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
         this.initTime = initTime;
         this.listener = listener;
         this.eventList = new ArrayList<>();
-        for(ChannelUtils.Channel channel : channels) {
+        for (ChannelUtils.Channel channel : new ArrayList<>(channels)) {
             eventList.add(new ArrayList<>());
             loadEvents(channel);
         }
@@ -153,7 +154,7 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
             eventList = new ArrayList<>();
         }
 
-        List<EpgUtils.EpgEvent> fetchedEvents = new ArrayList<>(EpgUtils.getAllEvents(epgOverlay.requireContext(), channel.number).values());
+        List<EpgUtils.EpgEvent> fetchedEvents = new ArrayList<>(EpgUtils.getAllEvents(epgOverlay.requireContext(), channel.number));
 
         // Filter & Sortieren nach Startzeit
         fetchedEvents = fetchedEvents.stream()

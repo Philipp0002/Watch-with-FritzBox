@@ -10,6 +10,12 @@ public class HbbTVApplicationDescriptor {
     public int versionMinor;
     public int versionMicro;
     public int serviceBound;
+    /**
+     * 0 = not visible for user and other apps
+     * 1 = visible only for user selection
+     * 2 = visible only for other apps
+     * 3 = visible for user and other apps
+     */
     public int visibility;
     public int priority;
 
@@ -35,24 +41,31 @@ public class HbbTVApplicationDescriptor {
         int appProfilesLen = bb.get() & 0xFF;
         hbbTVApplicationDescriptor.appProfilesLen = appProfilesLen;
         int pos = 1;
-        while (pos + 4 <= 1 + appProfilesLen && pos + 4 <= d.length) {
+
+        // Das Ende der Profildaten, relativ zum Start des Arrays 'd'
+        int profileDataEnd = 1 + appProfilesLen;
+
+        // Schleife, solange 5 Bytes (pos bis pos+4) innerhalb der
+        // deklarierten Profillänge UND der gesamten Datenlänge verfügbar sind.
+        while (pos + 4 < profileDataEnd && pos + 4 < d.length) {
+
             int profile = ((d[pos] & 0xFF) << 8) | (d[pos+1] & 0xFF);
             int vMaj = d[pos+2] & 0xFF;
             int vMin = d[pos+3] & 0xFF;
-            // some specs include micro as separate byte; ETSI shows 3 version bytes often; try to be tolerant
-            int vMicro = 0;
-            if (pos + 4 < 1 + appProfilesLen && pos + 4 < d.length) {
-                // if there is another byte we might interpret it as micro
-                vMicro = d[pos+4] & 0xFF;
-                // but do not advance pos extra here because we used fixed 4 for many cases — keep conservative
-            }
+            int vMicro = d[pos+4] & 0xFF; // vMicro immer als 5. Byte lesen
+
+            // Hinweis: Dies speichert nur das LETZTE gefundene Profil.
+            // Wenn Sie alle Profile benötigen, brauchen Sie eine Liste.
             hbbTVApplicationDescriptor.profile = profile;
             hbbTVApplicationDescriptor.versionMajor = vMaj;
             hbbTVApplicationDescriptor.versionMinor = vMin;
             hbbTVApplicationDescriptor.versionMicro = vMicro;
-            pos += 4;
+
+            pos += 5; // <-- DIE ENTSCHEIDENDE KORREKTUR
         }
-        // after profiles: a byte containing service_bound_flag(1) + visibility(2) + reserved(5)
+
+        // Der Rest des Codes (flags, priority) sollte nun korrekt
+        // an der Position 'pos' (nach den Profildaten) ansetzen.
         if (pos < d.length) {
             int flags = d[pos] & 0xFF;
             int serviceBound = (flags >> 7) & 0x1;        // if encoded as top bit

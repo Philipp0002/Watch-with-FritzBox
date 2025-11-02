@@ -52,5 +52,6 @@ dependencies {
     implementation "androidx.room:room-runtime:2.8.3"
     annotationProcessor "androidx.room:room-compiler:2.8.3"
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation "androidx.webkit:webkit:1.10.0"
 
 }

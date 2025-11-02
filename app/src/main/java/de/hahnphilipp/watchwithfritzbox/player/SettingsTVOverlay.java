@@ -361,11 +361,16 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         context.addOverlayFragment(selectionTVOverlay);
     }
 
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
             context.popOverlayFragment();
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyDownLong(int keyCode, KeyEvent event) {
         return false;
     }
 

@@ -104,10 +104,15 @@ public class EditChannelListTVOverlay extends Fragment implements KeyDownReceive
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK && tvOverlayRecyclerAdapter.selectedChannel != -1) {
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyDownLong(int keyCode, KeyEvent event) {
         return false;
     }
 }

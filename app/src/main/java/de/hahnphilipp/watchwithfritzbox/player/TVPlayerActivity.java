@@ -51,6 +51,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public MediaPlayer mMediaPlayer = null;
     public Media media;
 
+    public HbbTVOverlay mHbbTvOverlay;
     public ChannelListTVOverlay mChannelOverlayFragment;
     public SettingsTVOverlay mSettingsOverlayFragment;
     public EPGOverlay mEPGOverlayFragment;
@@ -136,6 +137,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     private void initializeOverlay() {
+        mHbbTvOverlay = new HbbTVOverlay();
+        mHbbTvOverlay.context = this;
+        mHbbTvOverlay.setArguments(getIntent().getExtras());
+        getSupportFragmentManager().beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.hbbtv_container, mHbbTvOverlay)
+                .commit();
+
         mChannelOverlayFragment = new ChannelListTVOverlay();
         mChannelOverlayFragment.context = this;
         mChannelOverlayFragment.setArguments(getIntent().getExtras());
@@ -203,15 +212,63 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         findViewById(R.id.video_layout).startAnimation(a);
     }
 
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        return mHbbTvOverlay.onKeyDownLong(keyCode, event);
+        //return super.onKeyLongPress(keyCode, event);
+    }
+
+    long keyPressDownTime;
+    Integer keyLastPressed;
+    boolean keyLongpressInvoked = false;
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // CUSTOM LONG PRESS LOGIC
+        if (keyLastPressed != null && keyLastPressed == keyCode) {
+            if (System.currentTimeMillis() - keyPressDownTime > 1000) {
+                if (!keyLongpressInvoked) {
+                    keyLongpressInvoked = onKeyDownLong(keyCode, event);
+                    return keyLongpressInvoked || super.onKeyDown(keyCode, event);
+                }
+                return true;
+            }
+        } else {
+            keyPressDownTime = System.currentTimeMillis();
+            keyLastPressed = keyCode;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    public boolean onKeyDownLong(int keyCode, KeyEvent event) {
         Fragment overlayFragment = getSupportFragmentManager().findFragmentById(R.id.overlayMenu);
         if (overlayFragment instanceof KeyDownReceiver) {
-            return ((KeyDownReceiver) overlayFragment).onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+            return ((KeyDownReceiver) overlayFragment).onKeyDownLong(keyCode, event);
+        }
+        if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+            return mHbbTvOverlay.onKeyDownLong(keyCode, event);
+        }
+        return false;
+    }
+
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        keyLastPressed = null;
+        keyLongpressInvoked = false;
+        if (event.isCanceled()) {
+            return true;
+        }
+        if (mHbbTvOverlay.onKeyUp(keyCode, event)) {
+            return true/* || super.onKeyUp(keyCode, event)*/;
+        }
+        Fragment overlayFragment = getSupportFragmentManager().findFragmentById(R.id.overlayMenu);
+        if (overlayFragment instanceof KeyDownReceiver) {
+            return ((KeyDownReceiver) overlayFragment).onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
         }
 
-        if (overlayFragment == null && event.getAction() == KeyEvent.ACTION_DOWN) {
+        if (overlayFragment == null && event.getAction() == KeyEvent.ACTION_UP) {
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_UP) {
                 zapChannel(true);
                 return true;
@@ -223,7 +280,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
                 addOverlayFragment(mSettingsOverlayFragment);
-                mMediaPlayer.setTeletext(101);
+                //mMediaPlayer.setTeletext(101);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_0) {
                 enterNumber(0);
@@ -257,7 +314,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 return true;
             }
         }
-        return super.onKeyDown(keyCode, event);
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
@@ -273,11 +330,21 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         launchPlayer(false);
     }
 
+    public void pausePlayer() {
+        mMediaPlayer.pause();
+    }
+
     Timer switchChannelTimer = null;
 
     public void launchPlayer(boolean withWaitInterval) {
+        launchPlayer(withWaitInterval, true, true);
+    }
+
+    public void launchPlayer(boolean withWaitInterval, boolean withLoadingScreen, boolean clearHbbTv) {
         mMediaPlayer.pause();
-        findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
+        if(withLoadingScreen) {
+            findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
+        }
         findViewById(R.id.player_skip_radio).setVisibility(View.GONE);
         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
@@ -304,6 +371,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 runOnUiThread(() -> {
                     ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress(0);
                     findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
+                    if(clearHbbTv) mHbbTvOverlay.clearHbbTv();
                 });
                 SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
@@ -314,25 +382,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 }
                 media = new Media(mLibVLC, Uri.parse(channel.url));
                 mMediaPlayer.setMedia(media);
-                /**
-                 * --vbi-page=<integer [0 .. 7995392]>
-                 *                                  Teletext page
-                 *           Open the indicated Teletext page. Default page is index 100.
-                 *       --vbi-opaque, --no-vbi-opaque
-                 *                                  Opacity
-                 *                                  (default disabled)
-                 *           Setting to true makes the text to be boxed and maybe easier to read.
-                 *       --vbi-position={0 (Center), 1 (Left), 2 (Right), 4 (Top), 8 (Bottom), 5 (Top-Left), 6 (Top-Right), 9 (Bottom-Left), 10 (Bottom-Right)}
-                 *                                  Teletext alignment
-                 *           You can enforce the teletext position on the video (0=center, 1=left,
-                 *           2=right, 4=top, 8=bottom, you can also use combinations of these
-                 *           values, eg. 6 = top-right).
-                 *       --vbi-text, --no-vbi-text  Teletext text subtitles
-                 *                                  (default disabled)
-                 *           Output teletext subtitles as text instead of as RGBA.
-                 *       --vbi-level={0 (1), 1 (1.5), 2 (2.5), 3 (3.5)}
-                 *                                  Presentation Level
-                 */
                 media.addOption(":vbi-page=373");
                 media.addOption(":vbi-opaque");
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
@@ -415,15 +464,15 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mLibVLC = null;
     }
 
+
     @Override
     public void onEvent(MediaPlayer.Event event) {
         switch (event.type) {
             case MediaPlayer.Event.CommonDescriptorsFound:
                 // HbbTV = 0x0010
-                if (event.getCommonDescriptors().getApplicationId().equals("0x0010")) {
-                    byte[] bytes = Hex.stringToBytes(event.getCommonDescriptors().getCommonDescriptorsHex().replace(" ", ""));
-                    List<AitApplication> aitApplications = AitApplication.parseAitApplicationsFromHex(bytes);
-                    List<HbbTVApplication> hbbTvApplications = aitApplications.stream().map(HbbTVApplication::fromAitApplication).toList();
+                MediaPlayer.CommonDescriptors commonDescriptors = event.getCommonDescriptors();
+                if (commonDescriptors.getApplicationId().equals("0x0010")) {
+                    mHbbTvOverlay.processHbbTvInfo(commonDescriptors);
                     return;
                 }
                 break;
@@ -469,6 +518,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
                         channel.provider = serviceInfo.getProvider();
                         channel.free = serviceInfo.isFreeCa();
+                        Log.d("SERVICEINFO", serviceInfo.getName() + " " + serviceInfo.getTypeId());
                         switch (Math.toIntExact(serviceInfo.getTypeId())) {
                             case 1:
                                 channel.type = ChannelUtils.ChannelType.SD;

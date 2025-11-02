@@ -18,8 +18,18 @@ public class HbbTVApplication {
     public HbbTVApplicationTransportDescriptor applicationTransportDescriptor;
     public HbbTVHttpDescriptor httpDescriptor;
 
+    /**
+     *     0x01 – AUTOSTART: The HbbTV application starts automatically when the viewer tunes into the channel.
+     *     0x02 – PRESENT: The application will not start automatically but may continue to run if already running.
+     *     0x03 – DESTROY: The application should be terminated if currently running.
+     *     0x04 – KILL: Similar to DESTROY but ensures immediate termination.
+     *     0x07 – DISABLED: The application shall not be started and attempts to start it shall fail.
+     */
+    public int controlCode;
+
     public static HbbTVApplication fromAitApplication(AitApplication aitApplication) {
         HbbTVApplication hbbTVApplication = new HbbTVApplication();
+        hbbTVApplication.controlCode = aitApplication.controlCode;
 
         for (AitDescriptor descriptor : aitApplication.descriptors) {
             switch (descriptor.tag & 0xFF) {
@@ -54,7 +64,11 @@ public class HbbTVApplication {
                     hbbTVApplication.dataBroadcastIdDescriptor = HbbTVDataBroadcastIdDescriptor.fromBytes(descriptor.data);
                     break;
                 case 0x2:
-                    hbbTVApplication.httpDescriptor = HbbTVHttpDescriptor.fromBytes(descriptor.data);
+                    HbbTVHttpDescriptor httpDescriptor = HbbTVHttpDescriptor.fromBytes(descriptor.data);
+                    if(httpDescriptor != null && (hbbTVApplication.httpDescriptor == null
+                            || httpDescriptor.length > hbbTVApplication.httpDescriptor.length)) {
+                        hbbTVApplication.httpDescriptor = httpDescriptor;
+                    }
                     break;
                 default:
                     Log.e("HbbTV", "Unknown descriptor 0x" + Integer.toHexString(descriptor.tag & 0xFF) +

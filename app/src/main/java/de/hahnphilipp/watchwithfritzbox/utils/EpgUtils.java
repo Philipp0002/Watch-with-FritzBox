@@ -10,6 +10,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.Room;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -135,10 +136,12 @@ public class EpgUtils {
             return event;
         }
 
+        @Ignore
         public LocalDateTime getStartLocalDateTime() {
             return Instant.ofEpochSecond(this.startTime).atZone(ZoneId.systemDefault()).toLocalDateTime();
         }
 
+        @Ignore
         public LocalDateTime getEndLocalDateTime() {
             try {
                 return Instant.ofEpochSecond(this.startTime + this.duration).atZone(ZoneId.systemDefault()).toLocalDateTime();

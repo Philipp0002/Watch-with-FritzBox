@@ -85,4 +85,9 @@
     <string name="epg_starting_from">ab %s</string>
     <string name="epg_until">bis %s</string>
     <string name="epg_no_program_load_info">Schaue den Sender für ein paar Minuten um EPG-Daten zu empfangen</string>
+
+    <string name="extra_key_green">Grün</string>
+    <string name="extra_key_yellow">Gelb</string>
+    <string name="extra_key_red">Rot</string>
+    <string name="extra_key_blue">Blau</string>
 </resources>

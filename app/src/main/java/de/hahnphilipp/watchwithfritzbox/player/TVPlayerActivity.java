@@ -518,7 +518,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
                         channel.provider = serviceInfo.getProvider();
                         channel.free = serviceInfo.isFreeCa();
-                        Log.d("SERVICEINFO", serviceInfo.getName() + " " + serviceInfo.getTypeId());
                         switch (Math.toIntExact(serviceInfo.getTypeId())) {
                             case 1:
                                 channel.type = ChannelUtils.ChannelType.SD;

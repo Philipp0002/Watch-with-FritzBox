@@ -42,7 +42,8 @@ export class OipfVideoBroadcastMapper {
                     window.HBBTV_POLYFILL_DEBUG && console.log("hbbtv-polyfill:", e);
                 };
                 window.HBBTV_POLYFILL_DEBUG && console.log("hbbtv-polyfill: now play");
-                /*player.play().catch((e) => {
+                /*player.src = "http://cdn.smartclip.net/assets/atv/video/Caminandes1_720p.mp4";
+                player.play().catch((e) => {
                     window.HBBTV_POLYFILL_DEBUG && console.log("hbbtv-polyfill:", e, e.message, player.src);
                 });*/
                 oipfPluginObject.playState = 2;

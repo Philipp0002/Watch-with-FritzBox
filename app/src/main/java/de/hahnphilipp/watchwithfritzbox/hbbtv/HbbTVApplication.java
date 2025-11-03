@@ -34,6 +34,7 @@ public class HbbTVApplication {
         for (AitDescriptor descriptor : aitApplication.descriptors) {
             switch (descriptor.tag & 0xFF) {
                 case 0x00:
+                case 0x17:
                     hbbTVApplication.applicationDescriptor = HbbTVApplicationDescriptor.fromBytes(descriptor.data);
                     break;
                 case 0x01:

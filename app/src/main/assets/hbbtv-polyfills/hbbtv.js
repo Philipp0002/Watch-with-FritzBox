@@ -208,7 +208,8 @@ export const hbbtvFn = function () {
 
     Application.prototype.destroyApplication = function () {
         delete this._applicationUrl;
-        window.location.reload();
+        //window.location.reload();
+        WatchWithFritzbox.notifyApplicationDestroy();
     };
 
     window.Application = Application;

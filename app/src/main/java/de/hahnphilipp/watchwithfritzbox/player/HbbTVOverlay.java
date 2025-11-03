@@ -147,10 +147,8 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public void launchHbbTVApp(HbbTVApplication app, long serviceId, int networkId, int originalNetworkId, int tsId) {
-        Log.d("HBBTV", "launchHbbTVApp(...)");
         if (app.httpDescriptor != null && app.simpleApplicationLocationDescriptor != null) {
             String url = app.httpDescriptor.url + app.simpleApplicationLocationDescriptor.initialPath;
-            Log.d("HBBTV", "url = " + url);
             if (url.equals(webView.getUrl())
                     && hbbTvChannelInfo.sid == serviceId
                     && hbbTvChannelInfo.tsid == tsId
@@ -168,13 +166,17 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public void processHbbTvInfo(MediaPlayer.CommonDescriptors commonDescriptors) {
-        byte[] bytes = Hex.stringToBytes(commonDescriptors.getCommonDescriptorsHex().replace(" ", ""));
-        List<AitApplication> aitApplications = AitApplication.parseAitApplicationsFromHex(bytes);
-        hbbTvApplications = aitApplications.stream().map(HbbTVApplication::fromAitApplication).toList();
-        if(currentHbbTvApplication == null) {
-            hbbTvApplications.stream().filter(app -> app.controlCode == 1).findFirst().ifPresent(app -> {
-                launchHbbTVApp(app, commonDescriptors.getServiceId(), commonDescriptors.getNetworkId(), commonDescriptors.getOriginalNetworkId(), commonDescriptors.getTransportStreamId());
-            });
+        try {
+            byte[] bytes = Hex.stringToBytes(commonDescriptors.getCommonDescriptorsHex().replace(" ", ""));
+            List<AitApplication> aitApplications = AitApplication.parseAitApplicationsFromHex(bytes);
+            hbbTvApplications = aitApplications.stream().map(HbbTVApplication::fromAitApplication).toList();
+            if (currentHbbTvApplication == null) {
+                hbbTvApplications.stream().filter(app -> app.controlCode == 1).findFirst().ifPresent(app -> {
+                    launchHbbTVApp(app, commonDescriptors.getServiceId(), commonDescriptors.getNetworkId(), commonDescriptors.getOriginalNetworkId(), commonDescriptors.getTransportStreamId());
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -329,6 +331,11 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
                         context.pausePlayer();
                     }
                 });
+            }
+
+            @JavascriptInterface
+            public void notifyApplicationDestroy() {
+                clearHbbTv();
             }
 
             @JavascriptInterface

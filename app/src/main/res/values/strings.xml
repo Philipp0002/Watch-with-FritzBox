@@ -15,9 +15,9 @@
     <string name="setup_searching_sd">Searching SD channels...</string>
     <string name="setup_searching_hd">Searching HD channels...</string>
     <string name="setup_searching_radio">Searching radio stations...</string>
-    <string name="setup_search_sd_result">SD channels found</string>
-    <string name="setup_search_hd_result">HD channels found</string>
-    <string name="setup_search_radio_result">radio stations found</string>
+    <string name="setup_search_sd_result">%d SD channels found</string>
+    <string name="setup_search_hd_result">%d HD channels found</string>
+    <string name="setup_search_radio_result">%d radio stations found</string>
     <string name="setup_search_error">There was an error while searching channels. Aborted.</string>
     <string name="setup_search_error_connect">There was an error while connecting to FritzBox. Aborted.</string>
     <string name="setup_search_error_not_supported_title">Unsupported FritzBox</string>
@@ -27,7 +27,7 @@
 
     <string name="setup_order_description">Your channel list is unsorted. Apply auto-order now?</string>
     <string name="setup_order_yes">Presort</string>
-    <string name="setup_order_no">Don\'t presort</string>
+    <string name="setup_order_no">Keep as is</string>
     <string name="setup_order_error">There was an error while ordering channels. Aborted.</string>
 
     <string name="setup_gesture_up">Channel +</string>

@@ -2,7 +2,6 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -13,6 +12,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,9 +25,9 @@ public class ChannelUtils {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static void setChannels(Context context, ArrayList<ChannelUtils.Channel> channels) {
+    public static void setChannels(Context context, List<Channel> channels) {
         Collections.sort(channels, Comparator.comparingInt(o -> o.number));
-        channelsCache = channels;
+        channelsCache = new ArrayList<>(channels);
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 

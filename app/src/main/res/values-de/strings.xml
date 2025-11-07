@@ -14,9 +14,9 @@
     <string name="setup_searching_sd">Suche SD-Sender...</string>
     <string name="setup_searching_hd">Suche HD-Sender...</string>
     <string name="setup_searching_radio">Suche Radiosender...</string>
-    <string name="setup_search_sd_result">SD-Sender gefunden</string>
-    <string name="setup_search_hd_result">HD-Sender gefunden</string>
-    <string name="setup_search_radio_result">Radiosender gefunden</string>
+    <string name="setup_search_sd_result">%d SD-Sender gefunden</string>
+    <string name="setup_search_hd_result">%d HD-Sender gefunden</string>
+    <string name="setup_search_radio_result">%d Radiosender gefunden</string>
     <string name="setup_search_error">Fehler bei der Suche. Abbruch.</string>
     <string name="setup_search_error_connect">Fehler bei Verbindung mit FritzBox. Abbruch.</string>
     <string name="setup_search_error_not_supported_title">Nicht unterstützte FritzBox</string>

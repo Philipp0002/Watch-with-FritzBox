@@ -4,33 +4,31 @@ import android.os.AsyncTask;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.w3c.dom.NodeList;
 
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 
 public class GetFritzInfo extends AsyncTask<Void, Void, Void> {
 
     public String ip;
-    public Runnable futureRunFinished;
-
-    public boolean error = false;
+    public FritzInfoCallback callback;
 
     public Document doc;
 
+    public GetFritzInfo(String ip) {
+        this.ip = ip;
+    }
+
     @Override
     protected Void doInBackground(Void... voids) {
-
         runFetch();
-        if(futureRunFinished != null)
-            futureRunFinished.run();
-
         return null;
     }
 
@@ -54,16 +52,24 @@ public class GetFritzInfo extends AsyncTask<Void, Void, Void> {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             doc = builder.parse(conn.getInputStream());
-        } catch (IOException e) {
+
+            List<String> friendlyNames = new ArrayList<>();
+            NodeList friendlyNameNodes = doc.getElementsByTagName("friendlyName");
+            for (int i = 0; i < friendlyNameNodes.getLength(); i++) {
+                friendlyNames.add(friendlyNameNodes.item(i).getTextContent());
+            }
+
+            if(callback != null)
+                callback.onFetched(false, friendlyNames);
+        } catch (Exception e) {
             e.printStackTrace();
-            error = true;
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-            error = true;
-        } catch (SAXException e) {
-            e.printStackTrace();
-            error = true;
+            if(callback != null)
+                callback.onFetched(true, null);
         }
+    }
+
+    public interface FritzInfoCallback {
+        void onFetched(boolean error, List<String> friendlyNames);
     }
 
 }

@@ -13,15 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.w3ma.m3u8parser.data.Track;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +31,8 @@ import okhttp3.Response;
 
 public class SetupSearchActivity extends AppCompatActivity {
 
-    String ip;
+    private String ip;
+    private List<ChannelUtils.Channel> channelList;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,28 +41,43 @@ public class SetupSearchActivity extends AppCompatActivity {
 
         ip = getIntent().getStringExtra("ip");
 
-        final GetPlaylists getPlaylists = new GetPlaylists();
-        getPlaylists.ip = ip;
-        getPlaylists.futureRunSD = () -> runOnUiThread(() -> ((TextView) findViewById(R.id.setup_sd_search_text)).setText((getPlaylists.playlistSD.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_sd_result)));
-        getPlaylists.futureRunHD = () -> runOnUiThread(() -> ((TextView) findViewById(R.id.setup_hd_search_text)).setText((getPlaylists.playlistHD.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_hd_result)));
-        getPlaylists.futureRunRadio = () -> runOnUiThread(() -> ((TextView) findViewById(R.id.setup_radio_search_text)).setText((getPlaylists.playlistRadio.getTrackSetMap().get("")).size() + " " + getString(R.string.setup_search_radio_result)));
-        getPlaylists.futureRunFinished = () -> runOnUiThread(() -> {
-            if (getPlaylists.error) {
-                Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error, Toast.LENGTH_LONG).show();
-                startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
-                finish();
-                overridePendingTransition(0, 0);
-            } else {
-                findViewById(R.id.setup_search_progressBar).setVisibility(View.INVISIBLE);
-                findViewById(R.id.setup_search_continue_button).setVisibility(View.VISIBLE);
+        final GetPlaylists getPlaylists = new GetPlaylists(ip);
+        getPlaylists.callback = new GetPlaylists.GetPlaylistResult() {
+            @Override
+            public void onTypeLoaded(ChannelUtils.ChannelType type, int channelAmount) {
+                runOnUiThread(() -> {
+                    switch (type) {
+                        case SD ->
+                                ((TextView) findViewById(R.id.setup_sd_search_text)).setText(getString(R.string.setup_search_sd_result, channelAmount));
+                        case HD ->
+                                ((TextView) findViewById(R.id.setup_hd_search_text)).setText(getString(R.string.setup_search_hd_result, channelAmount));
+                        case RADIO ->
+                                ((TextView) findViewById(R.id.setup_radio_search_text)).setText(getString(R.string.setup_search_radio_result, channelAmount));
+                    }
+                });
             }
-        });
 
+            @Override
+            public void onAllLoaded(boolean error, List<ChannelUtils.Channel> channelList) {
+                runOnUiThread(() -> {
+                    if (error) {
+                        Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error, Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
+                        finish();
+                        overridePendingTransition(0, 0);
+                    } else {
+                        findViewById(R.id.setup_search_progressBar).setVisibility(View.INVISIBLE);
+                        findViewById(R.id.setup_search_continue_button).setVisibility(View.VISIBLE);
+                        SetupSearchActivity.this.channelList = channelList;
+                    }
+                });
 
-        final GetFritzInfo getFritzInfo = new GetFritzInfo();
-        getFritzInfo.ip = ip;
-        getFritzInfo.futureRunFinished = () -> {
-            if (getFritzInfo.error) {
+            }
+        };
+
+        final GetFritzInfo getFritzInfo = new GetFritzInfo(ip);
+        getFritzInfo.callback = (error, friendlyNames) -> {
+            if (error) {
                 runOnUiThread(() -> {
                     Toast.makeText(SetupSearchActivity.this, R.string.setup_search_error_connect, Toast.LENGTH_LONG).show();
                     startActivity(new Intent(SetupSearchActivity.this, SetupIPActivity.class));
@@ -75,19 +85,9 @@ public class SetupSearchActivity extends AppCompatActivity {
                     overridePendingTransition(0, 0);
                 });
             } else {
-                Document doc = getFritzInfo.doc;
-
-                boolean supportedFritzBox = false;
-                NodeList friendlyNames = doc.getElementsByTagName("friendlyName");
-                for (int i = 0; i < friendlyNames.getLength(); i++) {
-                    if (friendlyNames.item(i).getTextContent().toLowerCase().contains("cable") ||
-                            friendlyNames.item(i).getTextContent().toLowerCase().contains("dvbc") ||
-                            friendlyNames.item(i).getTextContent().toLowerCase().contains("dvb-c")
-                    ) {
-                        supportedFritzBox = true;
-                        break;
-                    }
-                }
+                boolean supportedFritzBox = friendlyNames.stream()
+                        .map(String::toLowerCase)
+                        .anyMatch(s -> s.contains("cable") || s.contains("dvbc") || s.contains("dvb-c"));
 
                 if (supportedFritzBox) {
                     getPlaylists.execute();
@@ -110,36 +110,7 @@ public class SetupSearchActivity extends AppCompatActivity {
         getFritzInfo.execute();
 
         findViewById(R.id.setup_search_continue_button).setOnClickListener(v -> {
-
-            int channelNumber = 1;
-
-            ArrayList<ChannelUtils.Channel> channels = new ArrayList<>();
-            for (Track t : getPlaylists.playlistHD.getTrackSetMap().get("")) {
-                ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.HD);
-                channels.add(channel);
-                channelNumber++;
-            }
-
-            for (Track t : getPlaylists.playlistSD.getTrackSetMap().get("")) {
-                ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.SD);
-                channels.add(channel);
-                channelNumber++;
-            }
-
-            Collections.sort(channels, new Comparator<ChannelUtils.Channel>() {
-                @Override
-                public int compare(ChannelUtils.Channel channel, ChannelUtils.Channel t1) {
-                    return channel.url.compareTo(t1.url);
-                }
-            });
-
-            for (Track t : getPlaylists.playlistRadio.getTrackSetMap().get("")) {
-                ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.RADIO);
-                channels.add(channel);
-                channelNumber++;
-            }
-
-            ChannelUtils.setChannels(SetupSearchActivity.this, channels);
+            ChannelUtils.setChannels(SetupSearchActivity.this, channelList);
 
             setContentView(R.layout.activity_setup_order);
             findViewById(R.id.setup_order_no_button).setOnClickListener(view -> skipToNext());

@@ -121,6 +121,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
     public void showChannelEditor() {
         EditChannelListTVOverlay editChannelListTVOverlay = new EditChannelListTVOverlay();
+        editChannelListTVOverlay.context = context;
 
         context.addOverlayFragment(editChannelListTVOverlay);
     }

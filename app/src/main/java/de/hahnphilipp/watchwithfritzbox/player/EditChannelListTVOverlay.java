@@ -51,9 +51,17 @@ public class EditChannelListTVOverlay extends Fragment implements KeyDownReceive
         return inflater.inflate(R.layout.overlay_edit_channel_list, container, false);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (INSTANCE == this) {
+            INSTANCE = null;
+        }
+    }
+
     public void updateChannelList() {
         ArrayList<Integer> changedPositions = new ArrayList<>();
-        ArrayList<ChannelUtils.Channel> newChannels = ChannelUtils.getAllChannels(requireContext());
+        ArrayList<ChannelUtils.Channel> newChannels = ChannelUtils.getAllChannels(context);
         for(int i = 0; i < tvOverlayRecyclerAdapter.objects.size(); i++) {
             ChannelUtils.Channel oldChannel = tvOverlayRecyclerAdapter.objects.get(i);
             ChannelUtils.Channel newChannel = newChannels.get(i);
@@ -63,7 +71,7 @@ public class EditChannelListTVOverlay extends Fragment implements KeyDownReceive
         }
 
         tvOverlayRecyclerAdapter.objects = newChannels;
-        getActivity().runOnUiThread(() -> changedPositions.stream().forEach(pos -> tvOverlayRecyclerAdapter.notifyItemChanged(pos)));
+        context.runOnUiThread(() -> changedPositions.stream().forEach(pos -> tvOverlayRecyclerAdapter.notifyItemChanged(pos)));
     }
 
     @Override
@@ -73,7 +81,7 @@ public class EditChannelListTVOverlay extends Fragment implements KeyDownReceive
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(requireContext()), recyclerView);
+        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, new ArrayList<>(ChannelUtils.getAllChannels(requireContext())), recyclerView);
         llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);

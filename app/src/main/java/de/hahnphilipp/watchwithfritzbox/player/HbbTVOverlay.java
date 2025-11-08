@@ -1,6 +1,8 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -166,11 +168,14 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public void processHbbTvInfo(MediaPlayer.CommonDescriptors commonDescriptors) {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        boolean allowHbbTV = sp.getBoolean("setting_enable_hbbtv", false);
         try {
             byte[] bytes = Hex.stringToBytes(commonDescriptors.getCommonDescriptorsHex().replace(" ", ""));
             List<AitApplication> aitApplications = AitApplication.parseAitApplicationsFromHex(bytes);
             hbbTvApplications = aitApplications.stream().map(HbbTVApplication::fromAitApplication).toList();
-            if (currentHbbTvApplication == null) {
+            if (currentHbbTvApplication == null && allowHbbTV) {
                 hbbTvApplications.stream().filter(app -> app.controlCode == 1).findFirst().ifPresent(app -> {
                     launchHbbTVApp(app, commonDescriptors.getServiceId(), commonDescriptors.getNetworkId(), commonDescriptors.getOriginalNetworkId(), commonDescriptors.getTransportStreamId());
                 });

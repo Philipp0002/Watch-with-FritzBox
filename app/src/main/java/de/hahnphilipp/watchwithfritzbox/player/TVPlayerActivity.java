@@ -464,6 +464,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mLibVLC = null;
     }
 
+    public void stopHbbTV() {
+        mHbbTvOverlay.clearHbbTv();
+    }
+
 
     @Override
     public void onEvent(MediaPlayer.Event event) {

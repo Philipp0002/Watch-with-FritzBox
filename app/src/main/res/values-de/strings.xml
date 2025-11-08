@@ -43,8 +43,9 @@
     <string name="settings_hardware_acceleration_disable">Deaktivieren</string>
     <string name="settings_hardware_acceleration_auto">Aktivieren (Auto)</string>
     <string name="settings_hardware_acceleration_force">Aktivieren (Erzwingen)</string>
-    <string name="settings_open_hbbtv">HbbTV (Beta)</string>
-    <string name="settings_open_hbbtv_multi_title">Mehrere HbbTV-Quellen</string>
+    <string name="settings_open_hbbtv">HbbTV</string>
+    <string name="settings_hbbtv_enable">Aktivieren</string>
+    <string name="settings_hbbtv_disable">Deaktivieren</string>
     <string name="settings_hbbtv_info">HbbTV verfügbar</string>
     <string name="settings_reorder_channels_move">Bewege den Sender nach oben oder unten um die Position zu verändern. Drücke OK um zu bestätigen.</string>
     <string name="settings_reorder_channels_select">Wähle den Sender, den du verschieben möchtest</string>

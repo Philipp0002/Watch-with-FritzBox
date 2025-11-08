@@ -108,6 +108,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay), R.drawable.round_timeline, this::showAudioDelaySelection, false));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration), R.drawable.round_speed, this::showHWAcelerationSelection, false));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace), R.drawable.round_gradient, this::showDeinterlaceSelection, false));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_open_hbbtv), R.drawable.interactive_space, this::showHbbTV, false));
 
         tvSettings.add(new TVSetting(context.getString(R.string.settings_reorder_channels), R.drawable.round_reorder, this::showChannelEditor, false));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_app), R.drawable.round_reset_settings, this::showAppResetSelection, false));
@@ -126,6 +127,26 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
     public void showEpg() {
         context.addOverlayFragment(context.mEPGOverlayFragment);
+    }
+
+    public void showHbbTV() {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
+        selectionTVOverlay.title = context.getString(R.string.settings_open_hbbtv);
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hbbtv_enable), R.drawable.round_power, () -> {
+            editor.putBoolean("setting_enable_hbbtv", true);
+            editor.commit();
+            context.stopHbbTV();
+            context.popOverlayFragment();
+        }, true));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hbbtv_disable), R.drawable.round_power_off, () -> {
+            editor.putBoolean("setting_enable_hbbtv", false);
+            editor.commit();
+        }, true));
+        context.addOverlayFragment(selectionTVOverlay);
     }
 
     public void showAppResetSelection() {
@@ -160,7 +181,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             val += 250;
             editor.putLong("setting_audio_delay", val);
             editor.commit();
-            if(context.mMediaPlayer != null) {
+            if (context.mMediaPlayer != null) {
                 context.mMediaPlayer.setAudioDelay(val * 1000);
             }
             selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
@@ -170,7 +191,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             val -= 250;
             editor.putLong("setting_audio_delay", val);
             editor.commit();
-            if(context.mMediaPlayer != null) {
+            if (context.mMediaPlayer != null) {
                 context.mMediaPlayer.setAudioDelay(val * 1000);
             }
             selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
@@ -362,7 +383,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+        if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
             context.popOverlayFragment();
             return true;
         }

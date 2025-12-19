@@ -55,6 +55,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public ChannelListTVOverlay mChannelOverlayFragment;
     public SettingsTVOverlay mSettingsOverlayFragment;
     public EPGOverlay mEPGOverlayFragment;
+    public TeletextTVOverlay mTeletextOverlayFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +157,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mEPGOverlayFragment = new EPGOverlay();
         mEPGOverlayFragment.context = this;
         mEPGOverlayFragment.setArguments(getIntent().getExtras());
+
+        mTeletextOverlayFragment = new TeletextTVOverlay();
+        mTeletextOverlayFragment.context = this;
+        mTeletextOverlayFragment.setArguments(getIntent().getExtras());
     }
 
     @Override
@@ -280,7 +285,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
                 addOverlayFragment(mSettingsOverlayFragment);
-                //mMediaPlayer.setTeletext(101);
+                mMediaPlayer.setTeletext(100);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_0) {
                 enterNumber(0);
@@ -382,8 +387,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 }
                 media = new Media(mLibVLC, Uri.parse(channel.url));
                 mMediaPlayer.setMedia(media);
-                media.addOption(":vbi-page=373");
-                media.addOption(":vbi-opaque");
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
                 media.addOption("--deinterlace=1");
@@ -472,6 +475,9 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     @Override
     public void onEvent(MediaPlayer.Event event) {
         switch (event.type) {
+            case MediaPlayer.Event.NitReceived:
+                Log.d("NIT", event.getRecordPath());
+                break;
             case MediaPlayer.Event.CommonDescriptorsFound:
                 // HbbTV = 0x0010
                 MediaPlayer.CommonDescriptors commonDescriptors = event.getCommonDescriptors();
@@ -481,6 +487,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 }
                 break;
             case MediaPlayer.Event.TeletextPageLoaded:
+                if(true)return;
+                AsyncTask.execute(() -> {
+                            Log.d("TELETEXT", event.getRecordPath());
+                            MediaPlayer.Teletext txt = event.getTeletextText();
+                            if (txt != null && txt.getPageNumber() == 100) {
+                                mTeletextOverlayFragment.experimentalSetTeletext(txt);
+                            }
+                        });
                 //Log.d("TEST", event.getTeletextText().getPageNumber() + "");
                 /*for(MediaPlayer.TeletextCell[] rows : event.getTeletextText().getCells()) {
                     StringBuilder builder = new StringBuilder();
@@ -522,16 +536,19 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
                         channel.provider = serviceInfo.getProvider();
                         channel.free = serviceInfo.isFreeCa();
-                        switch (Math.toIntExact(serviceInfo.getTypeId())) {
-                            case 1:
-                                channel.type = ChannelUtils.ChannelType.SD;
-                                break;
-                            case 25:
-                                channel.type = ChannelUtils.ChannelType.HD;
-                                break;
-                            case 2:
-                                channel.type = ChannelUtils.ChannelType.RADIO;
-                                break;
+                        try {
+                            switch (Math.toIntExact(serviceInfo.getTypeId())) {
+                                case 1:
+                                    channel.type = ChannelUtils.ChannelType.SD;
+                                    break;
+                                case 25:
+                                    channel.type = ChannelUtils.ChannelType.HD;
+                                    break;
+                                case 2:
+                                    channel.type = ChannelUtils.ChannelType.RADIO;
+                                    break;
+                            }
+                        } catch (Exception unused) {
                         }
                         ChannelUtils.updateChannel(TVPlayerActivity.this, originalChannel, channel);
                     }

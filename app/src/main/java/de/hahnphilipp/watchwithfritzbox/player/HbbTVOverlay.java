@@ -120,6 +120,9 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
 
 
             HbbTVKeyTypes type = HbbTVKeycodeMappings.getHbbTvKeyTypeByKeyCode(keyCode);
+            if(type == null) {
+                return false;
+            }
             char c = (char) event.getUnicodeChar();
             if (Character.isAlphabetic(c) && keyTypesFocusable.get(HbbTVKeyTypes.ALPHA)) {
                 String key = "" + c;

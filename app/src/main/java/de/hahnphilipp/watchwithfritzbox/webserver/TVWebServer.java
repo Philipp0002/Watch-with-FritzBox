@@ -82,7 +82,15 @@ public class TVWebServer {
                 int channelNumber = 1;
                 ArrayList<ChannelUtils.Channel> channels = new ArrayList<>();
                 for (Track t : playlist.getTrackSetMap().get("")) {
-                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.SD);
+                    ChannelUtils.ChannelType type = ChannelUtils.ChannelType.SD;
+                    String wwfbType = t.getExtInfo().getWwfbType();
+                    if (wwfbType != null) {
+                        try{
+                            type = ChannelUtils.ChannelType.valueOf(wwfbType);
+                        } catch (IllegalArgumentException ignored) {
+                        }
+                    }
+                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), type);
                     channels.add(channel);
                     channelNumber++;
                 }

@@ -174,8 +174,9 @@ public class ChannelUtils {
 
         StringBuilder m3u = new StringBuilder("#EXTM3U\n");
         for (Channel channel : channels) {
-            m3u.append("#EXTINF:0,").append(channel.title).append("\n");
+            m3u.append("#EXTINF:0 wwfb-type=\"").append(channel.type.toString()).append("\",").append(channel.title).append("\n");
             m3u.append("#EXTVLCOPT:network-caching=1000\n");
+            //m3u.append("#EXTWWFB:"+ channel.type.toString() +"\n");
             m3u.append(channel.url).append("\n");
         }
 

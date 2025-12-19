@@ -94,8 +94,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvvvv");
 
-        //args.add("--audio-resampler");
-        //args.add("soxr");
         args.add("--http-reconnect");
         args.add("--sout-keep");
         args.add("--no-audio-time-stretch");
@@ -108,10 +106,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         args.add("--sout-mux-caching=1500");
         args.add("--avcodec-hurry-up");
         args.add("1");
-        //args.add("--telx-hide");
-        //args.add("--demux");
-        //args.add("live555");
-        //args.add("--vbi-text");
 
         if (sp.contains("setting_deinterlace")) {
             args.add("--video-filter=deinterlace");
@@ -285,7 +279,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
                 addOverlayFragment(mSettingsOverlayFragment);
-                mMediaPlayer.setTeletext(100);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_0) {
                 enterNumber(0);

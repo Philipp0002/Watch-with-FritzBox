@@ -27,6 +27,7 @@ public class ExtInfo {
     private String tvgName;
     private String tvgLogoUrl;
     private String groupTitle;
+    private String wwfbType;
     private String title;
 
     public String getDuration() {
@@ -67,6 +68,14 @@ public class ExtInfo {
 
     public void setGroupTitle(String groupTitle) {
         this.groupTitle = groupTitle;
+    }
+
+    public String getWwfbType() {
+        return wwfbType;
+    }
+
+    public void setWwfbType(String wwfbType) {
+        this.wwfbType = wwfbType;
     }
 
     public String getTitle() {

@@ -28,4 +28,5 @@ public class Constants {
     public static final String TVG_NAME_TAG = "tvg-name";
     public static final String TVG_LOGO_TAG = "tvg-logo";
     public static final String GROUP_TITLE_TAG = "group-title";
+    public static final String WWFB_TYPE_TAG = "wwfb-type";
 }

@@ -32,12 +32,14 @@ public class ExtInfoParser {
     private final String TVG_NAME_REGEXP = Constants.TVG_NAME_TAG + "=\"(.*?)\"";
     private final String TVG_LOGO_URL_REGEXP = Constants.TVG_LOGO_TAG + "=\"(.*?)\"";
     private final String GROUP_TITLE_REGEXP = Constants.GROUP_TITLE_TAG + "=\"(.*?)\"";
+    private final String WWFB_TYPE_REGEXP = Constants.WWFB_TYPE_TAG + "=\"(.*?)\"";
     private final String TITLE_REGEXP = ",";
     private final Pattern durationPattern;
     private final Pattern tvgIdPattern;
     private final Pattern tvgNamePattern;
     private final Pattern tvgLogoUrlPattern;
     private final Pattern groupTitlePattern;
+    private final Pattern wwfbTypePattern;
     private final Pattern titlePattern;
 
     public ExtInfoParser() {
@@ -46,6 +48,7 @@ public class ExtInfoParser {
         tvgNamePattern = Pattern.compile(TVG_NAME_REGEXP);
         tvgLogoUrlPattern = Pattern.compile(TVG_LOGO_URL_REGEXP);
         groupTitlePattern = Pattern.compile(GROUP_TITLE_REGEXP);
+        wwfbTypePattern = Pattern.compile(WWFB_TYPE_REGEXP);
         titlePattern = Pattern.compile(TITLE_REGEXP);
     }
 
@@ -56,6 +59,7 @@ public class ExtInfoParser {
         extInfo.setTvgName(getInsideString(tvgNamePattern, line));
         extInfo.setTvgLogoUrl(getInsideString(tvgLogoUrlPattern, line));
         extInfo.setGroupTitle(getInsideString(groupTitlePattern, line));
+        extInfo.setWwfbType(getInsideString(wwfbTypePattern, line));
         extInfo.setTitle(getNextToString(titlePattern, line));
         return extInfo;
     }

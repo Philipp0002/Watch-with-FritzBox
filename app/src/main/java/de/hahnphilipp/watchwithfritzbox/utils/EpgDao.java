@@ -15,6 +15,9 @@ public interface  EpgDao {
     @Query("SELECT * FROM EpgEvent WHERE channelNumber = :channelNumber ORDER BY startTime")
     List<EpgUtils.EpgEvent> getEventsForChannel(int channelNumber);
 
+    @Query("SELECT * FROM EpgEvent WHERE channelNumber = :channelNumber AND startTime + duration >= :time ORDER BY startTime")
+    List<EpgUtils.EpgEvent> getEventsForChannelEndingAfter(int channelNumber, long time);
+
     @Query("DELETE FROM EpgEvent")
     void clear();
 

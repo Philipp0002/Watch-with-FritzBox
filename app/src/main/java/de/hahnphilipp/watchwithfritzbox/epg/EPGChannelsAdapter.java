@@ -139,10 +139,6 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
             layoutManager.scrollToPositionWithOffset(positionAndOffset.first, -positionAndOffset.second);
         }
 
-
-
-
-
         // Scroll-Listener setzen
         holder.eventRecyclerView.addOnScrollListener(epgOverlay.syncScrollListener);
     }
@@ -154,13 +150,8 @@ public class EPGChannelsAdapter extends RecyclerView.Adapter<EPGChannelsAdapter.
             eventList = new ArrayList<>();
         }
 
-        List<EpgUtils.EpgEvent> fetchedEvents = new ArrayList<>(EpgUtils.getAllEvents(epgOverlay.requireContext(), channel.number));
-
-        // Filter & Sortieren nach Startzeit
-        fetchedEvents = fetchedEvents.stream()
-                .filter(entry -> entry.getEndLocalDateTime().isAfter(initTime))
-                .sorted(Comparator.comparingLong(o -> o.startTime))
-                .collect(Collectors.toList());
+        long initEpoch = initTime.atZone(ZoneId.systemDefault()).toEpochSecond();
+        List<EpgUtils.EpgEvent> fetchedEvents = new ArrayList<>(EpgUtils.getAllEventsEndingAfter(epgOverlay.requireContext(), channel.number, initEpoch));
 
         eventList.clear();
 

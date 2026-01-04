@@ -3,26 +3,14 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.util.Log;
 
 import androidx.room.Entity;
 import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
 import androidx.room.Room;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -33,7 +21,6 @@ public class EpgUtils {
     private static EpgDatabase db;
 
     private static final long REMOVE_EVENT_TIME = 60 * 60; // 1 hour
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static EpgDatabase getDatabase(Context context) {
         if(db == null) {
@@ -44,6 +31,10 @@ public class EpgUtils {
 
     public static List<EpgEvent> getAllEvents(Context context, int channelNumber) {
         return getDatabase(context).epgDao().getEventsForChannel(channelNumber);
+    }
+
+    public static List<EpgEvent> getAllEventsEndingAfter(Context context, int channelNumber, long time) {
+        return getDatabase(context).epgDao().getEventsForChannelEndingAfter(channelNumber, time);
     }
 
     public static void swapChannelPositions(Context context, int fromChannelPos, int toChannelPos) {

@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.DebugTimings;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 
 public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventListener {
@@ -113,14 +114,10 @@ public class EPGOverlay extends Fragment implements EPGEventsAdapter.OnEventList
         timeRecyclerView = view.findViewById(R.id.epgtimelineRecycler);
         timeRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
         timeRecyclerView.setAdapter(new EPGTimeSlotAdapter(initTime));
-        //currentScrollX = EpgUtils.secondsToPx(initTime.until(LocalDateTime.now(), ChronoUnit.SECONDS)) - (timeRecyclerView.getWidth()/2);
         timeRecyclerView.addOnScrollListener(syncScrollListener);
-        timeRecyclerView.post(new Runnable() {
-            @Override
-            public void run() {
-                timeRecyclerView.scrollBy(EpgUtils.secondsToPx(initTime.until(LocalDateTime.now(), ChronoUnit.SECONDS)) - (timeRecyclerView.getWidth()/2), 0);
-            }
-        });
+        timeRecyclerView.post(() ->
+                timeRecyclerView.scrollBy(EpgUtils.secondsToPx(initTime.until(LocalDateTime.now(), ChronoUnit.SECONDS)) - (timeRecyclerView.getWidth()/2), 0)
+        );
 
         epgChannelsAdapter = new EPGChannelsAdapter(this, ChannelUtils.getAllChannels(context), initTime, this);
         recyclerView.setAdapter(epgChannelsAdapter);

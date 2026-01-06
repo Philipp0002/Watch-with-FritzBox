@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
 
 android {
     namespace "de.hahnphilipp.watchwithfritzbox"
@@ -53,5 +54,6 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:2.8.3"
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation "androidx.webkit:webkit:1.10.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.10"
 
 }

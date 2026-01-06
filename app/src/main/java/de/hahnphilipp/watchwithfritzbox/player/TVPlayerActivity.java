@@ -23,7 +23,6 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.android.gms.common.util.Hex;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import org.videolan.libvlc.LibVLC;
@@ -32,14 +31,11 @@ import org.videolan.libvlc.MediaPlayer;
 import org.videolan.libvlc.interfaces.IVLCVout;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import de.hahnphilipp.watchwithfritzbox.R;
-import de.hahnphilipp.watchwithfritzbox.epg.EPGOverlay;
-import de.hahnphilipp.watchwithfritzbox.hbbtv.AitApplication;
-import de.hahnphilipp.watchwithfritzbox.hbbtv.HbbTVApplication;
+import de.hahnphilipp.watchwithfritzbox.epg.EPGFragment;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
@@ -56,7 +52,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public HbbTVOverlay mHbbTvOverlay;
     public ChannelListTVOverlay mChannelOverlayFragment;
     public SettingsTVOverlay mSettingsOverlayFragment;
-    public EPGOverlay mEPGOverlayFragment;
+    public EPGFragment mEPGOverlayFragment;
     public TeletextTVOverlay mTeletextOverlayFragment;
 
     @Override
@@ -166,8 +162,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mSettingsOverlayFragment.context = this;
         mSettingsOverlayFragment.setArguments(getIntent().getExtras());
 
-        mEPGOverlayFragment = new EPGOverlay();
-        mEPGOverlayFragment.context = this;
+        mEPGOverlayFragment = new EPGFragment();
         mEPGOverlayFragment.setArguments(getIntent().getExtras());
 
         mTeletextOverlayFragment = new TeletextTVOverlay();

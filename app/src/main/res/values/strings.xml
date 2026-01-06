@@ -90,6 +90,7 @@
     <string name="epg_starting_from">from %s</string>
     <string name="epg_until">until %s</string>
     <string name="epg_no_program_load_info">Watch this channel for a few minutes to receive epg data</string>
+    <string name="epg_error_fetching_data">Unable to display content. Please try again later.</string>
 
     <string name="extra_key_green">Green</string>
     <string name="extra_key_yellow">Yellow</string>
@@ -98,4 +99,5 @@
 
 
     <string name="test_lorem_ipsum" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</string>
+
 </resources>

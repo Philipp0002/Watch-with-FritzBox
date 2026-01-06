@@ -4,4 +4,40 @@
     <color name="windowBg">#181725</color>
     <color name="panel_background">#181725</color>
 
+
+
+    <color name="programguide_header_background">#202020</color>
+    <color name="programguide_content_background">@color/panel_background</color>
+    <color name="programguide_footer_background">#202020</color>
+    <color name="programguide_selected_gap_color">#c7c6cb</color>
+    <color name="programguide_default_gap_color">#26233c</color>
+
+    <color name="programguide_selected_schedule_color">#c7c6cb</color>
+    <color name="programguide_past_schedule_color">#26233c</color>
+    <color name="programguide_default_schedule_color">#26233c</color>
+
+    <color name="programguide_progress_background_focused">#404040</color>
+    <color name="programguide_progress_background_default">#00000000</color>
+    <color name="programguide_progress_foreground_focused">#FFFFFF</color>
+    <color name="programguide_progress_foreground_default">#42a5f5</color>
+    <color name="programguide_time_text_color">#D0D0D0</color>
+    <color name="programguide_channel_text_color">#D0D0D0</color>
+    <color name="programguide_time_indicator_line">#A0D0D0D0</color>
+    <color name="programguide_time_indicator_triangle">#FFFFFF</color>
+    <color name="programguide_placeholder_default_color">#40FFFFFF</color>
+    <color name="programguide_filter_border_focused">#1565c0</color>
+    <color name="programguide_filter_border_default">#606060</color>
+    <color name="programguide_filter_background_focused">#40FFFFFF</color>
+    <color name="programguide_filter_background_default">#00000000</color>
+    <color name="programguide_filter_icon_color">#FFFFFF</color>
+    <color name="programguide_channel_item_background_color_default">#E0000000</color>
+    <color name="programguide_channel_item_background_color_selected">#F0303030</color>
+    <color name="programguide_channel_item_background_color_focused">#801565c0</color>
+    <color name="programguide_detail_text_color">#CCCCCC</color>
+    <color name="programguide_button_focused">#1565c0</color>
+    <color name="programguide_button_default">#707070</color>
+
+    <color name="programguide_title_text_color_focused">#000</color>
+    <color name="programguide_title_text_color_in_past">#a6a3a8</color>
+    <color name="programguide_title_text_color_default">#a6a3a8</color>
 </resources>

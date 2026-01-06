@@ -21,6 +21,8 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.common.util.Hex;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
@@ -70,6 +72,8 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         loadLibVLC();
 
         initializeOverlay();
+
+        initGlide();
     }
 
     public void unloadLibVLC() {
@@ -86,6 +90,20 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             ivlcVout.detachViews();
             ivlcVout = null;
         }
+    }
+
+    public void initGlide() {
+        AsyncTask.execute(() -> {
+            ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(this, 1);
+            if(channel != null) {
+                Glide.with(this)
+                        .load(ChannelUtils.getIconURL(channel))
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .preload();
+            } else {
+                Glide.get(this);
+            }
+        });
     }
 
     public void loadLibVLC() {

@@ -17,15 +17,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
-public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
+public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, EpgUtils.EpgUpdateListener {
 
     public TVPlayerActivity context;
     private TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
@@ -42,7 +45,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
 
     public void updateChannelList() {
         tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(requireContext());
-        getActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
+        requireActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
     }
 
     @Override
@@ -61,6 +64,8 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
         tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(requireContext()), recyclerView);
+
+
         LinearLayoutManager llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
@@ -86,6 +91,13 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startUpdateTimer();
+        EpgUtils.addEpgUpdateListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EpgUtils.removeEpgUpdateListener(this);
     }
 
     @Override
@@ -177,4 +189,11 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
             });
     }
 
+    @Override
+    public void onEpgNowChanged(ChannelUtils.Channel channel, EpgUtils.EpgEvent newEpgEvent) {
+        if(getActivity() == null || tvOverlayRecyclerAdapter == null) {
+            return;
+        }
+        requireActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyItemChanged(channel.number-1));
+    }
 }

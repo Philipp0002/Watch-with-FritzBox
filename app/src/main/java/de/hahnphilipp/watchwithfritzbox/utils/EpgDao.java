@@ -30,6 +30,12 @@ public interface  EpgDao {
     EpgUtils.EpgEvent getEventAtTime(int channelNumber, long timeInSec);
 
     @Query("""
+        SELECT * FROM EpgEvent
+        WHERE :timeInSec BETWEEN startTime AND (startTime + duration)
+    """)
+    List<EpgUtils.EpgEvent> getEventsAtTime(long timeInSec);
+
+    @Query("""
         DELETE FROM EpgEvent
         WHERE channelNumber = :channelNumber
           AND (

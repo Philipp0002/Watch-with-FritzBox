@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.AnimationUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.DebugTimings;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 
 
@@ -63,6 +64,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
     public void onBindViewHolder(final ChannelInfoViewHolder holder, final int position) {
         //holder.setIsRecyclable(false);
         final ChannelUtils.Channel item = objects.get(position);
+        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter onBindViewHolder start for position " + position);
         holder.channelName.setText(item.title);
         holder.channelNumber.setText("CH " + item.number);
 
@@ -73,9 +75,10 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         } else if (item.type == ChannelUtils.ChannelType.RADIO) {
             holder.channelTypeIcon.setImageResource(R.drawable.radio_tower);
         }
+        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter a " + position);
 
         if (!(context instanceof EditChannelListTVOverlay)) {
-            EpgUtils.EpgEvent eventNow = EpgUtils.getEventNow(context.getContext(), item.number);
+            EpgUtils.EpgEvent eventNow = EpgUtils.getEventNowFromCache(item.number);
             if (eventNow != null) {
                 holder.channelProgramNow.setText(eventNow.title);
                 holder.channelProgramNow.setVisibility(View.VISIBLE);
@@ -86,11 +89,13 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         } else {
             holder.channelProgramNow.setVisibility(View.GONE);
         }
+        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter b " + position);
 
         Glide.with(context)
                 .load(Uri.parse(ChannelUtils.getIconURL(item)))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.channelIcon);
+        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter c " + position);
 
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
@@ -117,6 +122,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 }
             }
         });
+        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter d " + position);
 
         holder.itemView.setOnClickListener(v -> {
             if (context instanceof ChannelListTVOverlay) {
@@ -136,6 +142,7 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 }
             }
         });
+        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter e " + position);
 
         if (selectedChannel == item.number) {
             holder.itemView.requestFocus();
@@ -144,6 +151,8 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 selectedChannel = -1;
             }
         }
+        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter f " + position);
+        DebugTimings.resetTiming();
     }
 
     @Override

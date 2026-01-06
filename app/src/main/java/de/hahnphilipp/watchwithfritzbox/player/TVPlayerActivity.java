@@ -3,6 +3,7 @@ package de.hahnphilipp.watchwithfritzbox.player;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -14,24 +15,31 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
-import org.videolan.libvlc.IVLCVout;
+import com.google.android.gms.common.util.Hex;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.interfaces.IVLCVout;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import de.hahnphilipp.watchwithfritzbox.R;
-import de.hahnphilipp.watchwithfritzbox.epg.LogcatEpgReader;
+import de.hahnphilipp.watchwithfritzbox.epg.EPGOverlay;
+import de.hahnphilipp.watchwithfritzbox.hbbtv.AitApplication;
+import de.hahnphilipp.watchwithfritzbox.hbbtv.HbbTVApplication;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
 public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
@@ -41,11 +49,13 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public SurfaceView subtitlesView;
     private LibVLC mLibVLC = null;
     public MediaPlayer mMediaPlayer = null;
+    public Media media;
 
+    public HbbTVOverlay mHbbTvOverlay;
     public ChannelListTVOverlay mChannelOverlayFragment;
     public SettingsTVOverlay mSettingsOverlayFragment;
-
-    private LogcatEpgReader logcatEpgReader;
+    public EPGOverlay mEPGOverlayFragment;
+    public TeletextTVOverlay mTeletextOverlayFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +64,36 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        surfaceView = findViewById(R.id.video_layout);
+        subtitlesView = findViewById(R.id.subtitles_layout);
+
+        loadLibVLC();
+
+        initializeOverlay();
+    }
+
+    public void unloadLibVLC() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+        if (mLibVLC != null) {
+            mLibVLC.release();
+            mLibVLC = null;
+        }
+        if (ivlcVout != null) {
+            ivlcVout.detachViews();
+            ivlcVout = null;
+        }
+    }
+
+    public void loadLibVLC() {
+        SharedPreferences sp = getSharedPreferences(
+                getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvvvv");
 
-        args.add("--audio-resampler");
-        args.add("soxr");
         args.add("--http-reconnect");
         args.add("--sout-keep");
         args.add("--no-audio-time-stretch");
@@ -71,17 +106,19 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         args.add("--sout-mux-caching=1500");
         args.add("--avcodec-hurry-up");
         args.add("1");
-        //args.add("--telx-hide");
-        //args.add("--demux");
-        //args.add("live555");
-        //args.add("--vbi-text");
 
-        surfaceView = findViewById(R.id.video_layout);
-        subtitlesView = findViewById(R.id.subtitles_layout);
+        if (sp.contains("setting_deinterlace")) {
+            args.add("--video-filter=deinterlace");
+            args.add("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
+            args.add("--vout-filter=" + sp.getString("setting_deinterlace", "x"));
+            args.add("--deinterlace-mode");
+            args.add(sp.getString("setting_deinterlace", "x"));
+        }
 
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mMediaPlayer.setEventListener(this);
+        mMediaPlayer.setAudioDelay(sp.getLong("setting_audio_delay", 0) * 1000);
         ivlcVout = mMediaPlayer.getVLCVout();
         ivlcVout.setVideoView(surfaceView);
         ivlcVout.setSubtitlesView(subtitlesView);
@@ -92,19 +129,32 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             // Set rendering size
             ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
         });
-
-        initializeOverlay();
     }
 
     private void initializeOverlay() {
+        mHbbTvOverlay = new HbbTVOverlay();
+        mHbbTvOverlay.context = this;
+        mHbbTvOverlay.setArguments(getIntent().getExtras());
+        getSupportFragmentManager().beginTransaction()
+                .setReorderingAllowed(true)
+                .add(R.id.hbbtv_container, mHbbTvOverlay)
+                .commit();
+
         mChannelOverlayFragment = new ChannelListTVOverlay();
         mChannelOverlayFragment.context = this;
         mChannelOverlayFragment.setArguments(getIntent().getExtras());
 
-
         mSettingsOverlayFragment = new SettingsTVOverlay();
         mSettingsOverlayFragment.context = this;
         mSettingsOverlayFragment.setArguments(getIntent().getExtras());
+
+        mEPGOverlayFragment = new EPGOverlay();
+        mEPGOverlayFragment.context = this;
+        mEPGOverlayFragment.setArguments(getIntent().getExtras());
+
+        mTeletextOverlayFragment = new TeletextTVOverlay();
+        mTeletextOverlayFragment.context = this;
+        mTeletextOverlayFragment.setArguments(getIntent().getExtras());
     }
 
     @Override
@@ -127,6 +177,12 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public void popOverlayFragment() {
         getSupportFragmentManager().popBackStack();
+    }
+
+    public void popAllOverlayFragments() {
+        while (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStackImmediate();
+        }
     }
 
     public void zapChannel(boolean toNext) {
@@ -155,15 +211,63 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         findViewById(R.id.video_layout).startAnimation(a);
     }
 
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        return mHbbTvOverlay.onKeyDownLong(keyCode, event);
+        //return super.onKeyLongPress(keyCode, event);
+    }
+
+    long keyPressDownTime;
+    Integer keyLastPressed;
+    boolean keyLongpressInvoked = false;
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // CUSTOM LONG PRESS LOGIC
+        if (keyLastPressed != null && keyLastPressed == keyCode) {
+            if (System.currentTimeMillis() - keyPressDownTime > 1000) {
+                if (!keyLongpressInvoked) {
+                    keyLongpressInvoked = onKeyDownLong(keyCode, event);
+                    return keyLongpressInvoked || super.onKeyDown(keyCode, event);
+                }
+                return true;
+            }
+        } else {
+            keyPressDownTime = System.currentTimeMillis();
+            keyLastPressed = keyCode;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    public boolean onKeyDownLong(int keyCode, KeyEvent event) {
         Fragment overlayFragment = getSupportFragmentManager().findFragmentById(R.id.overlayMenu);
         if (overlayFragment instanceof KeyDownReceiver) {
-            return ((KeyDownReceiver) overlayFragment).onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+            return ((KeyDownReceiver) overlayFragment).onKeyDownLong(keyCode, event);
+        }
+        if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+            return mHbbTvOverlay.onKeyDownLong(keyCode, event);
+        }
+        return false;
+    }
+
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        keyLastPressed = null;
+        keyLongpressInvoked = false;
+        if (event.isCanceled()) {
+            return true;
+        }
+        if (mHbbTvOverlay.onKeyUp(keyCode, event)) {
+            return true/* || super.onKeyUp(keyCode, event)*/;
+        }
+        Fragment overlayFragment = getSupportFragmentManager().findFragmentById(R.id.overlayMenu);
+        if (overlayFragment instanceof KeyDownReceiver) {
+            return ((KeyDownReceiver) overlayFragment).onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
         }
 
-        if (overlayFragment == null && event.getAction() == KeyEvent.ACTION_DOWN) {
+        if (overlayFragment == null && event.getAction() == KeyEvent.ACTION_UP) {
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_UP) {
                 zapChannel(true);
                 return true;
@@ -208,7 +312,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 return true;
             }
         }
-        return super.onKeyDown(keyCode, event);
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
@@ -224,16 +328,21 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         launchPlayer(false);
     }
 
+    public void pausePlayer() {
+        mMediaPlayer.pause();
+    }
+
     Timer switchChannelTimer = null;
 
     public void launchPlayer(boolean withWaitInterval) {
-        if (logcatEpgReader != null) {
-            logcatEpgReader.stopLogcatRead();
-        }
-        logcatEpgReader = new LogcatEpgReader(this);
-        logcatEpgReader.readLogcat();
+        launchPlayer(withWaitInterval, true, true);
+    }
+
+    public void launchPlayer(boolean withWaitInterval, boolean withLoadingScreen, boolean clearHbbTv) {
         mMediaPlayer.pause();
-        findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
+        if(withLoadingScreen) {
+            findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
+        }
         findViewById(R.id.player_skip_radio).setVisibility(View.GONE);
         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
@@ -258,46 +367,31 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             @Override
             public void run() {
                 runOnUiThread(() -> {
-                    ((ProgressBar) findViewById(R.id.player_skip_timer)).setProgress(0);
+                    ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress(0);
                     findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
+                    if(clearHbbTv) mHbbTvOverlay.clearHbbTv();
                 });
                 SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("PlaybackActivity", "Starting playback of " + channel.title + " -" + channel.url);
-                final Media media = new Media(mLibVLC, Uri.parse(channel.url));
+                if (media != null && !media.isReleased()) {
+                    media.release();
+                }
+                media = new Media(mLibVLC, Uri.parse(channel.url));
                 mMediaPlayer.setMedia(media);
-                /**
-                 * --vbi-page=<integer [0 .. 7995392]>
-                 *                                  Teletext page
-                 *           Open the indicated Teletext page. Default page is index 100.
-                 *       --vbi-opaque, --no-vbi-opaque
-                 *                                  Opacity
-                 *                                  (default disabled)
-                 *           Setting to true makes the text to be boxed and maybe easier to read.
-                 *       --vbi-position={0 (Center), 1 (Left), 2 (Right), 4 (Top), 8 (Bottom), 5 (Top-Left), 6 (Top-Right), 9 (Bottom-Left), 10 (Bottom-Right)}
-                 *                                  Teletext alignment
-                 *           You can enforce the teletext position on the video (0=center, 1=left,
-                 *           2=right, 4=top, 8=bottom, you can also use combinations of these
-                 *           values, eg. 6 = top-right).
-                 *       --vbi-text, --no-vbi-text  Teletext text subtitles
-                 *                                  (default disabled)
-                 *           Output teletext subtitles as text instead of as RGBA.
-                 *       --vbi-level={0 (1), 1 (1.5), 2 (2.5), 3 (3.5)}
-                 *                                  Presentation Level
-                 */
-                media.addOption(":vbi-page=150");
-                media.addOption(":vbi-opaque");
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
+                media.addOption("--deinterlace=1");
+                media.addOption("--video-filter=deinterlace");
+                media.addOption("--deinterlace-mode=blend");
 
-                media.release();
+
                 mMediaPlayer.play();
+
 
             }
         }, timeWait);
-
-
     }
 
     String number = "0000";
@@ -330,11 +424,15 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         numberEnterTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                if (selection != null)
-                    ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);
+
+                media.addOption(":vbi-page=" + entered);
+                mMediaPlayer.setMedia(media);
+                /*if (selection != null)
+                    ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);*/
                 runOnUiThread(() -> {
-                    if (selection != null)
-                        launchPlayer(true);
+                    /*if (selection != null)
+                        launchPlayer(true);*/
+                    Toast.makeText(TVPlayerActivity.this, media.isReleased() + "", Toast.LENGTH_SHORT).show();
                     findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
                 });
 
@@ -354,16 +452,105 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         ivlcVout.detachViews();
         mLibVLC.release();
         mMediaPlayer.release();
+        if (media != null) {
+            media.release();
+            media = null;
+        }
         mMediaPlayer = null;
         mLibVLC = null;
     }
 
+    public void stopHbbTV() {
+        mHbbTvOverlay.clearHbbTv();
+    }
+
+
     @Override
     public void onEvent(MediaPlayer.Event event) {
         switch (event.type) {
+            case MediaPlayer.Event.NitReceived:
+                Log.d("NIT", event.getRecordPath());
+                break;
+            case MediaPlayer.Event.CommonDescriptorsFound:
+                // HbbTV = 0x0010
+                MediaPlayer.CommonDescriptors commonDescriptors = event.getCommonDescriptors();
+                if (commonDescriptors.getApplicationId().equals("0x0010")) {
+                    mHbbTvOverlay.processHbbTvInfo(commonDescriptors);
+                    return;
+                }
+                break;
+            case MediaPlayer.Event.TeletextPageLoaded:
+                if(true)return;
+                AsyncTask.execute(() -> {
+                            Log.d("TELETEXT", event.getRecordPath());
+                            MediaPlayer.Teletext txt = event.getTeletextText();
+                            if (txt != null && txt.getPageNumber() == 100) {
+                                mTeletextOverlayFragment.experimentalSetTeletext(txt);
+                            }
+                        });
+                //Log.d("TEST", event.getTeletextText().getPageNumber() + "");
+                /*for(MediaPlayer.TeletextCell[] rows : event.getTeletextText().getCells()) {
+                    StringBuilder builder = new StringBuilder();
+                    for(MediaPlayer.TeletextCell cell : rows) {
+                        builder.append(cell.getCharacter());
+                    }
+                    Log.d("TELETEXT", builder.toString());
+                }*/
+                break;
+            case MediaPlayer.Event.EpgNewEvent:
+                AsyncTask.execute(() -> {
+                    MediaPlayer.EpgEvent vlcEvent = event.getEvent();
+                    ChannelUtils.Channel ch = ChannelUtils.getChannelByServiceId(TVPlayerActivity.this, Integer.parseInt(vlcEvent.getServiceId()));
+
+                    if (ch != null) {
+                        EpgUtils.EpgEvent epgEvent = new EpgUtils.EpgEvent();
+                        epgEvent.channelNumber = ch.number;
+                        epgEvent.id = vlcEvent.getEventId();
+                        epgEvent.description = vlcEvent.getDescription();
+                        epgEvent.subtitle = vlcEvent.getShortDescription();
+                        epgEvent.title = vlcEvent.getName();
+                        epgEvent.duration = vlcEvent.getDuration();
+                        epgEvent.startTime = vlcEvent.getStart();
+                        epgEvent.eitReceivedTimeMillis = System.currentTimeMillis();
+                        //TODO epgEvent.lang
+
+                        EpgUtils.addEvent(TVPlayerActivity.this, epgEvent);
+                    }
+                });
+
+
+                break;
+            case MediaPlayer.Event.EpgNewServiceInfo:
+                AsyncTask.execute(() -> {
+                    MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
+                    ChannelUtils.Channel originalChannel = ChannelUtils.getChannelByTitle(TVPlayerActivity.this, serviceInfo.getName());
+                    if (originalChannel != null) {
+                        ChannelUtils.Channel channel = originalChannel.copy();
+                        channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
+                        channel.provider = serviceInfo.getProvider();
+                        channel.free = serviceInfo.isFreeCa();
+                        try {
+                            switch (Math.toIntExact(serviceInfo.getTypeId())) {
+                                case 1:
+                                    channel.type = ChannelUtils.ChannelType.SD;
+                                    break;
+                                case 25:
+                                    channel.type = ChannelUtils.ChannelType.HD;
+                                    break;
+                                case 2:
+                                    channel.type = ChannelUtils.ChannelType.RADIO;
+                                    break;
+                            }
+                        } catch (Exception unused) {
+                        }
+                        ChannelUtils.updateChannel(TVPlayerActivity.this, originalChannel, channel);
+                    }
+                });
+
+                break;
             case MediaPlayer.Event.Buffering:
                 runOnUiThread(() -> {
-                    ((ProgressBar) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
+                    ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
 
                     if (event.getBuffering() == 100F) {
                         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
@@ -383,4 +570,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 break;
         }
     }
+
+
 }

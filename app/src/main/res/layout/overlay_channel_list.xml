@@ -27,17 +27,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvoverlaytime">
+        app:layout_constraintTop_toBottomOf="@+id/tvoverlaytime"
+        android:focusable="false">
 
-    <de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView
+    <androidx.leanback.widget.VerticalGridView
         android:id="@+id/tvoverlayrecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusedByDefault="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true">
-        <requestFocus/>
-    </de.hahnphilipp.watchwithfritzbox.utils.FocusRecyclerView>
+        android:focusable="false">
+    </androidx.leanback.widget.VerticalGridView>
 
     </androidx.leanback.widget.BrowseFrameLayout>
 

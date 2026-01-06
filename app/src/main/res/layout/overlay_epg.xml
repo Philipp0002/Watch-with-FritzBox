@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="false"
+    android:background="@color/panel_background">
+
+    <LinearLayout
+        android:id="@+id/epgdetails"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="32dp"
+        android:orientation="vertical"
+        android:focusable="false"
+        android:gravity="bottom">
+
+        <TextView
+            android:id="@+id/epgchanneltitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Channel Name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/epgtitle"
+            android:focusable="false"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/epgtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@id/epgsubtitle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:text="EPG title" />
+
+
+                <TextView
+                    android:id="@+id/epgsubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="EPG metadata"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/epgdescription"
+                    android:focusable="false"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="4dp"
+                        app:cardBackgroundColor="#1f1c2f">
+
+                        <TextView
+                            android:id="@+id/epgtime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:drawablePadding="4dp"
+                            android:paddingVertical="2dp"
+                            android:paddingHorizontal="4dp"
+                            android:drawableStart="@drawable/round_clock"
+                            tools:text="30 min | 12:30 - 13:00"/>
+
+                    </androidx.cardview.widget.CardView>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="16dp"
+                android:layout_height="0dp"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/epgdescription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    tools:text="@string/test_lorem_ipsum"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:focusable="false"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/epgtimelineRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/epgdetails"
+        tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:orientation="horizontal"
+        tools:listitem="@layout/epg_time_slot_item"
+        android:layout_marginStart="172dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false" />
+
+    <androidx.leanback.widget.BrowseFrameLayout
+        android:id="@+id/epgchannelsrecyclerBrowse"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/epgtimelineRecycler">
+
+    <androidx.leanback.widget.VerticalGridView
+        android:id="@+id/epgchannelsrecycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusedByDefault="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        tools:listitem="@layout/epg_channel_row">
+        <requestFocus/>
+    </androidx.leanback.widget.VerticalGridView>
+
+    </androidx.leanback.widget.BrowseFrameLayout>
+
+    <View
+        android:id="@+id/live_time_line"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="#FF0000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/epgtimelineRecycler"
+        app:layout_constraintTop_toTopOf="@id/epgtimelineRecycler" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,8 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.widget.BrowseFrameLayout;
+import androidx.leanback.widget.VerticalGridView;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -29,7 +29,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
 
     public TVPlayerActivity context;
     private TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
-    private RecyclerView recyclerView;
+    private VerticalGridView recyclerView;
     private Timer clockTimer;
 
     private static ChannelListTVOverlay INSTANCE;
@@ -41,7 +41,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public void updateChannelList() {
-        tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(getContext());
+        tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(requireContext());
         getActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
     }
 
@@ -60,11 +60,11 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(getContext()), recyclerView);
+        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(requireContext()), recyclerView);
         LinearLayoutManager llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
-        int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(getContext()) - 1;
+        int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(requireContext()) - 1;
         tvOverlayRecyclerAdapter.selectedChannel = lastSelectedChannel + 1;
         recyclerView.scrollToPosition(lastSelectedChannel);
 
@@ -92,15 +92,23 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if(recyclerView != null) {
-            recyclerView.requestFocus();
+            int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(requireContext());
+            tvOverlayRecyclerAdapter.selectedChannel = lastSelectedChannel - 1;
+            recyclerView.scrollToPosition(tvOverlayRecyclerAdapter.selectedChannel);
+            tvOverlayRecyclerAdapter.notifyItemChanged(tvOverlayRecyclerAdapter.selectedChannel);
         }
     }
 
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
             context.popOverlayFragment();
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyDownLong(int keyCode, KeyEvent event) {
         return false;
     }
 
@@ -134,6 +142,12 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver {
     public void onStop() {
         super.onStop();
         stopUpdateTimer();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        INSTANCE = null;
     }
 
     @Override

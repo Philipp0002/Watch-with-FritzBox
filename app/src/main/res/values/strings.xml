@@ -15,9 +15,9 @@
     <string name="setup_searching_sd">Searching SD channels...</string>
     <string name="setup_searching_hd">Searching HD channels...</string>
     <string name="setup_searching_radio">Searching radio stations...</string>
-    <string name="setup_search_sd_result">SD channels found</string>
-    <string name="setup_search_hd_result">HD channels found</string>
-    <string name="setup_search_radio_result">radio stations found</string>
+    <string name="setup_search_sd_result">%d SD channels found</string>
+    <string name="setup_search_hd_result">%d HD channels found</string>
+    <string name="setup_search_radio_result">%d radio stations found</string>
     <string name="setup_search_error">There was an error while searching channels. Aborted.</string>
     <string name="setup_search_error_connect">There was an error while connecting to FritzBox. Aborted.</string>
     <string name="setup_search_error_not_supported_title">Unsupported FritzBox</string>
@@ -27,29 +27,53 @@
 
     <string name="setup_order_description">Your channel list is unsorted. Apply auto-order now?</string>
     <string name="setup_order_yes">Presort</string>
-    <string name="setup_order_no">Don\'t presort</string>
+    <string name="setup_order_no">Keep as is</string>
+    <string name="setup_order_error">There was an error while ordering channels. Aborted.</string>
 
     <string name="setup_gesture_up">Channel +</string>
     <string name="setup_gesture_down">Channel -</string>
     <string name="setup_gesture_left">Channel list</string>
-    <string name="setup_gesture_right">Settings / HbbTV</string>
+    <string name="setup_gesture_right">EPG / Settings</string>
     <string name="setup_gesture_continue">Click to continue</string>
 
     <string name="setup_richtv_error">Could not tell system to read all channels :/ Please try again later.</string>
 
     <string name="settings_title">Settings</string>
     <string name="settings_reorder_channels">Reorder channels</string>
-    <string name="settings_hardware_acceleration">Hardware Acceleration</string>
+    <string name="settings_hardware_acceleration">HW Acceleration</string>
     <string name="settings_hardware_acceleration_disable">Disable</string>
     <string name="settings_hardware_acceleration_auto">Enable (Auto)</string>
     <string name="settings_hardware_acceleration_force">Enable (Force)</string>
-    <string name="settings_open_hbbtv">HbbTV (Beta)</string>
-    <string name="settings_open_hbbtv_multi_title">Multiple HbbTV sources</string>
+    <string name="settings_open_hbbtv">HbbTV</string>
+    <string name="settings_hbbtv_enable">Enable</string>
+    <string name="settings_hbbtv_disable">Disable</string>
+    <string name="settings_hbbtv_info">HbbTV available</string>
     <string name="settings_reorder_channels_move">Move up or down to change the position of this channel. Press OK to confirm.</string>
     <string name="settings_reorder_channels_select">Select the channel that you want to move</string>
     <string name="settings_reorder_channels_webserver_info">or visit %d in your web browser</string>
     <string name="settings_reorder_channels_import">Import from another tv</string>
     <string name="settings_open_epg">EPG</string>
+    <string name="settings_reset_app">Reset app data</string>
+    <string name="settings_reset_confirm">Confirm</string>
+    <string name="settings_reset_cancel">Cancel</string>
+    <string name="settings_deinterlace">Deinterlace</string>
+    <string name="settings_deinterlace_disable">Disable</string>
+    <string name="settings_deinterlace_mode_auto">Automatic</string>
+    <string name="settings_deinterlace_mode_discard">Discard mode</string>
+    <string name="settings_deinterlace_mode_blend">Blend mode</string>
+    <string name="settings_deinterlace_mode_mean">Mean mode</string>
+    <string name="settings_deinterlace_mode_bob">Bob mode</string>
+    <string name="settings_deinterlace_mode_linear">Linear mode</string>
+    <string name="settings_deinterlace_mode_x">X mode</string>
+    <string name="settings_deinterlace_mode_yadif">Yadif mode</string>
+    <string name="settings_deinterlace_mode_yadifx2">Yadif2x mode</string>
+    <string name="settings_deinterlace_mode_phosphor">Phosphor mode</string>
+    <string name="settings_deinterlace_mode_ivtc">Ivtc mode</string>
+    <string name="settings_audio_delay">Audio delay</string>
+    <string name="settings_audio_delay_value">Audio delay %s</string>
+    <string name="settings_audio_delay_plus">Delay +</string>
+    <string name="settings_audio_delay_minus">Delay -</string>
+    <string name="playback_title">Playback</string>
 
     <string name="radio_running">Listening to radio</string>
 
@@ -61,25 +85,17 @@
     <string name="audio_tracks_desc">Choose an audio track</string>
 
     <string name="preference_file_key" translatable="false">saves</string>
-    <string name="settings_hbbtv_info">HbbTV available</string>
+
+    <string name="epg_no_program">No epg info</string>
+    <string name="epg_starting_from">from %s</string>
+    <string name="epg_until">until %s</string>
+    <string name="epg_no_program_load_info">Watch this channel for a few minutes to receive epg data</string>
+
+    <string name="extra_key_green">Green</string>
+    <string name="extra_key_yellow">Yellow</string>
+    <string name="extra_key_red">Red</string>
+    <string name="extra_key_blue">Blue</string>
 
 
-    <string name="programguide_title_no_program">No broadcast</string>
-    <string name="programguide_error_fetching_content">Unable to display content. Please try again later.</string>
-
-    <string name="programguide_day_yesterday">Yesterday</string>
-    <string name="programguide_day_today">Today</string>
-    <string name="programguide_day_tomorrow">Tomorrow</string>
-
-    <string name="programguide_part_of_day_morning">Morning</string>
-    <string name="programguide_part_of_day_afternoon">Afternoon</string>
-    <string name="programguide_part_of_day_evening">Evening</string>
-
-    <string name="programguide_button_jump_to_live">Jump to live</string>
-
-    <string name="programguide_day_selector_title">Select the desired day</string>
-    <string name="programguide_day_time_selector_title">Select the desired time of day</string>
-    <string name="programguide_content_description_large_thumbnail">Program thumbnail</string>
-    <string name="programguide_content_description_channel_logo">Channel logo</string>
-    <string name="programguide_content_description_dropdown_icon">Dropdown icon</string>
+    <string name="test_lorem_ipsum" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</string>
 </resources>

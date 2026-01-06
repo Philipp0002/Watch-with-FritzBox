@@ -61,9 +61,8 @@
         app:srcCompat="@drawable/high_definition"
         app:tint="#2a2939" />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/player_skip_timer"
-        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="6dp"
         android:max="100"

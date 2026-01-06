@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="false">
 
@@ -35,7 +37,8 @@
         <requestFocus />
     </androidx.recyclerview.widget.RecyclerView>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ViewSwitcher
+        android:id="@+id/editChannelListInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -43,65 +46,98 @@
         app:layout_constraintStart_toEndOf="@+id/tvoverlayrecycler"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/editChannelListInfoImage"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:tint="#ffffff"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/round_touch_app"
-            app:tint="#ffffff"
-            android:scaleType="fitXY"/>
-
-        <TextView
-            android:id="@+id/editChannelListInfoText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="32dp"
-            android:text="@string/settings_reorder_channels_select"
-            android:textAlignment="center"
-            android:textColor="#fff"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editChannelListInfoImage" />
-
-        <TextView
-            android:id="@+id/editChannelListInfoText2"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="32dp"
-            android:text=""
-            android:textColor="#fff"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editChannelListInfoText" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_gravity="center">
 
-        <!--TextView
-            android:id="@+id/editChannelListImportTitle"
+            <ImageView
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:tint="#ffffff"
+                android:src="@drawable/round_touch_app"
+                app:tint="#ffffff"
+                android:scaleType="fitXY"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="32dp"
+                android:text="@string/settings_reorder_channels_select"
+                android:textAlignment="center"
+                android:textColor="#fff"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/editChannelListInfoText2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                tools:text="@string/settings_reorder_channels_webserver_info"
+                android:textColor="#fff" />
+
+            <ImageView
+                android:id="@+id/editChannelListInfoQR"
+                android:layout_marginTop="8dp"
+                android:layout_width="150dp"
+                android:layout_height="150dp" />
+
+            <!--TextView
+                android:id="@+id/editChannelListImportTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_reorder_channels_import"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/editChannelListInfoText2"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/editChannelListImportRecycler"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nextFocusLeft="@id/tvoverlayrecycler"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/editChannelListImportTitle" /-->
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/settings_reorder_channels_import"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editChannelListInfoText2"/>
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_gravity="center">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/editChannelListImportRecycler"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:nextFocusLeft="@id/tvoverlayrecycler"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/editChannelListImportTitle" /-->
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:tint="#ffffff"
+                android:src="@drawable/round_swap_vert"
+                app:tint="#ffffff"
+                android:scaleType="fitXY"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="32dp"
+                android:text="@string/settings_reorder_channels_move"
+                android:textAlignment="center"
+                android:textColor="#fff"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </ViewSwitcher>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

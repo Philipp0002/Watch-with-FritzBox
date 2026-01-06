@@ -3,15 +3,16 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,17 +21,26 @@ import de.hahnphilipp.watchwithfritzbox.R;
 public class ChannelUtils {
 
     static int selectedChannel = -1;
+    static ArrayList<Channel> channelsCache = null;
 
-    public static void setChannels(Context context, ArrayList<ChannelUtils.Channel> channels) {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static void setChannels(Context context, List<Channel> channels) {
+        Collections.sort(channels, Comparator.comparingInt(o -> o.number));
+        channelsCache = new ArrayList<>(channels);
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sp.edit();
-        Type channelListType = new TypeToken<ArrayList<ChannelUtils.Channel>>() {
-        }.getType();
-        String channelsJson = new Gson().toJson(channels, channelListType);
+        String channelsJson;
+        try {
+            channelsJson = objectMapper.writeValueAsString(channels);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return;
+        }
         editor.putString("channels", channelsJson);
-        editor.commit();
+        editor.apply();
     }
 
     public static void updateChannel(Context context, Channel oldChannel, Channel newChannel){
@@ -57,16 +67,9 @@ public class ChannelUtils {
     public static ArrayList<Channel> moveChannelToPosition(Context context, int fromChannelPos, int toChannelPos, ArrayList<Channel> channels) {
         if (fromChannelPos == toChannelPos) return channels;
 
-        Channel toMove = null;
+        Channel toMove = channels.stream().filter(channel -> channel.number == fromChannelPos).findFirst().orElse(null);
 
-        for (Channel channel : channels) {
-            if (channel.number == fromChannelPos) {
-                toMove = channel;
-                break;
-            }
-        }
-
-        if (getLastSelectedChannel(context) == toMove.number) {
+        if (getLastSelectedChannel(context) == fromChannelPos) {
             updateLastSelectedChannel(context, toChannelPos);
         }
 
@@ -81,6 +84,7 @@ public class ChannelUtils {
             }
 
             setChannels(context, channels);
+            EpgUtils.swapChannelPositions(context, fromChannelPos, toChannelPos);
         }
         return channels;
 
@@ -129,12 +133,11 @@ public class ChannelUtils {
     }
 
     public static Channel getChannelByTitle(Context context, String title) {
-        for (Channel ch : getAllChannels(context)) {
-            if (ch.title.equalsIgnoreCase(title)) {
-                return ch;
-            }
-        }
-        return null;
+        return getAllChannels(context)
+                .stream()
+                .filter(ch -> ch.title.equalsIgnoreCase(title))
+                .findFirst()
+                .orElse(null);
     }
 
     public static Channel getChannelByServiceId(Context context, int serviceId) {
@@ -147,13 +150,21 @@ public class ChannelUtils {
     }
 
     public static ArrayList<Channel> getAllChannels(Context context) {
+        if(channelsCache != null) {
+            return channelsCache;
+        }
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        Type channelListType = new TypeToken<ArrayList<Channel>>() {
-        }.getType();
+        TypeReference<ArrayList<Channel>> channelListType = new TypeReference<>() {};
 
-        ArrayList<Channel> channels = new Gson().fromJson(sp.getString("channels", "[]"), channelListType);
+        ArrayList<Channel> channels;
+        try {
+            channels = objectMapper.readValue(sp.getString("channels", "[]"), channelListType);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
         Collections.sort(channels, Comparator.comparingInt(o -> o.number));
         return channels;
     }
@@ -163,8 +174,9 @@ public class ChannelUtils {
 
         StringBuilder m3u = new StringBuilder("#EXTM3U\n");
         for (Channel channel : channels) {
-            m3u.append("#EXTINF:0,").append(channel.title).append("\n");
+            m3u.append("#EXTINF:0 wwfb-type=\"").append(channel.type.toString()).append("\",").append(channel.title).append("\n");
             m3u.append("#EXTVLCOPT:network-caching=1000\n");
+            //m3u.append("#EXTWWFB:"+ channel.type.toString() +"\n");
             m3u.append(channel.url).append("\n");
         }
 
@@ -188,8 +200,13 @@ public class ChannelUtils {
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sp.edit();
-        Type channelListType = new TypeToken<Map<Long, Integer>>() {}.getType();
-        String channelsMapping = new Gson().toJson(channelIdToNumber, channelListType);
+        String channelsMapping = null;
+        try {
+            channelsMapping = objectMapper.writeValueAsString(channelIdToNumber);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return;
+        }
         editor.putString("channelMappingRichTv", channelsMapping);
         editor.commit();
     }
@@ -198,10 +215,14 @@ public class ChannelUtils {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        Type channelListType = new TypeToken<Map<Long, Integer>>() {
-        }.getType();
+        TypeReference<Map<Long, Integer>> channelListType = new TypeReference<>() {};
 
-        Map<Long, Integer> channels = new Gson().fromJson(sp.getString("channelMappingRichTv", "[]"), channelListType);
+        Map<Long, Integer> channels = null;
+        try {
+            channels = objectMapper.readValue(sp.getString("channelMappingRichTv", "[]"), channelListType);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         return channels;
     }
 
@@ -214,12 +235,18 @@ public class ChannelUtils {
 
         public int serviceId;
         public String provider;
+        public boolean free;
+
+        public Channel() {
+
+        }
 
         public Channel(int number, String title, String url, ChannelType type) {
             this.number = number;
             this.title = title;
             this.url = url;
             this.type = type;
+            this.free = true;
         }
 
         @Override
@@ -230,7 +257,7 @@ public class ChannelUtils {
             return Objects.equals(title, channel.title)
                     && Objects.equals(url, channel.url)
                     && type == channel.type
-                    && serviceId == serviceId
+                    && serviceId == channel.serviceId
                     && Objects.equals(provider, channel.provider);
         }
 
@@ -245,19 +272,11 @@ public class ChannelUtils {
             copy.serviceId = serviceId;
             return copy;
         }
+
     }
 
     public enum ChannelType {
         SD, HD, RADIO;
     }
 
-    public static class HbbTV {
-        public String title;
-        public String url;
-
-        public HbbTV(String title, String url) {
-            this.title = title;
-            this.url = url;
-        }
-    }
 }

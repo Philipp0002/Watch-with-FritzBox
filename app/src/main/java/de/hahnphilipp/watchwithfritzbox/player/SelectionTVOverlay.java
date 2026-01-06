@@ -26,6 +26,7 @@ public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
 
     public ArrayList<TVSetting> tvSettings = new ArrayList<TVSetting>();
     public String title = null;
+    private TVSettingsOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,13 +39,14 @@ public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        if (title == null) {
-            view.findViewById(R.id.tvoverlayrecyclerTitle).setVisibility(View.GONE);
-        } else {
-            ((TextView) view.findViewById(R.id.tvoverlayrecyclerTitle)).setText(title);
+        ArrayList<Object> tvSettingsWithTitle = new ArrayList<>();
+        if (title != null) {
+            tvSettingsWithTitle.add(title);
         }
+        tvSettingsWithTitle.addAll(tvSettings);
 
-        TVSettingsOverlayRecyclerAdapter tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings);
+
+        tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettingsWithTitle);
         final LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
@@ -61,12 +63,32 @@ public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
         });
     }
 
+    public void updateTitle(String title) {
+        this.title = title;
+        if (tvOverlayRecyclerAdapter != null) {
+            if(!tvOverlayRecyclerAdapter.objects.isEmpty() && tvOverlayRecyclerAdapter.objects.get(0) instanceof String) {
+                tvOverlayRecyclerAdapter.objects.set(0, title);
+                tvOverlayRecyclerAdapter.notifyItemChanged(0);
+            } else {
+                tvOverlayRecyclerAdapter.notifyItemInserted(0);
+                tvOverlayRecyclerAdapter.objects.add(0, title);
+            }
+        }
+    }
+
+
+
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
             ((TVPlayerActivity)getActivity()).popOverlayFragment();
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyDownLong(int keyCode, KeyEvent event) {
         return false;
     }
 }

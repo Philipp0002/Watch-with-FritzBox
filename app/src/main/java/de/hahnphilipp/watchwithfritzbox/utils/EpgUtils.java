@@ -62,13 +62,6 @@ public class EpgUtils {
         );
 
         getDatabase(context).epgDao().insert(epgEvent);
-
-        // CLEANUP OLD EVENTS
-        /*allEvents = allEvents.entrySet().stream()
-                .filter(entry -> entry.getValue().eitReceivedTimeMillis + (REMOVE_EVENT_TIME*1000) > System.currentTimeMillis())
-                .filter(entry -> entry.getValue().startTime >= epgEvent.startTime + epgEvent.duration ||
-                        epgEvent.startTime >= entry.getValue().startTime + entry.getValue().duration)
-                .collect(HashMap::new, (m, e) -> m.put(e.getKey(), e.getValue()), HashMap::putAll);*/
     }
 
     public static EpgEvent getEventAtTime(Context context, int channelNumber, LocalDateTime localDateTime) {

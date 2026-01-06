@@ -6,6 +6,7 @@ import android.content.res.Resources;
 
 import androidx.room.Entity;
 import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.Room;
 
 import java.time.Instant;
@@ -95,7 +96,15 @@ public class EpgUtils {
         return (int) (seconds / 8 * Resources.getSystem().getDisplayMetrics().density);
     }
 
-    @Entity(primaryKeys = {"channelNumber", "id"})
+    @Entity(
+            primaryKeys = {"channelNumber", "id"},
+            indices = {
+                    @Index(
+                            name = "idx_epg_channel_time",
+                            value = {"channelNumber", "startTime"}
+                    )
+            }
+    )
     public static class EpgEvent {
 
         public int channelNumber;

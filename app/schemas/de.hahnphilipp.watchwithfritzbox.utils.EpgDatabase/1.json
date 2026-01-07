@@ -1,0 +1,103 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "7b10ab4d88aa6f2b17de2814621e5304",
+    "entities": [
+      {
+        "tableName": "EpgEvent",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`channelNumber` INTEGER NOT NULL, `id` INTEGER NOT NULL, `eitReceivedTimeMillis` INTEGER NOT NULL, `startTime` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `lang` TEXT, `title` TEXT, `subtitle` TEXT, `description` TEXT, `rating` INTEGER, `genre` INTEGER, `subGenre` INTEGER, PRIMARY KEY(`channelNumber`, `id`))",
+        "fields": [
+          {
+            "fieldPath": "channelNumber",
+            "columnName": "channelNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eitReceivedTimeMillis",
+            "columnName": "eitReceivedTimeMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startTime",
+            "columnName": "startTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lang",
+            "columnName": "lang",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "subtitle",
+            "columnName": "subtitle",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rating",
+            "columnName": "rating",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "genre",
+            "columnName": "genre",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "subGenre",
+            "columnName": "subGenre",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "channelNumber",
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "idx_epg_channel_time",
+            "unique": false,
+            "columnNames": [
+              "channelNumber",
+              "startTime"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `idx_epg_channel_time` ON `${TABLE_NAME}` (`channelNumber`, `startTime`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7b10ab4d88aa6f2b17de2814621e5304')"
+    ]
+  }
+}

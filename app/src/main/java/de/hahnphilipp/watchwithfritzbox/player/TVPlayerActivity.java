@@ -438,14 +438,12 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             @Override
             public void run() {
 
-                media.addOption(":vbi-page=" + entered);
                 mMediaPlayer.setMedia(media);
-                /*if (selection != null)
-                    ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);*/
+                if (selection != null)
+                    ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);
                 runOnUiThread(() -> {
-                    /*if (selection != null)
-                        launchPlayer(true);*/
-                    Toast.makeText(TVPlayerActivity.this, media.isReleased() + "", Toast.LENGTH_SHORT).show();
+                    if (selection != null)
+                        launchPlayer(true);
                     findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
                 });
 
@@ -525,6 +523,9 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         epgEvent.duration = vlcEvent.getDuration();
                         epgEvent.startTime = vlcEvent.getStart();
                         epgEvent.eitReceivedTimeMillis = System.currentTimeMillis();
+                        epgEvent.rating = vlcEvent.getRating();
+                        epgEvent.genre = vlcEvent.getGenre();
+                        epgEvent.subGenre = vlcEvent.getSubGenre();
                         //TODO epgEvent.lang
 
                         EpgUtils.addEvent(TVPlayerActivity.this, epgEvent);

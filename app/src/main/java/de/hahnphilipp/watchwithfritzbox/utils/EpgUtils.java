@@ -161,7 +161,6 @@ public class EpgUtils {
             }
     )
     public static class EpgEvent {
-
         public int channelNumber;
         public long id;
         public long eitReceivedTimeMillis;
@@ -171,18 +170,10 @@ public class EpgUtils {
         public String title;
         public String subtitle;
         public String description;
-        @Ignore
-        public boolean isEmpty = false;
-
-        public static EpgEvent createEmptyEvent(Context context, long startTime, long duration) {
-            EpgEvent event = new EpgEvent();
-            event.id = -new Random().nextLong();
-            event.startTime = startTime;
-            event.duration = duration;
-            event.title = context.getString(R.string.epg_no_program);
-            event.isEmpty = true;
-            return event;
-        }
+        public Integer rating;
+        // https://www.apt-browse.com/browse/debian/jessie/main/amd64/libdvbpsi-dev/1.2.0-1/file/usr/include/dvbpsi/dr_54.h
+        public Integer genre;
+        public Integer subGenre;
 
         @Ignore
         public LocalDateTime getStartLocalDateTime() {

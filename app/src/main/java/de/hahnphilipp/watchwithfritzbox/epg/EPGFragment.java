@@ -102,13 +102,28 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
 
     private void updateDetailView(ProgramGuideSchedule<EpgUtils.EpgEvent> programGuideSchedule) {
         if (getView() == null) return;
+        View detailView = getView().findViewById(R.id.epgdetails);
         TextView channelNameView = getView().findViewById(R.id.epgchanneltitle);
         TextView titleView = getView().findViewById(R.id.epgtitle);
         TextView metadataView = getView().findViewById(R.id.epgsubtitle);
         TextView descriptionView = getView().findViewById(R.id.epgdescription);
         TextView timeView = getView().findViewById(R.id.epgtime);
+        View timeWrapperView = getView().findViewById(R.id.epgtimewrapper);
 
-        if(programGuideSchedule != null && !programGuideSchedule.isGap()) {
+        if(programGuideSchedule == null) {
+            detailView.setVisibility(GONE);
+            return;
+        } else {
+            detailView.setVisibility(VISIBLE);
+        }
+
+        if (programGuideSchedule.isGap()) {
+            channelNameView.setText("");
+            titleView.setText(R.string.epg_no_program);
+            metadataView.setText(R.string.epg_no_program_load_info);
+            descriptionView.setText("");
+            timeWrapperView.setVisibility(GONE);
+        } else {
             EpgUtils.EpgEvent epgEvent = programGuideSchedule.getProgram();
             if (epgEvent == null) return;
             ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(requireContext(), epgEvent.channelNumber);
@@ -137,14 +152,9 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
             channelNameView.setText(channel.title);
             titleView.setText(epgEvent.title);
             metadataView.setText(epgEvent.subtitle);
-            descriptionView.setText(epgEvent.description);
+            descriptionView.setText(epgEvent.rating + " " + epgEvent.genre + " " + epgEvent.subGenre + " " + epgEvent.description);
             timeView.setText(timeInfos.stream().collect(Collectors.joining(" | ")));
-        } else {
-            channelNameView.setText("");
-            titleView.setText(R.string.epg_no_program);
-            metadataView.setText(R.string.epg_no_program_load_info);
-            descriptionView.setText(R.string.epg_no_program);
-            timeView.setText("-");
+            timeWrapperView.setVisibility(VISIBLE);
         }
     }
 

@@ -92,6 +92,97 @@
     <string name="epg_no_program_load_info">Watch this channel for a few minutes to receive epg data</string>
     <string name="epg_error_fetching_data">Unable to display content. Please try again later.</string>
 
+    <string name="epg_event_category_movie">Movie/Drama</string>
+    <string name="epg_event_category_news">News</string>
+    <string name="epg_event_category_show">Show</string>
+    <string name="epg_event_category_sports">Sports</string>
+    <string name="epg_event_category_children">Kids</string>
+    <string name="epg_event_category_music">Music</string>
+    <string name="epg_event_category_culture">Arts / Culture</string>
+    <string name="epg_event_category_social">Social</string>
+    <string name="epg_event_category_education">Education</string>
+    <string name="epg_event_category_leisure">Leisure</string>
+
+    <string name="epg_event_category_movie_detective">Movie (detective, thriller)</string>
+    <string name="epg_event_category_movie_adventure">Movie (adventure, western, war)</string>
+    <string name="epg_event_category_movie_sf">Movie (SciFi, fantasy, horror)</string>
+    <string name="epg_event_category_movie_comedy">Movie (comedy)</string>
+    <string name="epg_event_category_movie_soap">Movie (soap, melodrama, folkloric)</string>
+    <string name="epg_event_category_movie_romance">Movie (romance)</string>
+    <string name="epg_event_category_movie_classical">Movie (serious, classical, religious, historical, drama)</string>
+    <string name="epg_event_category_movie_adult">Movie (adult)</string>
+
+    <string name="epg_event_category_news_weather">Weather news</string>
+    <string name="epg_event_category_news_magazine">News magazine</string>
+    <string name="epg_event_category_news_documentary">News (documentary)</string>
+    <string name="epg_event_category_news_discussion">News (discussion, interview, debate)</string>
+
+    <string name="epg_event_category_show_quiz">Quiz show</string>
+    <string name="epg_event_category_show_variety">Variety show</string>
+    <string name="epg_event_category_show_talk">Talk show</string>
+
+    <string name="epg_event_category_sports_events">Sports events</string>
+    <string name="epg_event_category_sports_magazine">Sports magazines</string>
+    <string name="epg_event_category_sports_football">Sports (football, soccer)</string>
+    <string name="epg_event_category_sports_tennis">Sports (tennis, squash)</string>
+    <string name="epg_event_category_sports_team">Team sports (excluding football)</string>
+    <string name="epg_event_category_sports_athletics">Sports (athletics)</string>
+    <string name="epg_event_category_sports_motor">Motor sports</string>
+    <string name="epg_event_category_sports_water">Water sports</string>
+    <string name="epg_event_category_sports_winter">Winter sports</string>
+    <string name="epg_event_category_sports_equestrian">Equestrian sports</string>
+    <string name="epg_event_category_sports_martial">Martial sports</string>
+
+    <string name="epg_event_category_children_prescool">Preschool children</string>
+    <string name="epg_event_category_children_0614">Kids 6 to 14 yrs</string>
+    <string name="epg_event_category_children_1016">Kids 10 to 16 yrs</string>
+    <string name="epg_event_category_children_educational">Kids educational programmes</string>
+    <string name="epg_event_category_children_cartoons">Kids cartoons</string>
+
+    <string name="epg_event_category_music_poprock">Music (pop, rock)</string>
+    <string name="epg_event_category_music_classical">Music (serious, classical)</string>
+    <string name="epg_event_category_music_folk">Music (folk, traditional)</string>
+    <string name="epg_event_category_music_jazz">Jazz music</string>
+    <string name="epg_event_category_music_opera">Music (musical, opera)</string>
+    <string name="epg_event_category_music_ballet">Ballet music</string>
+
+    <string name="epg_event_category_culture_performance">Performing arts</string>
+    <string name="epg_event_category_culture_finearts">Fine arts</string>
+    <string name="epg_event_category_culture_religion">Religion</string>
+    <string name="epg_event_category_culture_traditional">Pop culture and traditional culture</string>
+    <string name="epg_event_category_culture_literature">Literature</string>
+    <string name="epg_event_category_culture_cinema">Cinema culture</string>
+    <string name="epg_event_category_culture_experimental">Experimental culture</string>
+    <string name="epg_event_category_culture_press">Press culture</string>
+    <string name="epg_event_category_culture_newmedia">New media culture</string>
+    <string name="epg_event_category_culture_magazine">Culture magazines</string>
+    <string name="epg_event_category_culture_fashion">Fashion</string>
+
+    <string name="epg_event_category_social_magazine">Magazines / reports / documentary</string>
+    <string name="epg_event_category_social_advisory">Economics / social advisory</string>
+    <string name="epg_event_category_social_people">Remarkable people</string>
+
+    <string name="epg_event_category_education_nature">Education (nature)</string>
+    <string name="epg_event_category_education_technology">Education (technology)</string>
+    <string name="epg_event_category_education_medicine">Education (medicine)</string>
+    <string name="epg_event_category_education_foreign">Foreign education</string>
+    <string name="epg_event_category_education_social">Social / spiritual sciences</string>
+    <string name="epg_event_category_education_further">Further education</string>
+    <string name="epg_event_category_education_language">Languages</string>
+
+    <string name="epg_event_category_leisure_travel">Tourism / travel</string>
+    <string name="epg_event_category_leisure_handicraft">Handicraft</string>
+    <string name="epg_event_category_leisure_motoring">Motoring</string>
+    <string name="epg_event_category_leisure_fitness">Fitness and health</string>
+    <string name="epg_event_category_leisure_cooking">Cooking</string>
+    <string name="epg_event_category_leisure_shopping">Advertisement / shopping</string>
+    <string name="epg_event_category_leisure_gardening">Gardening</string>
+
+    <string name="epg_event_category_special_originallanguage">Special (Original language)</string>
+    <string name="epg_event_category_special_blackwhite">Special (Black and white)</string>
+    <string name="epg_event_category_special_unpublished">Special (unpublished)</string>
+    <string name="epg_event_category_special_live">Special (live broadcast)</string>
+
     <string name="extra_key_green">Green</string>
     <string name="extra_key_yellow">Yellow</string>
     <string name="extra_key_red">Red</string>

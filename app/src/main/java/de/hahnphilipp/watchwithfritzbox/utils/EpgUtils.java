@@ -3,7 +3,10 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.util.Pair;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.Index;
@@ -15,7 +18,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -189,6 +192,112 @@ public class EpgUtils {
             }
         }
 
+        @StringRes
+        @Nullable
+        @Ignore
+        public Integer getGenreStringResId() {
+            if(this.genre == null) {
+                return null;
+            }
+            Integer subGenre = this.subGenre != null ? this.subGenre : 0x00;
+            return genreMap.get(Pair.create(this.genre, subGenre));
+        }
+
+    }
+
+    private static Map<Pair<Integer, Integer>, Integer> genreMap;
+
+    static {
+        genreMap = new HashMap<>();
+        genreMap.put(Pair.create(0x01, 0x00), R.string.epg_event_category_movie);
+        genreMap.put(Pair.create(0x01, 0x01), R.string.epg_event_category_movie_detective);
+        genreMap.put(Pair.create(0x01, 0x02), R.string.epg_event_category_movie_adventure);
+        genreMap.put(Pair.create(0x01, 0x03), R.string.epg_event_category_movie_sf);
+        genreMap.put(Pair.create(0x01, 0x04), R.string.epg_event_category_movie_comedy);
+        genreMap.put(Pair.create(0x01, 0x05), R.string.epg_event_category_movie_soap);
+        genreMap.put(Pair.create(0x01, 0x06), R.string.epg_event_category_movie_romance);
+        genreMap.put(Pair.create(0x01, 0x07), R.string.epg_event_category_movie_classical);
+        genreMap.put(Pair.create(0x01, 0x08), R.string.epg_event_category_movie_adult);
+
+        genreMap.put(Pair.create(0x02, 0x00), R.string.epg_event_category_news);
+        genreMap.put(Pair.create(0x02, 0x01), R.string.epg_event_category_news_weather);
+        genreMap.put(Pair.create(0x02, 0x02), R.string.epg_event_category_news_magazine);
+        genreMap.put(Pair.create(0x02, 0x03), R.string.epg_event_category_news_documentary);
+        genreMap.put(Pair.create(0x02, 0x04), R.string.epg_event_category_news_discussion);
+
+        genreMap.put(Pair.create(0x03, 0x00), R.string.epg_event_category_show);
+        genreMap.put(Pair.create(0x03, 0x01), R.string.epg_event_category_show_quiz);
+        genreMap.put(Pair.create(0x03, 0x02), R.string.epg_event_category_show_variety);
+        genreMap.put(Pair.create(0x03, 0x03), R.string.epg_event_category_show_talk);
+
+        genreMap.put(Pair.create(0x04, 0x00), R.string.epg_event_category_sports);
+        genreMap.put(Pair.create(0x04, 0x01), R.string.epg_event_category_sports_events);
+        genreMap.put(Pair.create(0x04, 0x02), R.string.epg_event_category_sports_magazine);
+        genreMap.put(Pair.create(0x04, 0x03), R.string.epg_event_category_sports_football);
+        genreMap.put(Pair.create(0x04, 0x04), R.string.epg_event_category_sports_tennis);
+        genreMap.put(Pair.create(0x04, 0x05), R.string.epg_event_category_sports_team);
+        genreMap.put(Pair.create(0x04, 0x06), R.string.epg_event_category_sports_athletics);
+        genreMap.put(Pair.create(0x04, 0x07), R.string.epg_event_category_sports_motor);
+        genreMap.put(Pair.create(0x04, 0x08), R.string.epg_event_category_sports_water);        genreMap.put(Pair.create(0x04, 0x00), R.string.epg_event_category_sports);
+        genreMap.put(Pair.create(0x04, 0x09), R.string.epg_event_category_sports_winter);
+        genreMap.put(Pair.create(0x04, 0x0A), R.string.epg_event_category_sports_equestrian);
+        genreMap.put(Pair.create(0x04, 0x0B), R.string.epg_event_category_sports_martial);
+
+        genreMap.put(Pair.create(0x05, 0x00), R.string.epg_event_category_children);
+        genreMap.put(Pair.create(0x05, 0x01), R.string.epg_event_category_children_prescool);
+        genreMap.put(Pair.create(0x05, 0x02), R.string.epg_event_category_children_0614);
+        genreMap.put(Pair.create(0x05, 0x03), R.string.epg_event_category_children_1016);
+        genreMap.put(Pair.create(0x05, 0x04), R.string.epg_event_category_children_educational);
+        genreMap.put(Pair.create(0x05, 0x05), R.string.epg_event_category_children_cartoons);
+
+        genreMap.put(Pair.create(0x06, 0x00), R.string.epg_event_category_music);
+        genreMap.put(Pair.create(0x06, 0x01), R.string.epg_event_category_music_poprock);
+        genreMap.put(Pair.create(0x06, 0x02), R.string.epg_event_category_music_classical);
+        genreMap.put(Pair.create(0x06, 0x03), R.string.epg_event_category_music_folk);
+        genreMap.put(Pair.create(0x06, 0x04), R.string.epg_event_category_music_jazz);
+        genreMap.put(Pair.create(0x06, 0x05), R.string.epg_event_category_music_opera);
+        genreMap.put(Pair.create(0x06, 0x06), R.string.epg_event_category_music_ballet);
+
+        genreMap.put(Pair.create(0x07, 0x00), R.string.epg_event_category_culture);
+        genreMap.put(Pair.create(0x07, 0x01), R.string.epg_event_category_culture_performance);
+        genreMap.put(Pair.create(0x07, 0x02), R.string.epg_event_category_culture_finearts);
+        genreMap.put(Pair.create(0x07, 0x03), R.string.epg_event_category_culture_religion);
+        genreMap.put(Pair.create(0x07, 0x04), R.string.epg_event_category_culture_traditional);
+        genreMap.put(Pair.create(0x07, 0x05), R.string.epg_event_category_culture_literature);
+        genreMap.put(Pair.create(0x07, 0x06), R.string.epg_event_category_culture_cinema);
+        genreMap.put(Pair.create(0x07, 0x07), R.string.epg_event_category_culture_experimental);
+        genreMap.put(Pair.create(0x07, 0x08), R.string.epg_event_category_culture_press);
+        genreMap.put(Pair.create(0x07, 0x09), R.string.epg_event_category_culture_newmedia);
+        genreMap.put(Pair.create(0x07, 0x0A), R.string.epg_event_category_culture_magazine);
+        genreMap.put(Pair.create(0x07, 0x0B), R.string.epg_event_category_culture_fashion);
+
+        genreMap.put(Pair.create(0x08, 0x00), R.string.epg_event_category_social);
+        genreMap.put(Pair.create(0x08, 0x01), R.string.epg_event_category_social_magazine);
+        genreMap.put(Pair.create(0x08, 0x02), R.string.epg_event_category_social_advisory);
+        genreMap.put(Pair.create(0x08, 0x03), R.string.epg_event_category_social_people);
+
+        genreMap.put(Pair.create(0x09, 0x00), R.string.epg_event_category_education);
+        genreMap.put(Pair.create(0x09, 0x01), R.string.epg_event_category_education_nature);
+        genreMap.put(Pair.create(0x09, 0x02), R.string.epg_event_category_education_technology);
+        genreMap.put(Pair.create(0x09, 0x03), R.string.epg_event_category_education_medicine);
+        genreMap.put(Pair.create(0x09, 0x04), R.string.epg_event_category_education_foreign);
+        genreMap.put(Pair.create(0x09, 0x05), R.string.epg_event_category_education_social);
+        genreMap.put(Pair.create(0x09, 0x06), R.string.epg_event_category_education_further);
+        genreMap.put(Pair.create(0x09, 0x07), R.string.epg_event_category_education_language);
+
+        genreMap.put(Pair.create(0x0A, 0x00), R.string.epg_event_category_leisure);
+        genreMap.put(Pair.create(0x0A, 0x01), R.string.epg_event_category_leisure_travel);
+        genreMap.put(Pair.create(0x0A, 0x02), R.string.epg_event_category_leisure_handicraft);
+        genreMap.put(Pair.create(0x0A, 0x03), R.string.epg_event_category_leisure_motoring);
+        genreMap.put(Pair.create(0x0A, 0x04), R.string.epg_event_category_leisure_fitness);
+        genreMap.put(Pair.create(0x0A, 0x05), R.string.epg_event_category_leisure_cooking);
+        genreMap.put(Pair.create(0x0A, 0x06), R.string.epg_event_category_leisure_shopping);
+        genreMap.put(Pair.create(0x0A, 0x07), R.string.epg_event_category_leisure_gardening);
+
+        genreMap.put(Pair.create(0x0B, 0x00), R.string.epg_event_category_special_originallanguage);
+        genreMap.put(Pair.create(0x0B, 0x01), R.string.epg_event_category_special_blackwhite);
+        genreMap.put(Pair.create(0x0B, 0x02), R.string.epg_event_category_special_unpublished);
+        genreMap.put(Pair.create(0x0B, 0x03), R.string.epg_event_category_special_live);
     }
 
 }

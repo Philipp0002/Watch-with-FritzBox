@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.setup.SetupIPActivity;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
 
@@ -164,6 +165,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_confirm), R.drawable.round_reset_settings, () -> {
             editor.clear();
             editor.commit();
+            EpgUtils.resetEpgDatabase(context);
             startActivity(new Intent(context, SetupIPActivity.class));
             context.finish();
             context.overridePendingTransition(0, 0);

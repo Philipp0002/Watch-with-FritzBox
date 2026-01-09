@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -17,45 +18,56 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone">
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:gravity="center">
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/extra_key_red"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/extra_key_red"
+                android:textColor="#fff"
                 android:focusable="true"
+                android:background="@drawable/red_button_wrapper"
                 android:nextFocusRight="@string/extra_key_green"/>
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/extra_key_green"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/extra_key_green"
+                android:textColor="#000"
                 android:focusable="true"
+                android:background="@drawable/green_button_wrapper"
                 android:nextFocusRight="@string/extra_key_yellow"
                 android:nextFocusLeft="@string/extra_key_red"/>
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/extra_key_yellow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/extra_key_yellow"
+                android:textColor="#000"
                 android:focusable="true"
+                android:background="@drawable/yellow_button_wrapper"
                 android:nextFocusRight="@string/extra_key_blue"
                 android:nextFocusLeft="@string/extra_key_green"/>
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/extra_key_blue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/extra_key_blue"
+                android:textColor="#fff"
                 android:focusable="true"
+                android:background="@drawable/blue_button_wrapper"
                 android:nextFocusLeft="@string/extra_key_yellow"/>
 
 

@@ -110,6 +110,10 @@ public class EpgUtils {
         return nearestEvent;
     }
 
+    public static void resetEpgDatabase(Context context) {
+        getDatabase(context).epgDao().deleteAll();
+    }
+
     public static int secondsToPx(float seconds) {
         return (int) (seconds / 8 * Resources.getSystem().getDisplayMetrics().density);
     }

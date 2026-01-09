@@ -55,4 +55,7 @@ public interface  EpgDao {
             long removeEventTimeSec,
             long currentTimeMillis
     );
+
+    @Query("DELETE FROM EpgEvent")
+    void deleteAll();
 }

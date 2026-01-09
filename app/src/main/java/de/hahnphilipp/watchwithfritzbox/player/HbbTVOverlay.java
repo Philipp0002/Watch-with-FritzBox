@@ -118,6 +118,9 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
                 return true;
             }
 
+            if(overlayExtraKeys.getVisibility() == View.VISIBLE) {
+                return true;
+            }
 
             HbbTVKeyTypes type = HbbTVKeycodeMappings.getHbbTvKeyTypeByKeyCode(keyCode);
             if(type == null) {

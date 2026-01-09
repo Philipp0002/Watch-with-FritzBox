@@ -87,6 +87,9 @@
     <string name="epg_until">bis %s</string>
     <string name="epg_no_program_load_info">Schaue den Sender für ein paar Minuten um EPG-Daten zu empfangen</string>
     <string name="epg_error_fetching_data">Fehler beim Laden des EPG. Versuche es später nochmal!</string>
+    <string name="epg_loading_channels">Lade Sender %d / %d</string>
+    <string name="epg_loading_channels_wait">Gleich fertig…</string>
+    <string name="epg_age_from">ab %d</string>
 
     <string name="epg_event_category_movie">Film / Drama</string>
     <string name="epg_event_category_news">Nachrichten</string>

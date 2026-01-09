@@ -3,46 +3,30 @@ package de.hahnphilipp.watchwithfritzbox.epg;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.leanback.widget.VerticalGridView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.egeniq.androidtvprogramguide.ProgramGuideFragment;
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import org.jetbrains.annotations.NotNull;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
 
-import java.text.DateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
@@ -53,6 +37,15 @@ import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
 
     public TVPlayerActivity context;
+    public boolean wasClosed = true;
+    private boolean isScrollingDown = true;
+
+    private Runnable scrollRunnable;
+    private Handler handler = new Handler(Looper.getMainLooper());
+    // Konfiguration
+    private static final long SCROLL_DELAY = 50; // Millisekunden zwischen Scroll-Schritten
+    private static final int SCROLL_STEP = 2; // Pixel pro Schritt (kleiner = langsamer)
+    private static final long PAUSE_AT_END = 2000; // Pause am Ende/Anfang in Millisekunden
 
     @Override
     public boolean isTopMenuVisible() {
@@ -71,46 +64,63 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
 
     @Override
     public void requestingProgramGuideFor(@NotNull LocalDate localDate) {
-        AsyncTask.execute(() -> {
+        setState(State.Loading.INSTANCE);
+        TextView loadingTextView = getView().findViewById(R.id.loading_text);
+        CircularProgressIndicator loadingProgressIndicator = getView().findViewById(R.id.loading_indicator);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
             ArrayList<ChannelUtils.Channel> channels = new ArrayList<>(ChannelUtils.getAllChannels(context));
-            HashMap<Integer, List<ProgramGuideSchedule<EpgUtils.EpgEvent>>> channelEpgMap = new HashMap<>();
+            HashMap<Integer, List<ProgramGuideSchedule>> channelEpgMap = new HashMap<>();
             for (ChannelUtils.Channel channel : channels) {
-                List<ProgramGuideSchedule<EpgUtils.EpgEvent>> schedules = EpgUtils.getAllEvents(context, channel.number)
+                requireActivity().runOnUiThread(() -> {
+                    loadingTextView.setText(getString(R.string.epg_loading_channels, channel.number, channels.size()));
+                    loadingProgressIndicator.setIndeterminate(false);
+                    loadingProgressIndicator.setMax(channels.size());
+                    loadingProgressIndicator.setProgress(channel.number);
+                });
+                List<ProgramGuideSchedule> schedules = EpgUtils.getAllEvents(context, channel.number)
                         .stream()
                         .map(event -> ProgramGuideSchedule.Companion.createScheduleWithProgram(
-                                event.id,
                                 Instant.ofEpochSecond(event.startTime),
                                 Instant.ofEpochSecond(event.startTime + event.duration),
                                 false,
-                                event.title,
                                 event
                         ))
                         .collect(Collectors.toList());
                 channelEpgMap.put(channel.number, schedules);
             }
             requireActivity().runOnUiThread(() -> {
+                loadingTextView.setText(getString(R.string.epg_loading_channels_wait));
                 setData(channels, channelEpgMap, localDate);
-                setState(State.Content.INSTANCE);
+                getView().post(() -> {
+                    setState(State.Content.INSTANCE);
+                    scrollToChannelWithId(ChannelUtils.getLastSelectedChannel(requireContext()));
+                });
             });
         });
     }
 
     @Override
     public void requestRefresh() {
-        requestingProgramGuideFor(getCurrentDate());
+        if(wasClosed) {
+            wasClosed = false;
+            requestingProgramGuideFor(getCurrentDate());
+        }
     }
 
-    private void updateDetailView(ProgramGuideSchedule<EpgUtils.EpgEvent> programGuideSchedule) {
+    private void updateDetailView
+            (ProgramGuideSchedule programGuideSchedule) {
         if (getView() == null) return;
         View detailView = getView().findViewById(R.id.epgdetails);
         TextView channelNameView = getView().findViewById(R.id.epgchanneltitle);
         TextView titleView = getView().findViewById(R.id.epgtitle);
-        TextView metadataView = getView().findViewById(R.id.epgsubtitle);
+        TextView subtitleView = getView().findViewById(R.id.epgsubtitle);
         TextView descriptionView = getView().findViewById(R.id.epgdescription);
+        ScrollView descriptionScrollView = getView().findViewById(R.id.epgdescriptionscroll);
         TextView timeView = getView().findViewById(R.id.epgtime);
         View timeWrapperView = getView().findViewById(R.id.epgtimewrapper);
 
-        if(programGuideSchedule == null) {
+        if (programGuideSchedule == null) {
             detailView.setVisibility(GONE);
             return;
         } else {
@@ -120,7 +130,7 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
         if (programGuideSchedule.isGap()) {
             channelNameView.setText("");
             titleView.setText(R.string.epg_no_program);
-            metadataView.setText(R.string.epg_no_program_load_info);
+            subtitleView.setText(R.string.epg_no_program_load_info);
             descriptionView.setText("");
             timeWrapperView.setVisibility(GONE);
         } else {
@@ -149,22 +159,109 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
                 }
             }
 
+            ArrayList<String> metaInfosList = new ArrayList<>();
+            if(epgEvent.lang != null) {
+                metaInfosList.add(epgEvent.lang);
+            }
+            if(epgEvent.rating != null) {
+                metaInfosList.add(getString(R.string.epg_age_from, epgEvent.rating));
+            }
+            if(epgEvent.getGenreStringResId() != null) {
+                metaInfosList.add(getString(epgEvent.getGenreStringResId()));
+            }
+            String description = metaInfosList.stream().collect(Collectors.joining(" · "));
+            if(!description.isEmpty()) {
+                description += "\n";
+            }
+            description += epgEvent.description;
+
             channelNameView.setText(channel.title);
             titleView.setText(epgEvent.title);
-            metadataView.setText(epgEvent.subtitle);
-            descriptionView.setText(epgEvent.rating + " " + epgEvent.genre + " " + epgEvent.subGenre + " " + epgEvent.description);
+            subtitleView.setText(epgEvent.subtitle);
+            descriptionView.setText(description);
             timeView.setText(timeInfos.stream().collect(Collectors.joining(" | ")));
             timeWrapperView.setVisibility(VISIBLE);
+
+            isScrollingDown = true;
+            stopAutoScroll();
+            descriptionScrollView.scrollTo(0,0);
+            startAutoScroll(descriptionScrollView, descriptionView);
         }
     }
 
     @Override
-    public void onScheduleSelected(@org.jetbrains.annotations.Nullable ProgramGuideSchedule<EpgUtils.EpgEvent> programGuideSchedule) {
+    public void onResume() {
+        super.onResume();
+        requestRefresh();
+    }
+
+    @Override
+    public void onScheduleSelected
+            (@org.jetbrains.annotations.Nullable ProgramGuideSchedule programGuideSchedule) {
         updateDetailView(programGuideSchedule);
     }
 
     @Override
-    public void onScheduleClicked(@NotNull ProgramGuideSchedule<EpgUtils.EpgEvent> programGuideSchedule) {
+    public void onScheduleClicked
+            (@NotNull ProgramGuideSchedule programGuideSchedule) {
 
+    }
+
+    private void startAutoScroll(ScrollView scrollView, TextView textView) {
+        scrollRunnable = new Runnable() {
+            @Override
+            public void run() {
+                int currentScrollY = scrollView.getScrollY();
+                int maxScrollY = textView.getHeight() - scrollView.getHeight();
+
+                // Prüfe ob wir scrollen können
+                if (maxScrollY <= 0) {
+                    // Kein Scroll nötig, Text passt komplett rein
+                    return;
+                }
+
+                if (isScrollingDown) {
+                    // Nach unten scrollen
+                    if (currentScrollY < maxScrollY) {
+                        scrollView.scrollTo(0, currentScrollY + SCROLL_STEP);
+                        handler.postDelayed(this, SCROLL_DELAY);
+                    } else {
+                        // Am Ende angekommen, Richtung wechseln nach Pause
+                        isScrollingDown = false;
+                        handler.postDelayed(this, PAUSE_AT_END);
+                    }
+                } else {
+                    // Nach oben scrollen
+                    if (currentScrollY > 0) {
+                        scrollView.scrollTo(0, currentScrollY - SCROLL_STEP);
+                        handler.postDelayed(this, SCROLL_DELAY);
+                    } else {
+                        // Am Anfang angekommen, Richtung wechseln nach Pause
+                        isScrollingDown = true;
+                        handler.postDelayed(this, PAUSE_AT_END);
+                    }
+                }
+            }
+        };
+        handler.postDelayed(scrollRunnable, PAUSE_AT_END);
+    }
+
+    private void stopAutoScroll() {
+        if (scrollRunnable != null) {
+            handler.removeCallbacks(scrollRunnable);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopAutoScroll();
+        wasClosed = true;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopAutoScroll();
     }
 }

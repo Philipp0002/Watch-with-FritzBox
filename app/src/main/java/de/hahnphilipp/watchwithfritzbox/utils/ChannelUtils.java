@@ -51,7 +51,7 @@ public class ChannelUtils {
     }
 
     public static Channel getNextChannel(Context context, int number) {
-        for (Channel ch : getAllChannels(context)) {
+        for (Channel ch : new ArrayList<>(getAllChannels(context))) {
             if (ch.number == number + 1) {
                 return ch;
             }
@@ -60,7 +60,7 @@ public class ChannelUtils {
     }
 
     public static ArrayList<Channel> moveChannelToPosition(Context context, int fromChannelPos, int toChannelPos) {
-        ArrayList<Channel> channels = getAllChannels(context);
+        ArrayList<Channel> channels = new ArrayList<>(getAllChannels(context));
         return moveChannelToPosition(context, fromChannelPos, toChannelPos, channels);
     }
 
@@ -92,7 +92,7 @@ public class ChannelUtils {
 
     public static Channel getPreviousChannel(Context context, int number) {
         Channel highest = null;
-        for (Channel ch : getAllChannels(context)) {
+        for (Channel ch : new ArrayList<>(getAllChannels(context))) {
             if (highest == null || highest.number < ch.number) {
                 highest = ch;
             }
@@ -124,7 +124,7 @@ public class ChannelUtils {
     }
 
     public static Channel getChannelByNumber(Context context, int number) {
-        for (Channel ch : getAllChannels(context)) {
+        for (Channel ch : new ArrayList<>(getAllChannels(context))) {
             if (ch.number == number) {
                 return ch;
             }
@@ -133,7 +133,7 @@ public class ChannelUtils {
     }
 
     public static Channel getChannelByTitle(Context context, String title) {
-        return getAllChannels(context)
+        return new ArrayList<>(getAllChannels(context))
                 .stream()
                 .filter(ch -> ch.title.equalsIgnoreCase(title))
                 .findFirst()
@@ -141,7 +141,7 @@ public class ChannelUtils {
     }
 
     public static Channel getChannelByServiceId(Context context, int serviceId) {
-        for (Channel ch : getAllChannels(context)) {
+        for (Channel ch : new ArrayList<>(getAllChannels(context))) {
             if (ch.serviceId == serviceId) {
                 return ch;
             }

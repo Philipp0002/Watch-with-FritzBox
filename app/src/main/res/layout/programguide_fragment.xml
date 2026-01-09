@@ -120,22 +120,29 @@
                 android:layout_width="16dp"
                 android:layout_height="0dp" />
 
-            <LinearLayout
+            <ScrollView
+                android:id="@+id/epgdescriptionscroll"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1">
 
-                <TextView
-                    android:id="@+id/epgdescription"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:focusable="false"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:text="@string/test_lorem_ipsum" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/epgdescription"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:focusable="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        tools:text="@string/test_lorem_ipsum" />
 
+
+                </LinearLayout>
+
+            </ScrollView>
 
         </LinearLayout>
 
@@ -173,11 +180,27 @@
         app:layout_constraintTop_toBottomOf="@id/programguide_time_row">
 
         <!-- Loading state -->
-        <ProgressBar
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminate="true" />
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/loading_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                app:waveAmplitude="1dp"
+                app:wavelength="10dp"/>
+
+            <TextView
+                android:id="@+id/loading_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="@string/epg_loading_channels"/>
+        </LinearLayout>
 
         <!-- Error state -->
         <TextView

@@ -52,7 +52,7 @@ class ProgramGuideManager<T> {
     val listeners = mutableListOf<Listener>()
 
     private val channels = mutableListOf<ChannelUtils.Channel>()
-    private val channelEntriesMap = mutableMapOf<Int, List<ProgramGuideSchedule<T>>>()
+    private val channelEntriesMap = mutableMapOf<Int, List<ProgramGuideSchedule>>()
 
     val channelCount get() = channels.size
 
@@ -325,7 +325,7 @@ class ProgramGuideManager<T> {
     internal fun getScheduleForChannelIdAndIndex(
         channelId: Int,
         index: Int
-    ): ProgramGuideSchedule<T> {
+    ): ProgramGuideSchedule {
         return channelEntriesMap.getValue(channelId)[index]
     }
 
@@ -370,10 +370,10 @@ class ProgramGuideManager<T> {
         } else channels[channelIndex]
     }
 
-    fun getCurrentProgram(specificChannelId: Int? = null): ProgramGuideSchedule<T>? {
+    fun getCurrentProgram(specificChannelId: Int? = null): ProgramGuideSchedule? {
         val firstChannel = channels.firstOrNull() ?: return null
         val now = FixedZonedDateTime.now().toEpochSecond() * 1000
-        var bestMatch: ProgramGuideSchedule<T>? = null
+        var bestMatch: ProgramGuideSchedule? = null
         val channelId = specificChannelId ?: firstChannel.number
         channelEntriesMap[channelId]?.let {
             it.forEach { schedule ->
@@ -400,7 +400,7 @@ class ProgramGuideManager<T> {
     @MainThread
     fun setData(
         newChannels: List<ChannelUtils.Channel>,
-        newChannelEntries: Map<Int, List<ProgramGuideSchedule<T>>>,
+        newChannelEntries: Map<Int, List<ProgramGuideSchedule>>,
         selectedDate: LocalDate,
         timeZone: ZoneId
     ) {
@@ -421,12 +421,12 @@ class ProgramGuideManager<T> {
      * @param program The program with the new data.
      * @return The resulting program of the replacement. Null if no replacement happened
      */
-    fun updateProgram(program: ProgramGuideSchedule<T>): ProgramGuideSchedule<T>? {
+    fun updateProgram(program: ProgramGuideSchedule): ProgramGuideSchedule? {
         val channelEntriesMapKeys = channelEntriesMap.keys
-        var replacement: ProgramGuideSchedule<T>? = null
+        var replacement: ProgramGuideSchedule? = null
         for (key in channelEntriesMapKeys) {
             val list = channelEntriesMap[key]
-            var mutatedList: MutableList<ProgramGuideSchedule<T>>? = null
+            var mutatedList: MutableList<ProgramGuideSchedule>? = null
             if (list != null && replacement == null) {
                 for (possibleMatch in list) {
                     if (possibleMatch.id == program.id && replacement == null) {
@@ -444,7 +444,6 @@ class ProgramGuideManager<T> {
                         val index = list.indexOf(possibleMatch)
                         replacement = possibleMatch.copy(
                             isClickable = program.isClickable,
-                            displayTitle = program.displayTitle,
                             program = program.program
                         )
                         mutatedList[index] = replacement

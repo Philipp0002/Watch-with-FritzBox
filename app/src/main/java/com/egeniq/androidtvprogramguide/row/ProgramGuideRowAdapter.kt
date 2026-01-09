@@ -76,15 +76,6 @@ internal class ProgramGuideRowAdapter(
         notifyDataSetChanged()
     }
 
-    fun updateProgram(program: ProgramGuideSchedule<*>): Int? {
-        // Find the match in the row adapters
-        programListAdapters.forEachIndexed { index, adapter ->
-            if (adapter.updateProgram(program)) {
-                return index
-            }
-        }
-        return null
-    }
 
     override fun getItemCount(): Int {
         return programListAdapters.size

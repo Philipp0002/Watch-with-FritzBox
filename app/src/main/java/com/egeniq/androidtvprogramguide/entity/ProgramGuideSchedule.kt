@@ -17,6 +17,7 @@
 package com.egeniq.androidtvprogramguide.entity
 
 import com.egeniq.androidtvprogramguide.util.ProgramGuideUtil
+import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils
 import org.threeten.bp.Instant
 
 /**
@@ -28,14 +29,12 @@ import org.threeten.bp.Instant
  * Is clickable defines if the user can click on this schedule, and so will trigger onScheduleClicked(schedule).
  * The displayTitle property is the string which is visible to the user in the EPG.
  */
-data class ProgramGuideSchedule<T>(
-    val id: Long,
+data class ProgramGuideSchedule(
     val startsAtMillis: Long,
     val endsAtMillis: Long,
     val originalTimes: OriginalTimes,
     val isClickable: Boolean,
-    val displayTitle: String?,
-    val program: T?
+    val program: EpgUtils.EpgEvent?
 ) {
 
     /**
@@ -50,38 +49,34 @@ data class ProgramGuideSchedule<T>(
     companion object {
         private const val GAP_ID = -1L
 
-        fun <T> createGap(from: Long, to: Long): ProgramGuideSchedule<T> {
+        fun createGap(from: Long, to: Long): ProgramGuideSchedule {
             return ProgramGuideSchedule(
-                GAP_ID,
                 from,
                 to,
                 OriginalTimes(from, to),
                 false,
-                null,
                 null
             )
         }
 
         fun <T> createScheduleWithProgram(
-            id: Long,
             startsAt: Instant,
             endsAt: Instant,
             isClickable: Boolean,
-            displayTitle: String?,
-            program: T
-        ): ProgramGuideSchedule<T> {
+            program: EpgUtils.EpgEvent
+        ): ProgramGuideSchedule {
             return ProgramGuideSchedule(
-                id,
                 startsAt.toEpochMilli(),
                 endsAt.toEpochMilli(),
                 OriginalTimes(startsAt.toEpochMilli(), endsAt.toEpochMilli()),
                 isClickable,
-                displayTitle,
                 program
             )
         }
     }
 
+    val id = program?.id ?: GAP_ID
+    val displayTitle = program?.title ?: ""
     val width = ProgramGuideUtil.convertMillisToPixel(startsAtMillis, endsAtMillis)
     val isGap = program == null
     val isCurrentProgram: Boolean

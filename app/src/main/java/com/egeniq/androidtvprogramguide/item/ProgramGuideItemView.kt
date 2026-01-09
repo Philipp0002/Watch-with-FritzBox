@@ -38,7 +38,7 @@ class ProgramGuideItemView<T> : FrameLayout {
         defStyleAttr
     )
 
-    var schedule: ProgramGuideSchedule<T>? = null
+    var schedule: ProgramGuideSchedule? = null
 
     private val staticItemPadding: Int =
         resources.getDimensionPixelOffset(R.dimen.programguide_item_padding)
@@ -58,7 +58,7 @@ class ProgramGuideItemView<T> : FrameLayout {
     }
 
     fun setValues(
-        scheduleItem: ProgramGuideSchedule<T>,
+        scheduleItem: ProgramGuideSchedule,
         fromUtcMillis: Long,
         toUtcMillis: Long,
         gapTitle: String,

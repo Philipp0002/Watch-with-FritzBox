@@ -526,7 +526,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         epgEvent.rating = vlcEvent.getRating();
                         epgEvent.genre = vlcEvent.getGenre();
                         epgEvent.subGenre = vlcEvent.getSubGenre();
-                        //TODO epgEvent.lang
+                        epgEvent.lang = vlcEvent.getLanguage();
 
                         EpgUtils.addEvent(TVPlayerActivity.this, epgEvent);
                     }

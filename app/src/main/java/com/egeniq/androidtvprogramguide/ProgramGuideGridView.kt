@@ -59,7 +59,7 @@ class ProgramGuideGridView<T>(context: Context, attrs: AttributeSet?, defStyle: 
 
     interface ScheduleSelectionListener<T> {
         // Can be null if nothing is selected
-        fun onSelectionChanged(schedule: ProgramGuideSchedule<T>?)
+        fun onSelectionChanged(schedule: ProgramGuideSchedule?)
         fun onChannelSelected(channel: ChannelUtils.Channel)
         fun onChannelClicked(channel: ChannelUtils.Channel)
     }
@@ -119,7 +119,7 @@ class ProgramGuideGridView<T>(context: Context, attrs: AttributeSet?, defStyle: 
             if (ProgramGuideUtil.isDescendant(this@ProgramGuideGridView, newFocus)) {
                 lastFocusedView = newFocus
                 if (newFocus is ProgramGuideItemView<*> && (correctScheduleView == null || correctScheduleView == newFocus)) {
-                    scheduleSelectionListener?.onSelectionChanged(newFocus.schedule as ProgramGuideSchedule<T>?)
+                    scheduleSelectionListener?.onSelectionChanged(newFocus.schedule as ProgramGuideSchedule?)
                 } else if (newFocus.id == R.id.programguide_channel_container) {
                     // Find the belonging row grid which has the channel
                     val matchingRow = (newFocus.parent as? ViewGroup)?.children?.firstOrNull { it is ProgramGuideRowGridView } as? ProgramGuideRowGridView

@@ -60,20 +60,6 @@ class ProgramGuideListAdapter<T>(
         }
     }
 
-    fun updateProgram(program: ProgramGuideSchedule<*>): Boolean {
-        for (position in 0 until itemCount) {
-            if (programGuideManager.getScheduleForChannelIdAndIndex(
-                    channelId,
-                    position
-                ).id == program.id
-            ) {
-                notifyItemChanged(position)
-                return true
-            }
-        }
-        return false
-    }
-
     override fun getItemCount(): Int {
         return programGuideManager.getSchedulesCount(channelId)
     }
@@ -112,7 +98,7 @@ class ProgramGuideListAdapter<T>(
         }
 
         fun onBind(
-            schedule: ProgramGuideSchedule<R>,
+            schedule: ProgramGuideSchedule,
             programGuideHolder: ProgramGuideHolder<R>,
             gapTitle: String
         ) {

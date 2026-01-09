@@ -183,13 +183,13 @@ abstract class ProgramGuideFragment<T> : Fragment(), ProgramGuideManager.Listene
      *  Called when the user has selected a schedule from the grid.
      *  When no schedule is selected (such as when navigating outside the grid), the parameter will be null.
      */
-    abstract fun onScheduleSelected(programGuideSchedule: ProgramGuideSchedule<T>?)
+    abstract fun onScheduleSelected(programGuideSchedule: ProgramGuideSchedule?)
 
     /**
      * Called when the user has clicked on a schedule.
      * The schedule parameter contains all the info you need for taking an action.
      */
-    abstract fun onScheduleClicked(programGuideSchedule: ProgramGuideSchedule<T>)
+    abstract fun onScheduleClicked(programGuideSchedule: ProgramGuideSchedule)
 
     /**
      * Called when the user has selected a channel.
@@ -226,7 +226,7 @@ abstract class ProgramGuideFragment<T> : Fragment(), ProgramGuideManager.Listene
     /**
      * Sets the selected schedule internally.
      */
-    private fun setSelectedSchedule(schedule: ProgramGuideSchedule<T>?) {
+    private fun setSelectedSchedule(schedule: ProgramGuideSchedule?) {
         onScheduleSelected(schedule)
     }
 
@@ -475,7 +475,7 @@ abstract class ProgramGuideFragment<T> : Fragment(), ProgramGuideManager.Listene
     @MainThread
     fun setData(
         newChannels: List<ChannelUtils.Channel>,
-        newChannelEntries: Map<Int, List<ProgramGuideSchedule<T>>>,
+        newChannelEntries: Map<Int, List<ProgramGuideSchedule>>,
         selectedDate: LocalDate
     ) {
         programGuideManager.setData(newChannels, newChannelEntries, selectedDate, DISPLAY_TIMEZONE)
@@ -675,14 +675,14 @@ abstract class ProgramGuideFragment<T> : Fragment(), ProgramGuideManager.Listene
     /**
      * The gridview calls this method on the fragment when the focus changes on one of their child changes.
      */
-    override fun onSelectionChanged(schedule: ProgramGuideSchedule<T>?) {
+    override fun onSelectionChanged(schedule: ProgramGuideSchedule?) {
         setSelectedSchedule(schedule)
     }
 
     /**
      * This method is called from the ProgramGuideListAdapter, when the OnClickListener is triggered.
      */
-    override fun onScheduleClickedInternal(schedule: ProgramGuideSchedule<T>) {
+    override fun onScheduleClickedInternal(schedule: ProgramGuideSchedule) {
         ProgramGuideUtil.lastClickedSchedule = schedule
         onScheduleClicked(schedule)
     }
@@ -776,39 +776,4 @@ abstract class ProgramGuideFragment<T> : Fragment(), ProgramGuideManager.Listene
         }
     }
 
-    /**
-     * Updates the program everywhere, including the schedule grid.
-     * This method requires that a program with the same ID exists (otherwise nothing will happen).
-     *
-     * If there are multiple programs with the same ID, only the first one will be updated (you should have unique IDs!).
-     *
-     */
-    fun updateProgram(program: ProgramGuideSchedule<T>) {
-        val replacement = programGuideManager.updateProgram(program)
-        if (replacement != null) {
-            // Now find it in the grid, and update that single
-            val adapter = programGuideGrid.adapter as? ProgramGuideRowAdapter
-            if (adapter == null) {
-                Log.w(TAG, "Program not updated, adapter not found or has incorrect type.")
-                return
-            }
-            val index = adapter.updateProgram(program)
-            if (index == null) {
-                Log.w(TAG, "Program not updated, item not found in adapter.")
-                return
-            }
-            val viewHolder =
-                programGuideGrid.findViewHolderForAdapterPosition(index) as? ProgramGuideRowAdapter.ProgramRowViewHolder
-            if (viewHolder == null) {
-                Log.i(
-                    TAG,
-                    "Program layout was not updated, because view holder for it was not found - item is probably outside of visible area"
-                )
-                return
-            }
-            viewHolder.updateLayout()
-        } else {
-            Log.w(TAG, "Program not updated, no match found.")
-        }
-    }
 }

@@ -91,6 +91,9 @@
     <string name="epg_until">until %s</string>
     <string name="epg_no_program_load_info">Watch this channel for a few minutes to receive epg data</string>
     <string name="epg_error_fetching_data">Unable to display content. Please try again later.</string>
+    <string name="epg_loading_channels">Loading channel %d / %d</string>
+    <string name="epg_loading_channels_wait">Just a second…</string>
+    <string name="epg_age_from">ages %d+</string>
 
     <string name="epg_event_category_movie">Movie/Drama</string>
     <string name="epg_event_category_news">News</string>

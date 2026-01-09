@@ -24,7 +24,7 @@ interface ProgramGuideHolder<T> {
     val programGuideManager: ProgramGuideManager<T>
 
     fun getTimelineRowScrollOffset(): Int
-    fun onScheduleClickedInternal(schedule: ProgramGuideSchedule<T>)
+    fun onScheduleClickedInternal(schedule: ProgramGuideSchedule)
     fun onChannelClickedInternal(channel: ChannelUtils.Channel)
 
     val DISPLAY_SHOW_PROGRESS: Boolean

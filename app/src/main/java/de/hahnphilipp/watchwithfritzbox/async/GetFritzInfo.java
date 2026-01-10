@@ -34,29 +34,25 @@ public class GetFritzInfo extends AsyncTask<Void, Void, Void> {
 
     public void runFetch() {
         try {
+            List<String> friendlyNames = new ArrayList<>();
             //MOCK AN INVALID FRITZBOX CABLE FOR AMAZON TEST CENTER
             if(ip.contains("hahnphilipp.de")){
+                friendlyNames.add("Test FritzBox Cable");
+            } else {
+                URL url = new URL("http://" + ip + ":49000/satipdesc.xml");
+                URLConnection conn = url.openConnection();
+                conn.setConnectTimeout(2000);
+                conn.setReadTimeout(3000);
+
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = factory.newDocumentBuilder();
-                doc = builder.newDocument();
-                Element e = doc.createElement("friendlyName");
-                e.setTextContent("Test FritzBox Cable");
-                doc.insertBefore(e, null);
-                return;
-            }
-            URL url = new URL("http://"+ip+":49000/satipdesc.xml");
-            URLConnection conn = url.openConnection();
-            conn.setConnectTimeout(2000);
-            conn.setReadTimeout(3000);
+                doc = builder.parse(conn.getInputStream());
 
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            doc = builder.parse(conn.getInputStream());
 
-            List<String> friendlyNames = new ArrayList<>();
-            NodeList friendlyNameNodes = doc.getElementsByTagName("friendlyName");
-            for (int i = 0; i < friendlyNameNodes.getLength(); i++) {
-                friendlyNames.add(friendlyNameNodes.item(i).getTextContent());
+                NodeList friendlyNameNodes = doc.getElementsByTagName("friendlyName");
+                for (int i = 0; i < friendlyNameNodes.getLength(); i++) {
+                    friendlyNames.add(friendlyNameNodes.item(i).getTextContent());
+                }
             }
 
             if(callback != null)

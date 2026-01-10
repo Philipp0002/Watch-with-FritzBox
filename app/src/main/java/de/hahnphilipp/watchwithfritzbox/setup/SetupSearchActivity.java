@@ -31,7 +31,6 @@ import okhttp3.Response;
 
 public class SetupSearchActivity extends AppCompatActivity {
 
-    private String ip;
     private List<ChannelUtils.Channel> channelList;
 
     @Override
@@ -39,7 +38,7 @@ public class SetupSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup_search);
 
-        ip = getIntent().getStringExtra("ip");
+        String ip = getIntent().getStringExtra("ip");
 
         final GetPlaylists getPlaylists = new GetPlaylists(ip);
         getPlaylists.callback = new GetPlaylists.GetPlaylistResult() {

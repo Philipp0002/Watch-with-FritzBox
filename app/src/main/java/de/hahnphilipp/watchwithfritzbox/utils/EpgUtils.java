@@ -120,6 +120,7 @@ public class EpgUtils {
     }
 
     public static void resetEpgDatabase(Context context) {
+        epgNowCache.clear();
         getDatabase(context).epgDao().deleteAll();
     }
 

@@ -4,20 +4,14 @@ import android.os.AsyncTask;
 
 import com.w3ma.m3u8parser.data.Playlist;
 import com.w3ma.m3u8parser.data.Track;
-import com.w3ma.m3u8parser.exception.PlaylistParseException;
 import com.w3ma.m3u8parser.parser.M3U8Parser;
 import com.w3ma.m3u8parser.scanner.M3U8ItemScanner;
 
-import java.io.IOException;
 import java.net.URL;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
-
 
 public class GetPlaylists extends AsyncTask<Void, Void, Void> {
 
@@ -67,19 +61,19 @@ public class GetPlaylists extends AsyncTask<Void, Void, Void> {
 
                 ArrayList<ChannelUtils.Channel> channels = new ArrayList<>();
                 for (Track t : playlistHD.getTrackSetMap().get("")) {
-                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.HD);
+                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), replaceHost(t.getUrl(), ip), ChannelUtils.ChannelType.HD);
                     channels.add(channel);
                     channelNumber++;
                 }
 
                 for (Track t : playlistSD.getTrackSetMap().get("")) {
-                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.SD);
+                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), replaceHost(t.getUrl(), ip), ChannelUtils.ChannelType.SD);
                     channels.add(channel);
                     channelNumber++;
                 }
 
                 for (Track t : playlistRadio.getTrackSetMap().get("")) {
-                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), ChannelUtils.ChannelType.RADIO);
+                    ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), replaceHost(t.getUrl(), ip), ChannelUtils.ChannelType.RADIO);
                     channels.add(channel);
                     channelNumber++;
                 }
@@ -91,6 +85,27 @@ public class GetPlaylists extends AsyncTask<Void, Void, Void> {
             if(callback != null)
                 callback.onAllLoaded(true, null);
             e.printStackTrace();
+        }
+    }
+
+    public static String replaceHost(String url, String newHost) {
+        try {
+            java.net.URI uri = new java.net.URI(url);
+
+            java.net.URI newUri = new java.net.URI(
+                    uri.getScheme(),
+                    uri.getUserInfo(),
+                    newHost,
+                    uri.getPort(),
+                    uri.getPath(),
+                    uri.getQuery(),
+                    uri.getFragment()
+            );
+
+            return newUri.toString();
+        } catch (java.net.URISyntaxException e) {
+            e.printStackTrace();
+            return url;
         }
     }
 

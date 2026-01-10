@@ -49,15 +49,24 @@ public class EpgUtils {
     }
 
     public static void swapChannelPositions(Context context, int fromChannelPos, int toChannelPos) {
-        SharedPreferences sp = context.getSharedPreferences(
-                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-
-        String fromEvents = sp.getString("events" + fromChannelPos, "[]");
-        String toEvents = sp.getString("events" + toChannelPos, "[]");
-        editor.putString("events" + fromChannelPos, toEvents);
-        editor.putString("events" + toChannelPos, fromEvents);
-        editor.commit();
+        getDatabase(context).epgDao().swapChannelEvents(fromChannelPos, toChannelPos);
+        if(epgNowCache.containsKey(fromChannelPos) && epgNowCache.containsKey(toChannelPos)) {
+            EpgEvent eventFrom = epgNowCache.get(fromChannelPos);
+            EpgEvent eventTo = epgNowCache.get(toChannelPos);
+            epgNowCache.put(fromChannelPos, eventTo);
+            epgNowCache.put(toChannelPos, eventFrom);
+            return;
+        }
+        if(epgNowCache.containsKey(fromChannelPos)) {
+            EpgEvent event = epgNowCache.get(fromChannelPos);
+            epgNowCache.remove(fromChannelPos);
+            epgNowCache.put(toChannelPos, event);
+        }
+        if(epgNowCache.containsKey(toChannelPos)) {
+            EpgEvent event = epgNowCache.get(toChannelPos);
+            epgNowCache.remove(toChannelPos);
+            epgNowCache.put(fromChannelPos, event);
+        }
     }
 
     public static void addEvent(Context context, EpgEvent epgEvent) {

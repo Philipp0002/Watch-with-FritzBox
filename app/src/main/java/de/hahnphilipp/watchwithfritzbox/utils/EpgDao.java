@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
 
 import java.util.List;
 
@@ -17,6 +18,16 @@ public interface  EpgDao {
 
     @Query("SELECT * FROM EpgEvent WHERE channelNumber = :channelNumber AND startTime + duration >= :time ORDER BY startTime")
     List<EpgUtils.EpgEvent> getEventsForChannelEndingAfter(int channelNumber, long time);
+
+    @Transaction
+    default void swapChannelEvents(int from, int to) {
+        updateChannelNumber(from, -1);
+        updateChannelNumber(to, from);
+        updateChannelNumber(-1, to);
+    }
+
+    @Query("UPDATE EpgEvent SET channelNumber = :newChannel WHERE channelNumber = :oldChannel")
+    void updateChannelNumber(int oldChannel, int newChannel);
 
     @Query("DELETE FROM EpgEvent")
     void clear();

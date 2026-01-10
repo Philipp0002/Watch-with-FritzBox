@@ -43,7 +43,10 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
 
     public void updateChannelList() {
         tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(requireContext());
-        requireActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyDataSetChanged());
+        requireActivity().runOnUiThread(() -> {
+            tvOverlayRecyclerAdapter.notifyDataSetChanged();
+            tvOverlayRecyclerAdapter.selectChannel(ChannelUtils.getLastSelectedChannel(context));
+        });
     }
 
     @Override

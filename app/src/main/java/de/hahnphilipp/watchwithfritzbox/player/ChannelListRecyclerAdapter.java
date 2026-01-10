@@ -5,6 +5,7 @@ import android.graphics.PointF;
 import android.net.Uri;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.AnimationUtils;
@@ -62,9 +65,20 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
     }
 
     @Override
-    public void onBindViewHolder(final ChannelInfoViewHolder holder, final int position) {
+    public void onBindViewHolder(final ChannelInfoViewHolder holder, int position) {
         //holder.setIsRecyclable(false);
-        final ChannelUtils.Channel item = objects.get(position);
+        updateView(position, holder);
+    }
+
+    public void updateView(int indexPos) {
+        ChannelInfoViewHolder holder = (ChannelInfoViewHolder) recyclerView.findViewHolderForAdapterPosition(indexPos);
+        if(holder != null) {
+            updateView(indexPos, holder);
+        }
+    }
+
+    public void updateView(int indexPos, ChannelInfoViewHolder holder) {
+        final ChannelUtils.Channel item = objects.get(indexPos);
         holder.channelName.setText(item.title);
         holder.channelNumber.setText("CH " + item.number);
 
@@ -84,15 +98,28 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
         if (editMode) {
             holder.channelProgramNow.setVisibility(View.GONE);
 
-            holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
-                if (hasFocus) {
-                    if (item.number != selectedChannel && selectedChannel != -1) {
-                        int sChannel = selectedChannel;
-                        selectedChannel = item.number;
-                        ChannelUtils.moveChannelToPosition(context.getContext(), sChannel, item.number);
-                        ((EditChannelListTVOverlay) context).updateChannelList();
+
+            holder.itemView.setOnKeyListener((view, i, keyEvent) -> {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && (i == KeyEvent.KEYCODE_DPAD_UP || i == KeyEvent.KEYCODE_DPAD_DOWN)) {
+                    if (selectedChannel != -1) {
+                        int direction = (i == KeyEvent.KEYCODE_DPAD_UP) ? -1 : 1;
+
+                        int pos = holder.getBindingAdapterPosition();
+
+                        if((pos + direction < 0 || pos + direction >= objects.size())) {
+                            return true;
+                        }
+                        swapItems(pos, pos + direction);
+
+                        ChannelUtils.Channel a = objects.get(pos);
+                        ChannelUtils.Channel b = objects.get(pos + direction);
+                        ChannelUtils.moveChannelToPosition(context.getContext(), a.number, b.number);
+                        updateView(pos);
+                        updateView(pos + direction);
+                        return true;
                     }
                 }
+                return false;
             });
 
             holder.itemView.setOnClickListener(v -> {
@@ -120,11 +147,11 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
             holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
                 if (hasFocus) {
                     if (recyclerView != null) {
-                        recyclerView.scrollToPosition(position);
+                        recyclerView.scrollToPosition(holder.getBindingAdapterPosition());
                     }
                     holder.cardView.setElevation(12);
                     AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
-                    focus = position;
+                    focus = indexPos;
                     holder.channelProgramNow.setSelected(true);
                 } else {
                     AnimationUtils.scaleView(holder.cardView, 1.025F, 1F, 1.025F, 1F, 20L);
@@ -141,14 +168,15 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
             });
         }
 
-        if (selectedChannel == item.number) {
+        if (selectedChannel == item.number && !editMode) {
             holder.itemView.requestFocus();
-            Log.d("TVChannelListOverlayRecyclerAdapter", "Setting focus to selected channel " + item.title + " at position " + position + " selectedChannel=" + selectedChannel);
-
-            if (!editMode) {
-                selectedChannel = -1;
-            }
+            selectedChannel = -1;
         }
+    }
+
+    public void swapItems(int fromIndexPosition, int toIndexPosition) {
+        Collections.swap(objects, fromIndexPosition, toIndexPosition);
+        notifyItemMoved(fromIndexPosition, toIndexPosition);
     }
 
     public void selectChannel(int channelNumber) {

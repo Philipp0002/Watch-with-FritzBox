@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewAnimator;
 import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
@@ -66,13 +67,12 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
 
     @Override
     public void onBindViewHolder(final ChannelInfoViewHolder holder, int position) {
-        //holder.setIsRecyclable(false);
         updateView(position, holder);
     }
 
     public void updateView(int indexPos) {
         ChannelInfoViewHolder holder = (ChannelInfoViewHolder) recyclerView.findViewHolderForAdapterPosition(indexPos);
-        if(holder != null) {
+        if (holder != null) {
             updateView(indexPos, holder);
         }
     }
@@ -106,7 +106,7 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
 
                         int pos = holder.getBindingAdapterPosition();
 
-                        if((pos + direction < 0 || pos + direction >= objects.size())) {
+                        if ((pos + direction < 0 || pos + direction >= objects.size())) {
                             return true;
                         }
                         swapItems(pos, pos + direction);
@@ -124,13 +124,12 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
 
             holder.itemView.setOnClickListener(v -> {
                 EditChannelListTVOverlay overlay = (EditChannelListTVOverlay) context;
-                ViewSwitcher editChannelListInfo = overlay.getView().findViewById(R.id.editChannelListInfo);
                 if (selectedChannel == -1) {
                     selectedChannel = item.number;
-                    editChannelListInfo.showNext();
+                    overlay.showSidepanel(1);
                 } else {
                     selectedChannel = -1;
-                    editChannelListInfo.showPrevious();
+                    overlay.showSidepanel(0);
                 }
             });
 

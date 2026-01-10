@@ -37,10 +37,12 @@
         <requestFocus />
     </androidx.recyclerview.widget.RecyclerView>
 
-    <ViewSwitcher
+    <ViewAnimator
         android:id="@+id/editChannelListInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:inAnimation="@android:anim/slide_in_left"
+        android:outAnimation="@android:anim/slide_out_right"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tvoverlayrecycler"
@@ -138,6 +140,6 @@
 
         </LinearLayout>
 
-    </ViewSwitcher>
+    </ViewAnimator>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

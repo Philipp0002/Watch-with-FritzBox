@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewAnimator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -101,6 +102,11 @@ public class EditChannelListTVOverlay extends Fragment implements KeyDownReceive
 
         }
 
+    }
+
+    public void showSidepanel(int index) {
+        ViewAnimator editChannelListInfo = requireView().findViewById(R.id.editChannelListInfo);
+            editChannelListInfo.setDisplayedChild(index);
     }
 
 

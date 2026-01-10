@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.AnimationUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.CustomTVSetting;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
 
 
@@ -36,13 +38,18 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
         } else if(viewType == 1) {
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.overlay_settings_title, parent, false);
             return new TitleViewHolder(v);
+        } else {
+            View v = LayoutInflater.from(parent.getContext()).inflate(viewType - 2, parent, false);
+            return new CustomViewHolder(v);
         }
-        return null;
     }
 
     @Override
     public int getItemViewType(int position) {
         if(objects.get(position) instanceof TVSetting) {
+            if(objects.get(position) instanceof CustomTVSetting customSetting) {
+                return 2 + customSetting.customLayoutRes;
+            }
             return 0;
         } else {
             return 1;
@@ -50,19 +57,19 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder _holder, final int position) {
-        if(_holder instanceof TitleViewHolder) {
-            TitleViewHolder holder = (TitleViewHolder) _holder;
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder _holder, final int position) {
+        if(_holder instanceof TitleViewHolder holder) {
             holder.titleView.setText((String) objects.get(position));
-            return;
-        } else if(_holder instanceof SettingViewHolder) {
-            SettingViewHolder holder = (SettingViewHolder) _holder;
-
+        } else if(_holder instanceof SettingViewHolder holder) {
             final TVSetting item = (TVSetting) objects.get(position);
 
             holder.settingName.setText(item.name);
 
-            holder.settingIcon.setImageResource(item.drawableId);
+            if(item.drawableId != null) {
+                holder.settingIcon.setImageResource(item.drawableId);
+            } else {
+                holder.settingIcon.setImageDrawable(null);
+            }
             holder.cardView.setOnFocusChangeListener((v, hasFocus) -> {
                 if (hasFocus) {
                     AnimationUtils.scaleView(holder.mainView, 1F, 1.025F, 1F, 1.025F, 100L);
@@ -78,6 +85,11 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
             if (!firstItemSelected) {
                 holder.cardView.requestFocus();
                 firstItemSelected = true;
+            }
+        } else if(_holder instanceof CustomViewHolder holder) {
+            final CustomTVSetting item = (CustomTVSetting) objects.get(position);
+            if(item.layoutCallback != null) {
+                item.layoutCallback.onBindView(holder.mainView);
             }
         }
 
@@ -114,6 +126,17 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
             super(itemView);
             mainView = itemView;
             titleView = itemView.findViewById(R.id.tvoverlaysetting_title);
+
+        }
+    }
+
+    public static class CustomViewHolder extends RecyclerView.ViewHolder {
+
+        public View mainView;
+
+        public CustomViewHolder(View itemView) {
+            super(itemView);
+            mainView = itemView;
 
         }
     }

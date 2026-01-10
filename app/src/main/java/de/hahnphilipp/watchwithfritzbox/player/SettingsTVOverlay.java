@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.setup.SetupIPActivity;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.CustomTVSetting;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
@@ -149,6 +150,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             context.stopHbbTV();
             context.popOverlayFragment();
         }, true));
+        selectionTVOverlay.tvSettings.add(new CustomTVSetting(R.layout.hbbtv_info_block, null));
         context.addOverlayFragment(selectionTVOverlay);
     }
 

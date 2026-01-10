@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/gtvremote" android:height="600px" android:width="298px"/>
+
+    <item android:height="30px" android:width="30px" android:top="125px" android:left="215px">
+        <shape
+            android:shape="oval">
+            <solid android:color="#780000" />
+        </shape>
+    </item>
+
+    <item android:height="20px" android:width="20px" android:top="130px" android:left="220px">
+        <shape
+            android:shape="oval">
+            <solid android:color="#FF0000" />
+        </shape>
+    </item>
+</layer-list>

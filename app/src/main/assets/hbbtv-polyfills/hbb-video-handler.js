@@ -11,6 +11,8 @@ export class VideoHandler {
         this.videoBroadcastEmbeddedObject = undefined;
     }
 
+
+
     initialize() {
         // go through all existing nodes and check if we need to inject the video player emulation
         document.querySelectorAll('*').forEach((node) => {
@@ -18,6 +20,10 @@ export class VideoHandler {
         });
         this.watchAndHandleVideoObjectMutations();
     }
+
+    initInterval() {
+        var timer = setInterval(() => this.initialize(), 2000);
+        }
 
     checkNodeTypeAndInjectVideoMethods(node) {
         let mimeType = node.type;

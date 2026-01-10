@@ -21,7 +21,9 @@ export class OipfVideoBroadcastMapper {
             this.videoTag.setAttribute('autoplay', ''); // note: call to bindToCurrentChannel() or play() is doing it
             this.videoTag.setAttribute('loop', '');
             this.videoTag.setAttribute('style', 'top:0px; left:0px; width:100%; height:100%;');
-            //oipfPluginObject.appendChild(this.videoTag);
+            this.videoTag.style.display = "none";
+            oipfPluginObject.appendChild(this.videoTag);
+            //TODO display none entfernen und VLC video an stelle von videoTag anzeigen
             oipfPluginObject.playState = 2;
             window.HBBTV_POLYFILL_DEBUG &&  console.info('hbbtv-polyfill: BROADCAST VIDEO PLAYER ... ADDED');
         }

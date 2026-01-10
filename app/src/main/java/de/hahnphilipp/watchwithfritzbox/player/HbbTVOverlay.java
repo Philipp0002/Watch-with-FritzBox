@@ -221,7 +221,6 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
         WebView.setWebContentsDebuggingEnabled(true);
         webView.setBackgroundColor(Color.TRANSPARENT);
 
-
         webView.setWebViewClient(new WebViewClient() {
 
             /*@Override
@@ -245,8 +244,10 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
             }
 
             @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
+            public void onPageCommitVisible(WebView view, String url) {
+                super.onPageCommitVisible(view, url);
+                Log.d("HBBTVWebView", "onPageCommitVisible: " + url);
+                injectJs(view);
             }
 
             final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()

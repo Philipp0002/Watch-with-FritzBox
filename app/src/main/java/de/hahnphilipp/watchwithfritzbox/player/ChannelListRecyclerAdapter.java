@@ -145,10 +145,15 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
             holder.itemView.requestFocus();
             Log.d("TVChannelListOverlayRecyclerAdapter", "Setting focus to selected channel " + item.title + " at position " + position + " selectedChannel=" + selectedChannel);
 
-            if (context instanceof ChannelListTVOverlay) {
+            if (!editMode) {
                 selectedChannel = -1;
             }
         }
+    }
+
+    public void selectChannel(int channelNumber) {
+        selectedChannel = channelNumber;
+        recyclerView.scrollToPosition(channelNumber - 1);
     }
 
     @Override

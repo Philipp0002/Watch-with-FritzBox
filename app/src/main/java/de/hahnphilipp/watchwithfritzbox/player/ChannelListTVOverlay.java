@@ -67,9 +67,8 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
         LinearLayoutManager llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
-        int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(requireContext()) - 1;
-        tvOverlayRecyclerAdapter.selectedChannel = lastSelectedChannel + 1;
-        recyclerView.scrollToPosition(lastSelectedChannel);
+        int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(requireContext());
+        tvOverlayRecyclerAdapter.selectChannel(lastSelectedChannel);
 
         BrowseFrameLayout browseFrameLayout = view.findViewById(R.id.tvoverlayrecyclerBrowse);
         browseFrameLayout.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
@@ -103,8 +102,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
         super.onAttach(context);
         if(recyclerView != null) {
             int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(requireContext());
-            tvOverlayRecyclerAdapter.selectedChannel = lastSelectedChannel - 1;
-            recyclerView.scrollToPosition(tvOverlayRecyclerAdapter.selectedChannel);
+            tvOverlayRecyclerAdapter.selectChannel(lastSelectedChannel);
             tvOverlayRecyclerAdapter.notifyItemChanged(tvOverlayRecyclerAdapter.selectedChannel);
         }
     }

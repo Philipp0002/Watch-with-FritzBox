@@ -64,7 +64,6 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
     public void onBindViewHolder(final ChannelInfoViewHolder holder, final int position) {
         //holder.setIsRecyclable(false);
         final ChannelUtils.Channel item = objects.get(position);
-        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter onBindViewHolder start for position " + position);
         holder.channelName.setText(item.title);
         holder.channelNumber.setText("CH " + item.number);
 
@@ -75,7 +74,6 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         } else if (item.type == ChannelUtils.ChannelType.RADIO) {
             holder.channelTypeIcon.setImageResource(R.drawable.radio_tower);
         }
-        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter a " + position);
 
         if (!(context instanceof EditChannelListTVOverlay)) {
             EpgUtils.EpgEvent eventNow = EpgUtils.getEventNowFromCache(item.number);
@@ -89,13 +87,11 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
         } else {
             holder.channelProgramNow.setVisibility(View.GONE);
         }
-        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter b " + position);
 
         Glide.with(context)
                 .load(Uri.parse(ChannelUtils.getIconURL(item)))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.channelIcon);
-        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter c " + position);
 
         holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
@@ -109,8 +105,9 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                     holder.channelProgramNow.setSelected(true);
                 } else {
                     if (item.number != selectedChannel && selectedChannel != -1) {
-                        ChannelUtils.moveChannelToPosition(context.getContext(), selectedChannel, item.number);
+                        int sChannel = selectedChannel;
                         selectedChannel = item.number;
+                        ChannelUtils.moveChannelToPosition(context.getContext(), sChannel, item.number);
                         ((EditChannelListTVOverlay) context).updateChannelList();
                     }
                 }
@@ -122,7 +119,6 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 }
             }
         });
-        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter d " + position);
 
         holder.itemView.setOnClickListener(v -> {
             if (context instanceof ChannelListTVOverlay) {
@@ -142,17 +138,15 @@ public class TVChannelListOverlayRecyclerAdapter extends RecyclerView.Adapter<TV
                 }
             }
         });
-        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter e " + position);
 
         if (selectedChannel == item.number) {
             holder.itemView.requestFocus();
+            Log.d("TVChannelListOverlayRecyclerAdapter", "Setting focus to selected channel " + item.title + " at position " + position + " selectedChannel=" + selectedChannel);
 
             if (context instanceof ChannelListTVOverlay) {
                 selectedChannel = -1;
             }
         }
-        DebugTimings.logTiming("TVChannelListOverlayRecyclerAdapter f " + position);
-        DebugTimings.resetTiming();
     }
 
     @Override

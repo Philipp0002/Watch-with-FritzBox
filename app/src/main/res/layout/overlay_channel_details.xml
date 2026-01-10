@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="#0f0f0f">
 
     <TextView
@@ -12,14 +13,14 @@
         android:layout_marginStart="32dp"
         android:layout_marginBottom="8dp"
         android:gravity="bottom"
-        android:text="Programmname"
+        tools:text="Programmname"
         android:textColor="#fff"
         android:textSize="40sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/player_number_layout"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/player_number_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,15 +39,11 @@
             android:layout_marginTop="2dp"
             android:layout_marginEnd="4dp"
             android:layout_marginBottom="2dp"
-            android:text="CH 1"
+            tools:text="CH 1"
             android:textColor="#c4c3c8"
             android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/player_type"
@@ -73,7 +70,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="@string/radio_running"
+        tools:text="@string/radio_running"
         android:textColor="#c4c3c8"
         android:textSize="20sp"
         android:textStyle="bold"

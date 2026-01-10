@@ -17,11 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
@@ -31,7 +29,7 @@ import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, EpgUtils.EpgUpdateListener {
 
     public TVPlayerActivity context;
-    private TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
+    private ChannelListRecyclerAdapter tvOverlayRecyclerAdapter;
     private VerticalGridView recyclerView;
     private Timer clockTimer;
 
@@ -63,7 +61,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, ChannelUtils.getAllChannels(requireContext()), recyclerView);
+        tvOverlayRecyclerAdapter = new ChannelListRecyclerAdapter(this, ChannelUtils.getAllChannels(requireContext()), recyclerView, false);
 
 
         LinearLayoutManager llm = new LinearLayoutManager(context);

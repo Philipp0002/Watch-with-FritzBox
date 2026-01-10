@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,7 +31,7 @@ public class EditChannelListTVOverlay extends Fragment implements KeyDownReceive
     public TVPlayerActivity context;
     public String ip = null;
 
-    TVChannelListOverlayRecyclerAdapter tvOverlayRecyclerAdapter;
+    ChannelListRecyclerAdapter tvOverlayRecyclerAdapter;
     RecyclerView recyclerView;
     LinearLayoutManager llm;
 
@@ -81,7 +80,7 @@ public class EditChannelListTVOverlay extends Fragment implements KeyDownReceive
 
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        tvOverlayRecyclerAdapter = new TVChannelListOverlayRecyclerAdapter(this, new ArrayList<>(ChannelUtils.getAllChannels(requireContext())), recyclerView);
+        tvOverlayRecyclerAdapter = new ChannelListRecyclerAdapter(this, new ArrayList<>(ChannelUtils.getAllChannels(requireContext())), recyclerView, true);
         llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);

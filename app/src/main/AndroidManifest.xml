@@ -39,6 +39,7 @@
         </activity>
 
         <activity android:name="de.hahnphilipp.watchwithfritzbox.setup.SetupSearchActivity"/>
+        <activity android:name="de.hahnphilipp.watchwithfritzbox.setup.NewSetupSearchActivity"/>
         <activity android:name="de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity"/>
         <activity android:name="de.hahnphilipp.watchwithfritzbox.setup.ShowcaseGesturesActivity"/>
         <activity android:name="de.hahnphilipp.watchwithfritzbox.rich.RichTvInputSetupActivity"

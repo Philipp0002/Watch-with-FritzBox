@@ -57,19 +57,32 @@ public class TeletextView extends View {
         super.onDraw(canvas);
 
         paint.setColor(Color.BLACK);
-        canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
+        int canvasWidth = getWidth();
+        int canvasHeight = getHeight();
+
+        if(canvasWidth < canvasHeight) {
+            canvasHeight = canvasWidth;
+        } else {
+            canvasWidth = canvasHeight;
+        }
+
+        canvas.drawRect(0, 0, canvasWidth, canvasHeight, paint);
 
         if (teletext == null) {
             return;
         }
 
-        int y = 0;
-        for (MediaPlayer.TeletextCell[] row : teletext.getCells()) {
-            int x = 0;
-            int latestHeight = 0;
-            for (MediaPlayer.TeletextCell cell : row) {
-                //String character = String.valueOf((char) cell.getRawUnicode().intValue());
-                String character = cell.getCharacter();
+        int cellWidth = canvasWidth / teletext.getSizeColumns();
+        int cellHeight = canvasHeight / teletext.getSizeRows();
+
+        for (int i1 = 0; i1 < teletext.getSizeRows(); i1++) {
+            int y = i1 * cellHeight;
+            for (int i2 = 0; i2 < teletext.getSizeColumns(); i2++) {
+                int x = i2 * cellWidth;
+                MediaPlayer.TeletextCell cell = teletext.getCells()[i1][i2];
+
+                int convertedUnicode = convertToUnicode(cell.getRawUnicode());
+                String character = ((char) convertedUnicode)+"";
                 int foregroundColor = Color.WHITE;
                 int backgroundColor = Color.BLACK;
                 try {
@@ -78,24 +91,50 @@ public class TeletextView extends View {
                 }catch (Exception e) {
                     e.printStackTrace();
                 }
-                // TODO BACKGROUND COLOR
+
+                paint.setColor(backgroundColor);
+                paint.setStyle(Paint.Style.FILL);
+                canvas.drawRect(x, y, x + cellWidth, y + cellHeight, paint);
 
                 paint.setColor(foregroundColor);
                 paint.setTypeface(typeface);
+                paint.setTextSize(24);
 
                 Rect bounds = new Rect();
                 paint.getTextBounds(character, 0, character.length(), bounds);
+                Paint.FontMetrics fm = paint.getFontMetrics();
 
-                canvas.drawText(character, x, y + bounds.height(), paint);
 
-                x += bounds.width();
-                Log.d("RENDERTXT", latestHeight + "");
-                if(!character.trim().isEmpty())
-                    latestHeight = bounds.height();
+                canvas.drawText(character, x, y - fm.ascent + fm.descent, paint);
             }
-            y += latestHeight;
+
+        }
+    }
+
+    public int convertToUnicode(int rawUnicode) {
+        // G1 Graphics (Block Mosaic) 0xEE00-0xEEFF
+        // Diese werden zu 0x20-0x5F gemappt (invertiert mit XOR 0x20)
+        if (rawUnicode >= 0xEE00 && rawUnicode < 0xEF00) {
+            // XOR 0x20 macht aus 0xEE00 -> 0x0020, 0xEE20 -> 0x0000, etc.
+            // dann subtrahieren wir 0xEE00 und addieren zum Basis-Offset
+            int offset = (rawUnicode ^ 0x20) - 0xEE00;
+            return 0xE200 + offset; // Unicode Braille Patterns als Basis für Blöcke
         }
 
+        // G3 Graphics (Smooth Mosaic) 0xEF00-0xEFFF
+        if (rawUnicode >= 0xEF00 && rawUnicode < 0xF000) {
+            int offset = rawUnicode - 0xEF20;
+            return 0xE200 + 128 + offset; // Nach G1 Graphics
+        }
 
+        // Arabic Teletext Extension 0xE600-0xE73F
+        if (rawUnicode >= 0xE600 && rawUnicode < 0xE740) {
+            return rawUnicode - 0xE600 + 0x0600; // Normales Arabic Unicode
+        }
+
+        // Normale Unicode-Zeichen bleiben unverändert
+        return rawUnicode;
     }
+
+
 }

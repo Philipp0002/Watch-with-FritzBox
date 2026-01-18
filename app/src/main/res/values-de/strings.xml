@@ -53,6 +53,7 @@
     <string name="settings_reorder_channels_webserver_info">oder öffne %d in deinem Web-Browser</string>
     <string name="playback_title">Wiedergabe</string>
     <string name="settings_open_epg">EPG</string>
+    <string name="settings_open_teletext">Teletext</string>
     <string name="settings_reset_app">App zurücksetzen</string>
     <string name="settings_reset_confirm">Zurücksetzen</string>
     <string name="settings_reset_cancel">Abbrechen</string>

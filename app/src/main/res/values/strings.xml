@@ -53,6 +53,7 @@
     <string name="settings_reorder_channels_webserver_info">or visit %d in your web browser</string>
     <string name="settings_reorder_channels_import">Import from another tv</string>
     <string name="settings_open_epg">EPG</string>
+    <string name="settings_open_teletext">Teletext</string>
     <string name="settings_reset_app">Reset app data</string>
     <string name="settings_reset_confirm">Confirm</string>
     <string name="settings_reset_cancel">Cancel</string>

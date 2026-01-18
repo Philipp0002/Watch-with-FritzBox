@@ -91,6 +91,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         tvSettings.add(context.getString(R.string.playback_title));
 
         tvSettings.add(new TVSetting(context.getString(R.string.settings_open_epg), R.drawable.round_remote, this::showEpg, true));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_open_teletext), R.drawable.round_teletext, this::showTeletext, true));
 
         if (descriptionsAudio != null && descriptionsAudio.length != 0) {
             tvSettings.add(new TVSetting(context.getString(R.string.audio_tracks), R.drawable.round_audiotrack, this::showAudioTrackSelection, true));
@@ -130,6 +131,10 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
     public void showEpg() {
         context.addOverlayFragment(context.mEPGOverlayFragment);
+    }
+
+    public void showTeletext() {
+        context.addOverlayFragment(context.mTeletextOverlayFragment);
     }
 
     public void showHbbTV() {

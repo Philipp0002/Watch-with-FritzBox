@@ -491,7 +491,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 }
                 break;
             case MediaPlayer.Event.TeletextPageLoaded:
-                if(true)return;
                 AsyncTask.execute(() -> {
                             Log.d("TELETEXT", event.getRecordPath());
                             MediaPlayer.Teletext txt = event.getTeletextText();
@@ -499,14 +498,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                                 mTeletextOverlayFragment.experimentalSetTeletext(txt);
                             }
                         });
-                //Log.d("TEST", event.getTeletextText().getPageNumber() + "");
-                /*for(MediaPlayer.TeletextCell[] rows : event.getTeletextText().getCells()) {
-                    StringBuilder builder = new StringBuilder();
-                    for(MediaPlayer.TeletextCell cell : rows) {
-                        builder.append(cell.getCharacter());
-                    }
-                    Log.d("TELETEXT", builder.toString());
-                }*/
                 break;
             case MediaPlayer.Event.EpgNewEvent:
                 AsyncTask.execute(() -> {
@@ -567,6 +558,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                     ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
 
                     if (event.getBuffering() == 100F) {
+                        mMediaPlayer.setTeletext(99);
                         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
                         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
 

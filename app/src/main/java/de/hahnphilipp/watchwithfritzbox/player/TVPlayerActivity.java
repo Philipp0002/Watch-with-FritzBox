@@ -487,8 +487,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 AsyncTask.execute(() -> {
                     MediaPlayer.CommonDescriptors commonDescriptors = event.getCommonDescriptors();
                     if (commonDescriptors.getApplicationId().equals("0x0010")) {
-                        mHbbTvOverlay.processHbbTvInfo(commonDescriptors);
-                        return;
+                        runOnUiThread(() -> mHbbTvOverlay.processHbbTvInfo(commonDescriptors));
                     }
                 });
                 break;

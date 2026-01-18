@@ -260,7 +260,8 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
                 String urlStringWithoutQuery = request.getUrl().getPath();
                 if (urlString.contains("androidplatform.net")) {
                     WebResourceResponse response = assetLoader.shouldInterceptRequest(request.getUrl());
-                    response.setResponseHeaders(Map.of("Access-Control-Allow-Origin", "*"));
+                    if(response!= null)
+                        response.setResponseHeaders(Map.of("Access-Control-Allow-Origin", "*"));
                     return response;
                 }
                 if (urlString.contains("data:") ||

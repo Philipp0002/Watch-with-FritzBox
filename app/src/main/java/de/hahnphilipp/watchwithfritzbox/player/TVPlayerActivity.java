@@ -484,18 +484,20 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 break;
             case MediaPlayer.Event.CommonDescriptorsFound:
                 // HbbTV = 0x0010
-                MediaPlayer.CommonDescriptors commonDescriptors = event.getCommonDescriptors();
-                if (commonDescriptors.getApplicationId().equals("0x0010")) {
-                    mHbbTvOverlay.processHbbTvInfo(commonDescriptors);
-                    return;
-                }
+                AsyncTask.execute(() -> {
+                    MediaPlayer.CommonDescriptors commonDescriptors = event.getCommonDescriptors();
+                    if (commonDescriptors.getApplicationId().equals("0x0010")) {
+                        mHbbTvOverlay.processHbbTvInfo(commonDescriptors);
+                        return;
+                    }
+                });
                 break;
             case MediaPlayer.Event.TeletextPageLoaded:
                 AsyncTask.execute(() -> {
                             Log.d("TELETEXT", event.getRecordPath());
                             MediaPlayer.Teletext txt = event.getTeletextText();
                             if (txt != null && txt.getPageNumber() == 100) {
-                                mTeletextOverlayFragment.experimentalSetTeletext(txt);
+                                mTeletextOverlayFragment.updateTeletextPage(txt);
                             }
                         });
                 break;

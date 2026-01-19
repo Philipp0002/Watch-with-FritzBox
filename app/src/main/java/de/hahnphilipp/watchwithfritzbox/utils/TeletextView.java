@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -15,9 +14,7 @@ import androidx.annotation.Nullable;
 
 import org.videolan.libvlc.MediaPlayer;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class TeletextView extends View {
 

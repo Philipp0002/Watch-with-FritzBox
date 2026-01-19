@@ -154,7 +154,11 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
         return true;
     }
 
-    public void launchHbbTVApp(HbbTVApplication app, long serviceId, int networkId, int originalNetworkId, int tsId) {
+    public void launchHbbTVApp(HbbTVApplication app, Long serviceId, Integer networkId, Integer originalNetworkId, Integer tsId) {
+        if(networkId == null || originalNetworkId == null || serviceId == null || tsId == null) {
+            Log.w("HBBTV", "Cannot launch HbbTV app due to missing identifiers: serviceId=" + serviceId + ", networkId=" + networkId + ", originalNetworkId=" + originalNetworkId + ", tsId=" + tsId);
+            return;
+        }
         if (app.httpDescriptor != null && app.simpleApplicationLocationDescriptor != null) {
             String url = app.httpDescriptor.url + app.simpleApplicationLocationDescriptor.initialPath;
             if (url.equals(webView.getUrl())
@@ -182,8 +186,14 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
             List<AitApplication> aitApplications = AitApplication.parseAitApplicationsFromHex(bytes);
             hbbTvApplications = aitApplications.stream().map(HbbTVApplication::fromAitApplication).toList();
             if (currentHbbTvApplication == null && allowHbbTV) {
-                hbbTvApplications.stream().filter(app -> app.controlCode == 1).findFirst().ifPresent(app -> {
-                    launchHbbTVApp(app, commonDescriptors.getServiceId(), commonDescriptors.getNetworkId(), commonDescriptors.getOriginalNetworkId(), commonDescriptors.getTransportStreamId());
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        hbbTvApplications.stream().filter(app -> app.controlCode == 1).findFirst().ifPresent(app -> {
+                            Log.d("HBBTV", "Launching HbbTV app: " + app + " for serviceId " + commonDescriptors.getServiceId() + ", networkId " + commonDescriptors.getNetworkId() + ", originalNetworkId " + commonDescriptors.getOriginalNetworkId() + ", tsId " + commonDescriptors.getTransportStreamId());
+                            launchHbbTVApp(app, commonDescriptors.getServiceId(), commonDescriptors.getNetworkId(), commonDescriptors.getOriginalNetworkId(), commonDescriptors.getTransportStreamId());
+                        });
+                    }
                 });
             }
         } catch (Exception e) {

@@ -43,6 +43,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation 'com.google.code.gson:gson:2.13.2' // necessary due to libvlc dependency
     implementation 'com.google.android.gms:play-services-nearby:18.0.0'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
     implementation 'androidx.leanback:leanback:1.0.0'

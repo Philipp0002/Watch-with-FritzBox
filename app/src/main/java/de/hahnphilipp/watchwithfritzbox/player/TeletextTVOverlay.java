@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.gson.Gson;
+
 import org.videolan.libvlc.MediaPlayer;
 
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
     public TVPlayerActivity context;
     private TeletextView teletextView;
 
-    private HashMap<Integer, MediaPlayer.Teletext> teletextPages = new HashMap<>();
+    private HashMap<Integer, String> teletextPages = new HashMap<>();
     int currentPage = 100;
 
     @Override
@@ -46,17 +48,19 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         setTeletextViewPage(teletextPages.getOrDefault(page, null));
     }
 
-    public void updateTeletextPage(MediaPlayer.Teletext teletext) {
-        teletextPages.put(teletext.getPageNumber(), teletext);
-        if(teletext.getPageNumber() == currentPage) {
-            setTeletextViewPage(teletext);
+    public void updateTeletextPage(int page, String teletextData) {
+        teletextPages.put(page, teletextData);
+        if(page == currentPage) {
+            setTeletextPage(page);
         }
     }
 
-    private void setTeletextViewPage(MediaPlayer.Teletext teletext) {
+    private void setTeletextViewPage(String teletextData) {
         if(teletextView == null) {
             return;
         }
+
+        MediaPlayer.Teletext teletext = new Gson().fromJson(teletextData, MediaPlayer.Teletext.class);
         teletextView.setTeletext(teletext);
     }
 

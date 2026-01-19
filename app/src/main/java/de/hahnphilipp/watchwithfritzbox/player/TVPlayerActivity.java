@@ -16,7 +16,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -478,6 +477,11 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     @Override
     public void onEvent(MediaPlayer.Event event) {
+        /*
+         * Handle VLC events
+         * Important: Process events in a separate thread to avoid blocking VLC internal threads.
+         * NEVER use runOnUiThread or similar methods when handling event objects!
+         */
         switch (event.type) {
             case MediaPlayer.Event.NitReceived:
                 Log.d("NIT", event.getRecordPath());
@@ -487,18 +491,17 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 AsyncTask.execute(() -> {
                     MediaPlayer.CommonDescriptors commonDescriptors = event.getCommonDescriptors();
                     if (commonDescriptors.getApplicationId().equals("0x0010")) {
-                        runOnUiThread(() -> mHbbTvOverlay.processHbbTvInfo(commonDescriptors));
+                        mHbbTvOverlay.processHbbTvInfo(commonDescriptors);
                     }
                 });
                 break;
             case MediaPlayer.Event.TeletextPageLoaded:
-                AsyncTask.execute(() -> {
-                            Log.d("TELETEXT", event.getRecordPath());
-                            MediaPlayer.Teletext txt = event.getTeletextText();
-                            if (txt != null && txt.getPageNumber() == 100) {
-                                mTeletextOverlayFragment.updateTeletextPage(txt);
-                            }
-                        });
+                // Don't use async task here to avoid memleaks
+                Integer pageNumber = event.getTeletextPageNumber();
+                String pageContent = event.getTeletextPageJson();
+                if (pageNumber != null && pageContent != null) {
+                    mTeletextOverlayFragment.updateTeletextPage(pageNumber, pageContent);
+                }
                 break;
             case MediaPlayer.Event.EpgNewEvent:
                 AsyncTask.execute(() -> {
@@ -534,7 +537,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         ChannelUtils.Channel channel = originalChannel.copy();
                         channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
                         channel.provider = serviceInfo.getProvider();
-                        channel.free = serviceInfo.isFreeCa();
+                        channel.free = serviceInfo.isFreeCa() != null && serviceInfo.isFreeCa();
                         try {
                             switch (Math.toIntExact(serviceInfo.getTypeId())) {
                                 case 1:

@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -41,7 +42,7 @@ public class TeletextView extends View {
 
 
     public void setTeletext(MediaPlayer.Teletext teletext) {
-        typeface = Typeface.createFromAsset(getContext().getAssets(), "MODE7GX0.TTF");
+        typeface = Typeface.createFromAsset(getContext().getAssets(), "bedstead.otf");
         this.teletext = teletext;
         if (teletext != null) {
             colorPalette = Arrays.stream(teletext.getPalette()).map(s -> Color.parseColor("#" + s)).toArray(Integer[]::new);
@@ -71,41 +72,80 @@ public class TeletextView extends View {
 
         int cellWidth = canvasWidth / teletext.getSizeColumns();
         int cellHeight = canvasHeight / teletext.getSizeRows();
+        int textSize = determineMaxTextSize(cellHeight);
+        paint.setStyle(Paint.Style.FILL);
+        Log.d("TeletextView", "Determined text size: " + textSize);
+
+        /*for (int i1 = 0; i1 < teletext.getSizeRows(); i1++) {
+            int y = i1 * cellHeight;
+            for (int i2 = 0; i2 < teletext.getSizeColumns(); i2++) {
+                int x = i2 * cellWidth;
+                MediaPlayer.TeletextCell cell = teletext.getCells()[i1][i2];
+                int backgroundColor = Color.BLACK;
+                try {
+                    backgroundColor = colorPalette[cell.getBackgroundPaletteIndex()];
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                paint.setColor(backgroundColor);
+                canvas.drawRect(x, y, x + cellWidth, y + cellHeight, paint);
+            }
+        }*/
 
         for (int i1 = 0; i1 < teletext.getSizeRows(); i1++) {
             int y = i1 * cellHeight;
+            StringBuilder lineBuilder = new StringBuilder();
             for (int i2 = 0; i2 < teletext.getSizeColumns(); i2++) {
                 int x = i2 * cellWidth;
                 MediaPlayer.TeletextCell cell = teletext.getCells()[i1][i2];
 
                 int convertedUnicode = convertToUnicode(cell.getRawUnicode());
                 String character = ((char) convertedUnicode)+"";
+                lineBuilder.append(character);
                 int foregroundColor = Color.WHITE;
                 int backgroundColor = Color.BLACK;
                 try {
                     foregroundColor = colorPalette[cell.getForegroundPaletteIndex()];
-                    backgroundColor = colorPalette[cell.getBackgroundPaletteIndex()];
                 }catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    backgroundColor = colorPalette[cell.getBackgroundPaletteIndex()];
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
                 paint.setColor(backgroundColor);
-                paint.setStyle(Paint.Style.FILL);
                 canvas.drawRect(x, y, x + cellWidth, y + cellHeight, paint);
 
                 paint.setColor(foregroundColor);
                 paint.setTypeface(typeface);
-                paint.setTextSize(24);
+                paint.setTextSize(textSize);
 
                 Rect bounds = new Rect();
                 paint.getTextBounds(character, 0, character.length(), bounds);
                 Paint.FontMetrics fm = paint.getFontMetrics();
 
-
-                canvas.drawText(character, x, y - fm.ascent + fm.descent, paint);
+                canvas.drawText(character, x, y - fm.ascent, paint);
             }
 
+            Log.d("tttxxx", lineBuilder.toString());
+
         }
+    }
+
+    private int determineMaxTextSize(float maxHeight)
+    {
+        int size = 0;
+        float fontHeight = 0;
+        do {
+            paint.setTextSize(++size);
+            Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+            fontHeight = Math.abs(fontMetrics.ascent) + fontMetrics.descent;
+        } while(fontHeight < maxHeight);
+
+        return size;
     }
 
     public int convertToUnicode(int rawUnicode) {
@@ -115,13 +155,14 @@ public class TeletextView extends View {
             // XOR 0x20 macht aus 0xEE00 -> 0x0020, 0xEE20 -> 0x0000, etc.
             // dann subtrahieren wir 0xEE00 und addieren zum Basis-Offset
             int offset = (rawUnicode ^ 0x20) - 0xEE00;
-            return 0xE200 + offset; // Unicode Braille Patterns als Basis für Blöcke
+            return 0xEE20 + offset; // Unicode Braille Patterns als Basis für Blöcke
         }
 
         // G3 Graphics (Smooth Mosaic) 0xEF00-0xEFFF
         if (rawUnicode >= 0xEF00 && rawUnicode < 0xF000) {
             int offset = rawUnicode - 0xEF20;
-            return 0xE200 + 128 + offset; // Nach G1 Graphics
+            Log.d("tttxxx", "smooth");
+            return 0xEE20 + 128 + offset; // Nach G1 Graphics
         }
 
         // Arabic Teletext Extension 0xE600-0xE73F

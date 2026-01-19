@@ -25,7 +25,7 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
     public TVPlayerActivity context;
     private TeletextView teletextView;
 
-    private HashMap<Integer, String> teletextPages = new HashMap<>();
+    private final HashMap<Integer, String> teletextPages = new HashMap<>();
     int currentPage = 100;
 
     @Override

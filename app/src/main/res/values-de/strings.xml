@@ -83,7 +83,7 @@
     <string name="video_aspect">Seitenverhältnis</string>
     <string name="audio_tracks_desc">Wähle den Audiokanal</string>
 
-    <string name="hbbtv_info">HbbTV (Red-Button) combines TV with interactive online content. Press and hold the Right button while watching TV to show the color keys.</string>
+    <string name="hbbtv_info">HbbTV (Red-Button) verbindet Fernsehen mit interaktiven Online-Inhalten. Halte beim Fernsehen die Rechts-Taste gedrückt, um die Farb-Tasten einzublenden.</string>
 
     <string name="epg_no_program">Keine EPG Daten</string>
     <string name="epg_starting_from">ab %s</string>

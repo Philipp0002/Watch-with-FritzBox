@@ -61,11 +61,12 @@ function init() {
     keyEventInit();
     hbbtvFn();
 
-    new VideoHandler().initInterval();
+    //new VideoHandler().initInterval();
+    new VideoHandler().initialize();
 
     window.HBBTV_POLYFILL_DEBUG && console.log("hbbtv-polyfill: loaded");
 }
-document.asdf = () => new VideoHandler().initialize();
+
 if (!document.body) {
     console.log("hbbtv-polyfill: wait for DOMContentLoaded");
     document.addEventListener("DOMContentLoaded", init);

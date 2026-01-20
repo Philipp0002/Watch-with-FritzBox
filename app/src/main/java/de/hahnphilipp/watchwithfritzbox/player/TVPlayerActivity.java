@@ -30,8 +30,6 @@ import org.videolan.libvlc.MediaPlayer;
 import org.videolan.libvlc.interfaces.IVLCVout;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,6 +41,7 @@ import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
 public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
 
+    public static final int TELETEXT_IDLE_PAGE = 99;
     public IVLCVout ivlcVout;
     public SurfaceView surfaceView;
     public SurfaceView subtitlesView;
@@ -55,6 +54,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public SettingsTVOverlay mSettingsOverlayFragment;
     public EPGFragment mEPGOverlayFragment;
     public TeletextTVOverlay mTeletextOverlayFragment;
+    public ArrayList<MediaPlayer.TeletextPageInfo> teletextPageInfos = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -399,7 +399,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 media.addOption("--deinterlace=1");
                 media.addOption("--video-filter=deinterlace");
                 media.addOption("--deinterlace-mode=blend");
-
+                teletextPageInfos.clear();
 
                 mMediaPlayer.play();
 
@@ -485,6 +485,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
          * NEVER use runOnUiThread or similar methods when handling event objects!
          */
         switch (event.type) {
+            case MediaPlayer.Event.TeletextPageInfoReceived:
+                MediaPlayer.TeletextPageInfo teletextPageInfo = event.getTeletextPageInfo();
+                teletextPageInfos.add(teletextPageInfo);
+                break;
             case MediaPlayer.Event.CommonDescriptorsFound:
                 // HbbTV = 0x0010
                 AsyncTask.execute(() -> {
@@ -575,7 +579,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                     ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
 
                     if (event.getBuffering() == 100F) {
-                        mMediaPlayer.setTeletext(99);
+                        mMediaPlayer.setTeletext(TELETEXT_IDLE_PAGE);
                         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
                         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
 

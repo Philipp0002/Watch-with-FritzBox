@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 
 import org.videolan.libvlc.MediaPlayer;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import de.hahnphilipp.watchwithfritzbox.R;
@@ -30,6 +31,7 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
     private final HashMap<Integer, String> teletextPages = new HashMap<>();
     private int currentPage = 100;
     private boolean isShown = false;
+    private Integer spuTrackBeforeShow = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,13 +55,13 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
     public void updateTeletextPage(int page, String teletextData) {
         teletextPages.put(page, teletextData);
-        if(page == currentPage) {
+        if (page == currentPage) {
             setTeletextPage(page);
         }
     }
 
     private void setTeletextViewPage(String teletextData) {
-        if(teletextView == null) {
+        if (teletextView == null) {
             return;
         }
 
@@ -89,6 +91,16 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         isShown = true;
+        if (this.context != null && this.context.mMediaPlayer != null) {
+            MediaPlayer.TrackDescription spuTrack = Arrays.stream(this.context.mMediaPlayer.getSpuTracks())
+                    .filter(spu -> spu.id == this.context.mMediaPlayer.getSpuTrack())
+                    .findFirst()
+                    .orElse(null);
+            if (spuTrack != null && !spuTrack.name.contains("Teletext")) {
+                this.spuTrackBeforeShow = this.context.mMediaPlayer.getSpuTrack();
+                this.context.mMediaPlayer.setTeletext(TVPlayerActivity.TELETEXT_IDLE_PAGE);
+            }
+        }
     }
 
     @Override
@@ -96,5 +108,12 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         super.onDetach();
         isShown = false;
         teletextPages.clear();
+
+        if (this.context != null && this.context.mMediaPlayer != null) {
+            if (this.spuTrackBeforeShow != null) {
+                this.context.mMediaPlayer.setSpuTrack(this.spuTrackBeforeShow);
+            }
+        }
+        this.spuTrackBeforeShow = null;
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -97,8 +98,8 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             tvSettings.add(new TVSetting(context.getString(R.string.audio_tracks), R.drawable.round_audiotrack, this::showAudioTrackSelection, true));
         }
 
-        if (descriptionsSubtitle != null && descriptionsSubtitle.length != 0) {
-            tvSettings.add(new TVSetting(context.getString(R.string.subtitles), R.drawable.round_closed_caption, this::showSubtitleTrackSelection, true));
+        if (subtitlesExist()) {
+        tvSettings.add(new TVSetting(context.getString(R.string.subtitles), R.drawable.round_closed_caption, this::showSubtitleTrackSelection, true));
         }
 
         if (ChannelUtils.getChannelByNumber(context, ChannelUtils.getLastSelectedChannel(context)).type != ChannelUtils.ChannelType.RADIO) {
@@ -357,18 +358,42 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         final MediaPlayer player = context.mMediaPlayer;
         selectionTVOverlay.title = context.getString(R.string.subtitles);
-        MediaPlayer.TrackDescription[] descriptions = player.getSpuTracks();
         //this should actually never be true, but just to be sure we do it anyways
-        if (descriptions == null || descriptions.length == 0) {
+        if (!subtitlesExist()) {
             Toast.makeText(getContext(), R.string.no_subtitle_tracks, Toast.LENGTH_SHORT).show();
             return;
         }
-        for (final MediaPlayer.TrackDescription description : descriptions) {
-            selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.round_closed_caption, () -> {
-                player.setSpuTrack(description.id);
+        MediaPlayer.TrackDescription[] descriptions = player.getSpuTracks();
+        if (descriptions != null) {
+            for (final MediaPlayer.TrackDescription description : descriptions) {
+                if (description.name.contains("Teletext")) {
+                    continue; //skip teletext subtitles here, as they are handled differently
+                }
+                selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.round_closed_caption, () -> {
+                    if(description.id == -1) {
+                        player.setTeletext(TVPlayerActivity.TELETEXT_IDLE_PAGE);
+                    } else {
+                        player.setSpuTrack(description.id);
+                    }
+                    context.popOverlayFragment();
+                }, true));
+            }
+        }
+        for (final MediaPlayer.TeletextPageInfo teletextPageInfo : new ArrayList<>(context.teletextPageInfos)) {
+            int descriptionResId;
+            if (teletextPageInfo.getType() == MediaPlayer.TELETEXT_TYPE_SUBTITLES) {
+                descriptionResId = R.string.teletext_subtitles;
+            } else if (teletextPageInfo.getType() == MediaPlayer.TELETEXT_TYPE_SUBTITLES_HEARING_IMPAIRED) {
+                descriptionResId = R.string.teletext_subtitles_hearing_impaired;
+            } else {
+                continue;
+            }
+            selectionTVOverlay.tvSettings.add(new TVSetting(getString(descriptionResId), R.drawable.round_closed_caption, () -> {
+                player.setTeletext(teletextPageInfo.getPageNumber());
                 context.popOverlayFragment();
             }, true));
         }
+
 
         context.addOverlayFragment(selectionTVOverlay);
     }
@@ -391,6 +416,25 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         }
 
         context.addOverlayFragment(selectionTVOverlay);
+    }
+
+    private boolean subtitlesExist() {
+        final MediaPlayer player = context.mMediaPlayer;
+        MediaPlayer.TrackDescription[] descriptions = player.getSpuTracks();
+        if (descriptions != null) {
+            for (final MediaPlayer.TrackDescription description : descriptions) {
+                if (description.name.contains("Teletext") || description.name.contains("Disable")) {
+                    continue; //skip teletext subtitles here, as they are handled differently
+                }
+                return true;
+            }
+        }
+        for (final MediaPlayer.TeletextPageInfo teletextPageInfo : new ArrayList<>(context.teletextPageInfos)) {
+            if (teletextPageInfo.getType() == MediaPlayer.TELETEXT_TYPE_SUBTITLES || teletextPageInfo.getType() == MediaPlayer.TELETEXT_TYPE_SUBTITLES_HEARING_IMPAIRED) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean onKeyUp(int keyCode, KeyEvent event) {

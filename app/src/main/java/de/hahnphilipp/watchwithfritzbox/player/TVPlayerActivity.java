@@ -30,6 +30,8 @@ import org.videolan.libvlc.MediaPlayer;
 import org.videolan.libvlc.interfaces.IVLCVout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -90,7 +92,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public void initGlide() {
         AsyncTask.execute(() -> {
             ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(this, 1);
-            if(channel != null) {
+            if (channel != null) {
                 Glide.with(this)
                         .load(ChannelUtils.getIconURL(channel))
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -352,7 +354,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public void launchPlayer(boolean withWaitInterval, boolean withLoadingScreen, boolean clearHbbTv) {
         mMediaPlayer.pause();
-        if(withLoadingScreen) {
+        if (withLoadingScreen) {
             findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
         }
         findViewById(R.id.player_skip_radio).setVisibility(View.GONE);
@@ -381,7 +383,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 runOnUiThread(() -> {
                     ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress(0);
                     findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
-                    if(clearHbbTv) mHbbTvOverlay.clearHbbTv();
+                    if (clearHbbTv) mHbbTvOverlay.clearHbbTv();
                 });
                 SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
@@ -483,9 +485,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
          * NEVER use runOnUiThread or similar methods when handling event objects!
          */
         switch (event.type) {
-            case MediaPlayer.Event.NitReceived:
-                Log.d("NIT", event.getRecordPath());
-                break;
             case MediaPlayer.Event.CommonDescriptorsFound:
                 // HbbTV = 0x0010
                 AsyncTask.execute(() -> {
@@ -497,6 +496,9 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 break;
             case MediaPlayer.Event.TeletextPageLoaded:
                 // Don't use async task here to avoid memleaks
+                if(mTeletextOverlayFragment == null || !mTeletextOverlayFragment.isShown()) {
+                    break;
+                }
                 Integer pageNumber = event.getTeletextPageNumber();
                 String pageContent = event.getTeletextPageJson();
                 if (pageNumber != null && pageContent != null) {
@@ -506,7 +508,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             case MediaPlayer.Event.EpgNewEvent:
                 AsyncTask.execute(() -> {
                     MediaPlayer.EpgEvent vlcEvent = event.getEvent();
-                    ChannelUtils.Channel ch = ChannelUtils.getChannelByServiceId(TVPlayerActivity.this, Integer.parseInt(vlcEvent.getServiceId()));
+                    ChannelUtils.Channel ch = ChannelUtils.getChannelByDvb(TVPlayerActivity.this, vlcEvent.getNetworkId(), vlcEvent.getTransportStreamId(), vlcEvent.getServiceId());
 
                     if (ch != null) {
                         EpgUtils.EpgEvent epgEvent = new EpgUtils.EpgEvent();
@@ -532,12 +534,21 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             case MediaPlayer.Event.EpgNewServiceInfo:
                 AsyncTask.execute(() -> {
                     MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
-                    ChannelUtils.Channel originalChannel = ChannelUtils.getChannelByTitle(TVPlayerActivity.this, serviceInfo.getName());
+                    ChannelUtils.Channel originalChannel = null;
+                    if (serviceInfo.getPids() != null && serviceInfo.getPids().length > 0) {
+                        originalChannel = ChannelUtils.getChannelByPids(TVPlayerActivity.this, serviceInfo.getPids());
+                    }
+                    if(originalChannel == null) {
+                        originalChannel = ChannelUtils.getChannelByDvb(TVPlayerActivity.this, serviceInfo.getNetworkId(), serviceInfo.getTransportStreamId(), serviceInfo.getServiceId());
+                    }
                     if (originalChannel != null) {
                         ChannelUtils.Channel channel = originalChannel.copy();
-                        channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
+                        channel.title = serviceInfo.getName();
+                        channel.serviceId = serviceInfo.getServiceId();
                         channel.provider = serviceInfo.getProvider();
                         channel.free = serviceInfo.isFreeCa() != null && serviceInfo.isFreeCa();
+                        channel.onId = serviceInfo.getNetworkId();
+                        channel.tsId = serviceInfo.getTransportStreamId();
                         try {
                             switch (Math.toIntExact(serviceInfo.getTypeId())) {
                                 case 1:
@@ -553,6 +564,8 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         } catch (Exception unused) {
                         }
                         ChannelUtils.updateChannel(TVPlayerActivity.this, originalChannel, channel);
+                    } else {
+                        Log.w("ChannelUpdater", "Channel " + serviceInfo.getName() + " not found for EPG update.");
                     }
                 });
 

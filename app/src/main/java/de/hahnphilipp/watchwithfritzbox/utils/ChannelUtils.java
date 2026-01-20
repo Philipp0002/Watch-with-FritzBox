@@ -8,13 +8,20 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 
@@ -226,6 +233,28 @@ public class ChannelUtils {
         return channels;
     }
 
+    public static Channel getChannelByPids(Context context, int[] pids) {
+        main: for (Channel ch : new ArrayList<>(getAllChannels(context))) {
+            List<Integer> channelPids = ch.getPids();
+            for(int pid : pids) {
+                if (!channelPids.contains(pid)) {
+                    continue main;
+                }
+            }
+            return ch;
+        }
+        return null;
+    }
+
+    public static Channel getChannelByDvb(Context context, int onid, int tsid, int sid) {
+        for (Channel ch : new ArrayList<>(getAllChannels(context))) {
+            if(ch.onId == onid && ch.tsId == tsid && ch.serviceId == sid) {
+                return ch;
+            }
+        }
+        return null;
+    }
+
 
     public static class Channel {
         public int number;
@@ -233,7 +262,10 @@ public class ChannelUtils {
         public String url;
         public ChannelType type;
 
+        public long onId;
+        public long tsId;
         public int serviceId;
+
         public String provider;
         public boolean free;
 
@@ -271,6 +303,21 @@ public class ChannelUtils {
             copy.provider = provider;
             copy.serviceId = serviceId;
             return copy;
+        }
+
+        public List<Integer> getPids() {
+            try {
+                URI urlObj = new URI(url);
+                return Arrays.stream(urlObj.getQuery().split("&"))
+                        .map(s -> s.split("=", 2))
+                        .filter(o -> o.length == 2 && o[0].equalsIgnoreCase("pids"))
+                        .flatMap(o -> Arrays.stream(o[1].split(",")))
+                        .map(Integer::valueOf)
+                        .collect(Collectors.toList());
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+            return List.of();
         }
 
     }

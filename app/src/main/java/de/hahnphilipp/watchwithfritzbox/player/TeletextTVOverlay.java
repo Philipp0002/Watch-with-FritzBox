@@ -1,10 +1,12 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,7 +28,8 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
     private TeletextView teletextView;
 
     private final HashMap<Integer, String> teletextPages = new HashMap<>();
-    int currentPage = 100;
+    private int currentPage = 100;
+    private boolean isShown = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,4 +81,20 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         return false;
     }
 
+    public boolean isShown() {
+        return isShown;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        isShown = true;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        isShown = false;
+        teletextPages.clear();
+    }
 }

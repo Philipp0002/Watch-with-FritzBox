@@ -12,6 +12,6 @@ public class HbbTVChannel {
     public String name;
     public int nid;
     public int onid;
-    public long sid;
+    public int sid;
     public int tsid;
 }

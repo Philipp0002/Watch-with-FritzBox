@@ -154,7 +154,7 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
         return true;
     }
 
-    public void launchHbbTVApp(HbbTVApplication app, Long serviceId, Integer networkId, Integer originalNetworkId, Integer tsId) {
+    public void launchHbbTVApp(HbbTVApplication app, Integer serviceId, Integer networkId, Integer originalNetworkId, Integer tsId) {
         if(networkId == null || originalNetworkId == null || serviceId == null || tsId == null) {
             Log.w("HBBTV", "Cannot launch HbbTV app due to missing identifiers: serviceId=" + serviceId + ", networkId=" + networkId + ", originalNetworkId=" + originalNetworkId + ", tsId=" + tsId);
             return;

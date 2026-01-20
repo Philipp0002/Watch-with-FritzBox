@@ -190,4 +190,7 @@
     <string name="extra_key_yellow">Gelb</string>
     <string name="extra_key_red">Rot</string>
     <string name="extra_key_blue">Blau</string>
+
+    <string name="teletext_subtitles">Teletext Untertitel</string>
+    <string name="teletext_subtitles_hearing_impaired">Teletext Untertitel für Hörgeschädigte</string>
 </resources>

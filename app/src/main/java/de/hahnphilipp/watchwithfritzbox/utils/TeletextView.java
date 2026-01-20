@@ -26,23 +26,21 @@ public class TeletextView extends View {
 
     public TeletextView(Context context) {
         super(context);
+
+        initView();
     }
 
     public TeletextView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+
+        initView();
     }
 
-    public TeletextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    private void initView() {
+        typeface = Typeface.createFromAsset(getContext().getAssets(), "bedstead.otf");
     }
-
-    public TeletextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-    }
-
 
     public void setTeletext(MediaPlayer.Teletext teletext) {
-        typeface = Typeface.createFromAsset(getContext().getAssets(), "bedstead.otf");
         this.teletext = teletext;
         if (teletext != null) {
             colorPalette = Arrays.stream(teletext.getPalette()).map(s -> Color.parseColor("#" + s)).toArray(Integer[]::new);
@@ -54,7 +52,9 @@ public class TeletextView extends View {
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
 
+        paint.setTypeface(typeface);
         paint.setColor(Color.BLACK);
+        paint.setStyle(Paint.Style.FILL);
         int canvasWidth = getWidth();
         int canvasHeight = getHeight();
 
@@ -73,36 +73,15 @@ public class TeletextView extends View {
         int cellWidth = canvasWidth / teletext.getSizeColumns();
         int cellHeight = canvasHeight / teletext.getSizeRows();
         int textSize = determineMaxTextSize(cellHeight);
-        paint.setStyle(Paint.Style.FILL);
-        Log.d("TeletextView", "Determined text size: " + textSize);
-
-        /*for (int i1 = 0; i1 < teletext.getSizeRows(); i1++) {
-            int y = i1 * cellHeight;
-            for (int i2 = 0; i2 < teletext.getSizeColumns(); i2++) {
-                int x = i2 * cellWidth;
-                MediaPlayer.TeletextCell cell = teletext.getCells()[i1][i2];
-                int backgroundColor = Color.BLACK;
-                try {
-                    backgroundColor = colorPalette[cell.getBackgroundPaletteIndex()];
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                paint.setColor(backgroundColor);
-                canvas.drawRect(x, y, x + cellWidth, y + cellHeight, paint);
-            }
-        }*/
 
         for (int i1 = 0; i1 < teletext.getSizeRows(); i1++) {
             int y = i1 * cellHeight;
-            StringBuilder lineBuilder = new StringBuilder();
             for (int i2 = 0; i2 < teletext.getSizeColumns(); i2++) {
                 int x = i2 * cellWidth;
                 MediaPlayer.TeletextCell cell = teletext.getCells()[i1][i2];
 
                 int convertedUnicode = convertToUnicode(cell.getRawUnicode());
                 String character = ((char) convertedUnicode)+"";
-                lineBuilder.append(character);
                 int foregroundColor = Color.WHITE;
                 int backgroundColor = Color.BLACK;
                 try {
@@ -120,17 +99,11 @@ public class TeletextView extends View {
                 canvas.drawRect(x, y, x + cellWidth, y + cellHeight, paint);
 
                 paint.setColor(foregroundColor);
-                paint.setTypeface(typeface);
                 paint.setTextSize(textSize);
 
-                Rect bounds = new Rect();
-                paint.getTextBounds(character, 0, character.length(), bounds);
                 Paint.FontMetrics fm = paint.getFontMetrics();
-
                 canvas.drawText(character, x, y - fm.ascent, paint);
             }
-
-            Log.d("tttxxx", lineBuilder.toString());
 
         }
     }

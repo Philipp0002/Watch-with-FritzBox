@@ -23,11 +23,13 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
 
     public List<Object> objects;
     private Context context;
+    private RecyclerView recyclerView;
     private boolean firstItemSelected = false;
 
-    public TVSettingsOverlayRecyclerAdapter(Context context, List<Object> objects) {
+    public TVSettingsOverlayRecyclerAdapter(Context context, List<Object> objects, RecyclerView recyclerView) {
         this.objects = objects;
         this.context = context;
+        this.recyclerView = recyclerView;
     }
 
     @Override
@@ -74,6 +76,14 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
                 if (hasFocus) {
                     AnimationUtils.scaleView(holder.mainView, 1F, 1.025F, 1F, 1.025F, 100L);
                     holder.mainView.setElevation(12);
+                    for(Object object : objects) {
+                        if(object instanceof TVSetting otherItem) {
+                            if(otherItem == item) {
+                                recyclerView.post(() -> recyclerView.smoothScrollBy(0, -500));
+                            }
+                            break;
+                        }
+                    }
                 } else {
                     AnimationUtils.scaleView(holder.mainView, 1.025F, 1F, 1.025F, 1F, 20L);
                     holder.mainView.setElevation(1);

@@ -13,7 +13,25 @@
 
 
 
+    <style name="BlueButton" parent="AppTheme">
+        <item name="wwfbColorButton">#05668D</item>
+        <item name="wwfbColorSelection">#023346</item>
+    </style>
 
+    <style name="YellowButton" parent="AppTheme">
+        <item name="wwfbColorButton">#f7e339</item>
+        <item name="wwfbColorSelection">#928306</item>
+    </style>
+
+    <style name="GreenButton" parent="AppTheme">
+        <item name="wwfbColorButton">#acf756</item>
+        <item name="wwfbColorSelection">#589f08</item>
+    </style>
+
+    <style name="RedButton" parent="AppTheme">
+        <item name="wwfbColorButton">#f71641</item>
+        <item name="wwfbColorSelection">#82041c</item>
+    </style>
 
 
 

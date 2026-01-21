@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.hbbtv.AitApplication;
@@ -380,6 +381,18 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
                     extraKeyYellow.setVisibility(keyTypesFocusable.get(HbbTVKeyTypes.YELLOW) ? View.VISIBLE : View.GONE);
                     extraKeyGreen.setVisibility(keyTypesFocusable.get(HbbTVKeyTypes.GREEN) ? View.VISIBLE : View.GONE);
                     extraKeyBlue.setVisibility(keyTypesFocusable.get(HbbTVKeyTypes.BLUE) ? View.VISIBLE : View.GONE);
+
+                    View[] buttons = new View[] {extraKeyRed, extraKeyGreen, extraKeyYellow, extraKeyBlue};
+                    List<View> buttonList = Arrays.stream(buttons).filter(v -> v.getVisibility() == View.VISIBLE).toList();
+                    for (View v : buttonList) {
+                        v.setBackgroundResource(R.drawable.center_button_wrapper);
+                    }
+                    if (buttonList.size() == 1) {
+                        buttonList.get(0).setBackgroundResource(R.drawable.single_button_wrapper);
+                    } else {
+                        buttonList.get(0).setBackgroundResource(R.drawable.left_button_wrapper);
+                        buttonList.get(buttonList.size() - 1).setBackgroundResource(R.drawable.right_button_wrapper);
+                    }
                 });
             }
         }, "WatchWithFritzbox");

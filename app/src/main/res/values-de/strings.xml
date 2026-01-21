@@ -193,4 +193,5 @@
 
     <string name="teletext_subtitles">Teletext Untertitel</string>
     <string name="teletext_subtitles_hearing_impaired">Teletext Untertitel für Hörgeschädigte</string>
+    <string name="teletext_page_loading">Lade Seite %d</string>
 </resources>

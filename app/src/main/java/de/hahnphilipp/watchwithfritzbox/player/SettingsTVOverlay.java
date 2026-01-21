@@ -54,7 +54,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
         ArrayList<Object> tvSettings = new ArrayList<Object>();
 
-        tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings);
+        tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings, recyclerView);
         final LinearLayoutManager llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);

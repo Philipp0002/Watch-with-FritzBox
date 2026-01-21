@@ -1,16 +1,233 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/panel_background">
 
-    <de.hahnphilipp.watchwithfritzbox.utils.TeletextView
-        android:id="@+id/teletextview"
+    <ViewAnimator
+        android:id="@+id/teletext_view_animator"
+        android:inAnimation="@android:anim/fade_in"
+        android:outAnimation="@android:anim/fade_out"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         app:layout_constraintDimensionRatio="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                app:waveAmplitude="1dp"
+                app:wavelength="10dp"/>
+
+            <TextView
+                android:id="@+id/teletext_loading_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="@string/teletext_page_loading"/>
+        </LinearLayout>
+
+        <de.hahnphilipp.watchwithfritzbox.utils.TeletextView
+            android:id="@+id/teletextview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </ViewAnimator>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toEndOf="@id/teletext_view_animator"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <TextView
+                android:id="@+id/teletext_page_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="000"
+                android:padding="16dp"/>
+        </androidx.cardview.widget.CardView>
+
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/teletext_key_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1"/>
+
+                <Button
+                    android:id="@+id/teletext_key_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2"/>
+
+                <Button
+                    android:id="@+id/teletext_key_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3"/>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/teletext_key_4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4"/>
+
+                <Button
+                    android:id="@+id/teletext_key_5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5"/>
+
+                <Button
+                    android:id="@+id/teletext_key_6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="6"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/teletext_key_7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="7"/>
+
+                <Button
+                    android:id="@+id/teletext_key_8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="8"/>
+
+                <Button
+                    android:id="@+id/teletext_key_9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="9"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/teletext_key_page_down"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/round_arrow_back"
+                    app:iconGravity="textStart"/>
+
+                <Button
+                    android:id="@+id/teletext_key_0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/teletext_key_page_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/round_arrow_forward"
+                    app:iconGravity="textEnd"/>
+            </TableRow>
+        </TableLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:gravity="center">
+
+            <Button
+                android:theme="@style/RedButton"
+                android:id="@+id/extra_key_red"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/extra_key_red"
+                android:textColor="#fff"
+                android:focusable="true"
+                android:background="@drawable/left_button_wrapper"
+                android:nextFocusRight="@string/extra_key_green"/>
+
+            <Button
+                android:theme="@style/GreenButton"
+                android:id="@+id/extra_key_green"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/extra_key_green"
+                android:textColor="#000"
+                android:focusable="true"
+                android:background="@drawable/center_button_wrapper"
+                android:nextFocusRight="@string/extra_key_yellow"
+                android:nextFocusLeft="@string/extra_key_red"/>
+
+            <Button
+                android:theme="@style/YellowButton"
+                android:id="@+id/extra_key_yellow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/extra_key_yellow"
+                android:textColor="#000"
+                android:focusable="true"
+                android:background="@drawable/center_button_wrapper"
+                android:nextFocusRight="@string/extra_key_blue"
+                android:nextFocusLeft="@string/extra_key_green"/>
+
+            <Button
+                android:theme="@style/BlueButton"
+                android:id="@+id/extra_key_blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/extra_key_blue"
+                android:textColor="#fff"
+                android:focusable="true"
+                android:background="@drawable/right_button_wrapper"
+                android:nextFocusLeft="@string/extra_key_yellow"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

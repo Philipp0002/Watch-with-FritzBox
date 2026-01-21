@@ -48,6 +48,8 @@ public class TeletextView extends View {
         invalidate();
     }
 
+    int cellWidth,cellHeight,textSize = 0;
+
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
@@ -70,9 +72,11 @@ public class TeletextView extends View {
             return;
         }
 
-        int cellWidth = canvasWidth / teletext.getSizeColumns();
-        int cellHeight = canvasHeight / teletext.getSizeRows();
-        int textSize = determineMaxTextSize(cellHeight);
+        if(cellWidth == 0) {
+            cellWidth = canvasWidth / teletext.getSizeColumns();
+            cellHeight = canvasHeight / teletext.getSizeRows();
+            textSize = determineMaxTextSize(cellHeight);
+        }
 
         for (int i1 = 0; i1 < teletext.getSizeRows(); i1++) {
             int y = i1 * cellHeight;

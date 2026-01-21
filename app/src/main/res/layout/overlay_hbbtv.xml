@@ -36,7 +36,7 @@
                 android:text="@string/extra_key_red"
                 android:textColor="#fff"
                 android:focusable="true"
-                android:background="@drawable/left_button_wrapper"
+                android:background="@drawable/button_left_wrapper"
                 android:nextFocusRight="@string/extra_key_green"/>
 
             <Button
@@ -47,7 +47,7 @@
                 android:text="@string/extra_key_green"
                 android:textColor="#000"
                 android:focusable="true"
-                android:background="@drawable/center_button_wrapper"
+                android:background="@drawable/button_center_wrapper"
                 android:nextFocusRight="@string/extra_key_yellow"
                 android:nextFocusLeft="@string/extra_key_red"/>
 
@@ -59,7 +59,7 @@
                 android:text="@string/extra_key_yellow"
                 android:textColor="#000"
                 android:focusable="true"
-                android:background="@drawable/center_button_wrapper"
+                android:background="@drawable/button_center_wrapper"
                 android:nextFocusRight="@string/extra_key_blue"
                 android:nextFocusLeft="@string/extra_key_green"/>
 
@@ -71,7 +71,7 @@
                 android:text="@string/extra_key_blue"
                 android:textColor="#fff"
                 android:focusable="true"
-                android:background="@drawable/right_button_wrapper"
+                android:background="@drawable/button_right_wrapper"
                 android:nextFocusLeft="@string/extra_key_yellow"/>
 
 

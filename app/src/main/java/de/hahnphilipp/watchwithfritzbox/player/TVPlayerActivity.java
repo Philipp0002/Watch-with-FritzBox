@@ -273,6 +273,9 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         if (event.isCanceled()) {
             return true;
         }
+        if (mTeletextOverlayFragment.onKeyUp(keyCode, event)) {
+            return true/* || super.onKeyUp(keyCode, event)*/;
+        }
         if (mHbbTvOverlay.onKeyUp(keyCode, event)) {
             return true/* || super.onKeyUp(keyCode, event)*/;
         }

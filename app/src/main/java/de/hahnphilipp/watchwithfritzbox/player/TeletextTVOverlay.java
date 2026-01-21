@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewAnimator;
 
 import androidx.annotation.NonNull;
@@ -20,10 +19,8 @@ import com.google.gson.Gson;
 
 import org.videolan.libvlc.MediaPlayer;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,7 +45,9 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
     private TextView pageNumberView;
     private ViewAnimator teletextViewAnimator;
-    private TextView teletextLoadingView;
+    private TextView teletextLoadingView, teletextReceivingView;
+
+    private Integer pageRed, pageGreen, pageYellow, pageBlue;
 
 
     private String enteredNumber = currentPage + "";
@@ -70,6 +69,7 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
         teletextViewAnimator = view.findViewById(R.id.teletext_view_animator);
         teletextLoadingView = view.findViewById(R.id.teletext_loading_text);
+        teletextReceivingView = view.findViewById(R.id.teletext_receiving_text);
 
         extraKeyRed = view.findViewById(R.id.extra_key_red);
         extraKeyBlue = view.findViewById(R.id.extra_key_blue);
@@ -148,6 +148,8 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         if (teletextData != null) {
             AsyncTask.execute(() -> {
                 setTeletextViewPage(teletextData);
+                if(getActivity() == null) return;
+
                 requireActivity().runOnUiThread(() -> {
                     if (teletextViewAnimator.getDisplayedChild() != 1)
                         teletextViewAnimator.setDisplayedChild(1);
@@ -156,40 +158,48 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         } else {
             if (teletextViewAnimator.getDisplayedChild() != 0)
                 teletextViewAnimator.setDisplayedChild(0);
-            teletextLoadingView.setText(getString(R.string.teletext_page_loading, currentPage));
         }
+        teletextLoadingView.setText(getString(R.string.teletext_page_loading, currentPage));
     }
 
     private void setTeletextColorButtons(MediaPlayer.TeletextNav[] teletextNav) {
-
         extraKeyGreen.setOnClickListener(null);
         extraKeyBlue.setOnClickListener(null);
         extraKeyYellow.setOnClickListener(null);
         extraKeyRed.setOnClickListener(null);
+        if(getActivity() == null) return;
         requireActivity().runOnUiThread(() -> {
-            extraKeyGreen.setVisibility(View.GONE);
-            extraKeyBlue.setVisibility(View.GONE);
-            extraKeyYellow.setVisibility(View.GONE);
-            extraKeyRed.setVisibility(View.GONE);
             View[] visibleButtons = new View[4];
+            View[] invisibleButtons = new View[]{extraKeyRed, extraKeyGreen, extraKeyYellow, extraKeyBlue};
+            pageRed = null;
+            pageGreen = null;
+            pageYellow = null;
+            pageBlue = null;
             for (MediaPlayer.TeletextNav nav : teletextNav) {
-                Log.d("TeletextNav", "page " + nav.getPageNumber() + " - subPage " + nav.getSubPageNumber() + " - label " + nav.getLabel());
                 switch (nav.getLabel().toLowerCase()) {
                     case "red":
                         extraKeyRed.setOnClickListener(view1 -> setTeletextPage(nav.getPageNumber()));
                         visibleButtons[0] = extraKeyRed;
+                        invisibleButtons[0] = null;
+                        pageRed = nav.getPageNumber();
                         break;
                     case "blue":
                         extraKeyBlue.setOnClickListener(view1 -> setTeletextPage(nav.getPageNumber()));
                         visibleButtons[3] = extraKeyBlue;
+                        invisibleButtons[3] = null;
+                        pageBlue = nav.getPageNumber();
                         break;
                     case "yellow":
                         extraKeyYellow.setOnClickListener(view1 -> setTeletextPage(nav.getPageNumber()));
                         visibleButtons[2] = extraKeyYellow;
+                        invisibleButtons[2] = null;
+                        pageYellow = nav.getPageNumber();
                         break;
                     case "green":
                         extraKeyGreen.setOnClickListener(view1 -> setTeletextPage(nav.getPageNumber()));
                         visibleButtons[1] = extraKeyGreen;
+                        invisibleButtons[1] = null;
+                        pageGreen = nav.getPageNumber();
                         break;
                     case "index":
 
@@ -198,15 +208,16 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
             }
 
             List<View> buttonList = Arrays.stream(visibleButtons).filter(Objects::nonNull).toList();
+            Arrays.stream(invisibleButtons).filter(Objects::nonNull).forEach(v -> v.setVisibility(View.GONE));
             for (View v : buttonList) {
                 v.setVisibility(View.VISIBLE);
-                v.setBackgroundResource(R.drawable.center_button_wrapper);
+                v.setBackgroundResource(R.drawable.button_center_wrapper);
             }
             if (buttonList.size() == 1) {
-                buttonList.get(0).setBackgroundResource(R.drawable.single_button_wrapper);
+                buttonList.get(0).setBackgroundResource(R.drawable.button_single_wrapper);
             } else {
-                buttonList.get(0).setBackgroundResource(R.drawable.left_button_wrapper);
-                buttonList.get(buttonList.size() - 1).setBackgroundResource(R.drawable.right_button_wrapper);
+                buttonList.get(0).setBackgroundResource(R.drawable.button_left_wrapper);
+                buttonList.get(buttonList.size() - 1).setBackgroundResource(R.drawable.button_right_wrapper);
             }
         });
 
@@ -214,6 +225,9 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public void updateTeletextPage(int page, String teletextData) {
+        if (teletextViewAnimator.getDisplayedChild() == 0) {
+            teletextReceivingView.setText(getString(R.string.teletext_page_receiving, page));
+        }
         teletextPages.put(page, teletextData);
         if (page == currentPage) {
             setTeletextPage(page);
@@ -228,6 +242,10 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         MediaPlayer.Teletext teletext = new Gson().fromJson(teletextData, MediaPlayer.Teletext.class);
         setTeletextColorButtons(teletext.getNavigation());
         teletextView.setTeletext(teletext);
+        enteredNumber = teletext.getPageNumber() + "";
+        if(getActivity() == null) return;
+
+        requireActivity().runOnUiThread(() -> pageNumberView.setText(enteredNumber));
     }
 
 
@@ -236,6 +254,56 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
             context.popOverlayFragment();
             return true;
         }*/
+        if (event.getAction() == KeyEvent.ACTION_UP) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_0:
+                    enterNumber(0);
+                    return true;
+                case KeyEvent.KEYCODE_1:
+                    enterNumber(1);
+                    return true;
+                case KeyEvent.KEYCODE_2:
+                    enterNumber(2);
+                    return true;
+                case KeyEvent.KEYCODE_3:
+                    enterNumber(3);
+                    return true;
+                case KeyEvent.KEYCODE_4:
+                    enterNumber(4);
+                    return true;
+                case KeyEvent.KEYCODE_5:
+                    enterNumber(5);
+                    return true;
+                case KeyEvent.KEYCODE_6:
+                    enterNumber(6);
+                    return true;
+                case KeyEvent.KEYCODE_7:
+                    enterNumber(7);
+                    return true;
+                case KeyEvent.KEYCODE_8:
+                    enterNumber(8);
+                    return true;
+                case KeyEvent.KEYCODE_9:
+                    enterNumber(9);
+                    return true;
+                case KeyEvent.KEYCODE_PROG_RED:
+                    if(pageRed != null)
+                        setTeletextPage(pageRed);
+                    return true;
+                case KeyEvent.KEYCODE_PROG_BLUE:
+                    if(pageBlue != null)
+                        setTeletextPage(pageBlue);
+                    return true;
+                case KeyEvent.KEYCODE_PROG_YELLOW:
+                    if(pageYellow != null)
+                        setTeletextPage(pageYellow);
+                    return true;
+                case KeyEvent.KEYCODE_PROG_GREEN:
+                    if(pageGreen != null)
+                        setTeletextPage(pageGreen);
+                    return true;
+            }
+        }
         return false;
     }
 

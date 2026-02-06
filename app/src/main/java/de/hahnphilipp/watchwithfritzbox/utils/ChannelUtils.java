@@ -194,7 +194,7 @@ public class ChannelUtils {
         try {
             return "https://tv.avm.de/tvapp/logos/" +
                     (channel.type == ChannelType.HD ? "hd/" : (channel.type == ChannelType.RADIO ? "radio/" : "")) +
-                    URLEncoder.encode(channel.title.toLowerCase().replace(" ", "_").replace("+", ""), "UTF-8") +
+                    URLEncoder.encode(channel.title.toLowerCase().replace("ü", "ue").replace("ä", "ae").replace("ö", "oe").replace(" ", "_").replace("+", ""), "UTF-8") +
                     ".png";
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

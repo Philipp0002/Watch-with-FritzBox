@@ -389,8 +389,10 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
                     if (buttonList.size() == 1) {
                         buttonList.get(0).setBackgroundResource(R.drawable.button_single_wrapper);
                     } else {
-                        buttonList.get(0).setBackgroundResource(R.drawable.button_left_wrapper);
-                        buttonList.get(buttonList.size() - 1).setBackgroundResource(R.drawable.button_right_wrapper);
+                        if(!buttonList.isEmpty()) {
+                            buttonList.get(0).setBackgroundResource(R.drawable.button_left_wrapper);
+                            buttonList.get(buttonList.size() - 1).setBackgroundResource(R.drawable.button_right_wrapper);
+                        }
                     }
                 });
             }

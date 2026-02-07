@@ -241,7 +241,7 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
         MediaPlayer.Teletext teletext = new Gson().fromJson(teletextData, MediaPlayer.Teletext.class);
         setTeletextColorButtons(teletext.getNavigation());
-        teletextView.setTeletext(teletext);
+        requireActivity().runOnUiThread(() -> teletextView.setTeletext(teletext));
         enteredNumber = teletext.getPageNumber() + "";
         if(getActivity() == null) return;
 

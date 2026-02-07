@@ -9,7 +9,9 @@
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/overlay_extra_keys"

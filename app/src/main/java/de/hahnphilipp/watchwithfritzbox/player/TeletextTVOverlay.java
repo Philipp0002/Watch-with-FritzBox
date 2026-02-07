@@ -237,7 +237,7 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     private void setTeletextViewPage(String teletextData) {
-        if (teletextView == null) {
+        if (teletextView == null || getActivity() == null || !isShown) {
             return;
         }
 
@@ -245,7 +245,6 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         setTeletextColorButtons(teletext.getNavigation());
         requireActivity().runOnUiThread(() -> teletextView.setTeletext(teletext));
         enteredNumber = teletext.getPageNumber() + "";
-        if(getActivity() == null) return;
 
         requireActivity().runOnUiThread(() -> pageNumberView.setText(enteredNumber));
     }

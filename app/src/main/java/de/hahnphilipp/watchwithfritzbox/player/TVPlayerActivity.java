@@ -174,6 +174,17 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        mMediaPlayer.stop();
+        ivlcVout.detachViews();
+        mLibVLC.release();
+        mMediaPlayer.release();
+        if (media != null) {
+            media.release();
+            media = null;
+        }
+        mMediaPlayer = null;
+        mLibVLC = null;
     }
 
 
@@ -399,9 +410,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 mMediaPlayer.setMedia(media);
                 media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
-                media.addOption("--deinterlace=1");
                 media.addOption("--video-filter=deinterlace");
-                media.addOption("--deinterlace-mode=blend");
+                media.addOption("--deinterlace=1");
+                media.addOption("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
+
                 teletextPageInfos.clear();
 
                 mMediaPlayer.play();
@@ -457,22 +469,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             }
         }, 1500);
 
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        mMediaPlayer.stop();
-        ivlcVout.detachViews();
-        mLibVLC.release();
-        mMediaPlayer.release();
-        if (media != null) {
-            media.release();
-            media = null;
-        }
-        mMediaPlayer = null;
-        mLibVLC = null;
     }
 
     public void stopHbbTV() {

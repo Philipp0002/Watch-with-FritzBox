@@ -21,6 +21,7 @@ import org.videolan.libvlc.MediaPlayer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,12 +63,12 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
 
     /**
      * Tune VLC to frequency
-     * @param pmtPid PID for reading PMT (null if not yet known)
+     * @param pmtPids PIDs for reading PMT (null if not yet known)
      */
-    public void tune(Integer frequency, Integer pmtPid) {
-        Log.d("SETUP_SEARCH", "Tuning frequency " + frequency + " with PMT-PID " + pmtPid);
+    public void tune(Integer frequency, List<Integer> pmtPids) {
+        Log.d("SETUP_SEARCH", "Tuning frequency " + frequency + " with PMT-PIDs " + pmtPids);
         List<Integer> pids = new ArrayList<>(List.of(0,16,17,18,20));
-        if(pmtPid != null) pids.add(pmtPid);
+        if(pmtPids != null) pids.addAll(pmtPids);
         String uri = "rtsp://" + ip + ":554/?avm=1&freq=" + frequency + "&bw=8&msys=dvbc&mtype=256qam&sr=6900&specinv=1&pids=" + pids.stream().map(i -> i + "").collect(Collectors.joining(","));
 
         mMediaPlayer.stop();
@@ -83,7 +84,7 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvvvv");
 
-        args.add("--http-reconnect");
+        //args.add("--http-reconnect");
         args.add("--sout-keep");
         args.add("--vout=none");
         args.add("--aout=none");
@@ -161,17 +162,25 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
                     Log.d("SETUP_PAT", event.getRecordPath());
                     if (pmtFound) return;
                     MediaPlayer.Pat pat = event.getPat();
-                    int lowestPatPid = Integer.MAX_VALUE;
+                    List<Integer> pmtPids = new ArrayList<>();
                     for (int i = 0; i < pat.getPatPids().length; i++) {
                         MediaPlayer.PatPid patPid = pat.getPatPids()[i];
-                        if (patPid.getNumber() != 0 && lowestPatPid > patPid.getPid()) {
-                            lowestPatPid = patPid.getPid();
+                        if(patPid.getNumber() != 0) {
+                            pmtPids.add(patPid.getPid());
                         }
                     }
-                    if (lowestPatPid != Integer.MAX_VALUE) {
-                        pmtFound = true;
-                        tune(currentNitTransportStreamIndex != -1 ? currentNitTransportStreamIndex : startFrequency, lowestPatPid);
+                    pmtFound = true;
+
+                    int freqToTune = startFrequency;
+                    if(currentNitTransportStreamIndex != -1 && nit != null) {
+                        MediaPlayer.NitTransportStream nts = nit.getNitTransportStreams()[currentNitTransportStreamIndex];
+                        if(nts.getCable() != null) {
+                            double freqMhz = decodeFrequency((int) nts.getCable().getFrequency().longValue());
+                            freqToTune = roundToGrid(freqMhz);
+                        }
                     }
+
+                    tune(freqToTune, pmtPids);
                 });
 
                 break;
@@ -182,13 +191,22 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
                     nit = event.getNit();
                     Log.d("SETUP_NIT", nit.getNitTransportStreams().length + " Transport streams");
 
+                    for(MediaPlayer.NitTransportStream nts : nit.getNitTransportStreams()) {
+                        Log.d("SETUP_NIT", "======================");
+                        Log.d("SETUP_NIT", "TS freq " + nts.getCable().getFrequency() + " mod " + nts.getCable().getModulation());
+                        Log.d("SETUP_NIT", Arrays.toString(nts.getServices()));
+                    }
+
                     currentNitTransportStreamIndex = 0;
                     MediaPlayer.NitTransportStream nts = nit.getNitTransportStreams()[currentNitTransportStreamIndex];
                     if(nts.getCable() == null) {
                         // TODO Show error -> NOT CABLE TV!! (maybe satellite, terrestrial)
                         return;
                     }
-                    tune(getRasteredFrequency(nts.getCable().getFrequency()), null);
+                    double freqMhz = decodeFrequency((int) nts.getCable().getFrequency().longValue());
+                    int freqGrid = roundToGrid(freqMhz);
+                    String mod = decodeModulation(nts.getCable().getModulation());
+                    tune(freqGrid, null);
                     pmtFound = false;
 
                 });
@@ -227,8 +245,86 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         }
     }
 
-    private int getRasteredFrequency(long dvbFrequency) {
-        float correctedDvbFrequency = (float) dvbFrequency / 100_000;
-        return Math.round((correctedDvbFrequency - baseFrequency) / stepFrequency) * stepFrequency + baseFrequency;
+    /**
+     * Dekodiert BCD-kodierte Frequenz aus DVB-C NIT Cable Delivery Descriptor
+     *
+     * @param freqBcd BCD-kodierte Frequenz als Integer (in 10 Hz Einheiten)
+     * @return Frequenz in MHz
+     */
+    public static double decodeFrequency(int freqBcd) {
+        // Bytes extrahieren und umkehren (falls Little Endian)
+        int byte0 = (freqBcd >> 24) & 0xFF;
+        int byte1 = (freqBcd >> 16) & 0xFF;
+        int byte2 = (freqBcd >> 8) & 0xFF;
+        int byte3 = freqBcd & 0xFF;
+
+        // BCD dekodieren - jedes Byte hat 2 Dezimalziffern
+        long bcdValue = 0;
+        bcdValue += bcdFromByte(byte0) * 1_000_000L;
+        bcdValue += bcdFromByte(byte1) * 10_000L;
+        bcdValue += bcdFromByte(byte2) * 100L;
+        bcdValue += bcdFromByte(byte3);
+
+        // In 10 kHz Einheiten → MHz
+        return bcdValue / 10000.0;
+    }
+
+    private static int bcdFromByte(int b) {
+        int high = (b >> 4) & 0x0F;
+        int low = b & 0x0F;
+        return high * 10 + low;
+    }
+
+    /**
+     * Rundet Frequenz auf typisches Vodafone DVB-C Raster
+     *
+     * @param freqMhz Frequenz in MHz
+     * @return Gerundete Frequenz auf Raster
+     */
+    public static int roundToGrid(double freqMhz) {
+        // S21-S41: 346-610 MHz, 8 MHz Raster
+        if (freqMhz >= 346 && freqMhz <= 610) {
+            int base = 346;
+            int offset = (int) Math.round((freqMhz - base) / 8.0) * 8;
+            return base + offset;
+        }
+
+        // S10-S20: 210-330 MHz, 10 MHz Raster
+        else if (freqMhz >= 210 && freqMhz <= 330) {
+            return (int) Math.round(freqMhz / 10.0) * 10;
+        }
+
+        // S02-S09: 121-177 MHz, 8 MHz Raster
+        else if (freqMhz >= 121 && freqMhz <= 177) {
+            int base = 121;
+            int offset = (int) Math.round((freqMhz - base) / 8.0) * 8;
+            return base + offset;
+        }
+
+        // Sonderkanal
+        else if (freqMhz >= 110 && freqMhz <= 120) {
+            return 113;
+        }
+
+        // Außerhalb bekannter Bereiche
+        return (int) Math.round(freqMhz);
+    }
+
+    /**
+     * Dekodiert Modulation aus Cable Delivery Descriptor
+     *
+     * @param modValue Modulations-Wert (0-5)
+     * @return Modulations-String (z.B. "256qam")
+     */
+    public static String decodeModulation(long modValue) {
+        switch ((int) modValue) {
+            case 0: return "undefined";
+            case 1: return "16qam";
+            case 2: return "32qam";
+            case 3: return "64qam";
+            case 4: return "128qam";
+            case 5: return "256qam";
+            default: return "unknown";
+        }
     }
 }

@@ -66,7 +66,7 @@ public class SetupIPActivity extends AppCompatActivity {
             return;
         }
 
-        Intent mainIntent = new Intent(SetupIPActivity.this, SetupSearchActivity.class);
+        Intent mainIntent = new Intent(SetupIPActivity.this, NewSetupSearchActivity.class);
         mainIntent.putExtra("ip", et.getText().toString().trim());
         startActivity(mainIntent);
         finish();

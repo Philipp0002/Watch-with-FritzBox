@@ -17,10 +17,12 @@ import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
@@ -41,8 +43,7 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
     public Media media;
 
     private boolean pmtFound = false;
-    private MediaPlayer.Nit nit = null;
-    private int currentNitTransportStreamIndex = -1;
+    private List<MediaPlayer.NitTransportStream> nitTransportStreams = null;
     private int channelNumber = 0;
 
     @Override
@@ -68,7 +69,7 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         int frequency = roundToGrid(freqMhz);
         this.currentFrequencyMhz = frequency;
 
-        Log.d("SETUP_SEARCH", "Tuning frequency " + frequency + " with PMT-PIDs " + pmtPids);
+        Log.w("SETUP_SEARCH", "Tuning frequency " + frequency + " with PMT-PIDs " + pmtPids);
         List<Integer> pids = new ArrayList<>(List.of(0, 16, 17, 18, 20));
         if (pmtPids != null) pids.addAll(pmtPids.values());
         String uri = "rtsp://" + ip + ":554/?avm=1&freq=" + frequency + "&bw=8&msys=dvbc&mtype=" + modulation + "&sr=6900&specinv=1&pids=" + pids.stream().map(i -> i + "").collect(Collectors.joining(","));
@@ -78,18 +79,21 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         if (media != null && !media.isReleased()) {
             media.release();
         }
-        media = new Media(mLibVLC, Uri.parse(uri));
-        mMediaPlayer.setMedia(media);
-        mMediaPlayer.play();
+        AsyncTask.execute(() -> {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            media = new Media(mLibVLC, Uri.parse(uri));
+            mMediaPlayer.setMedia(media);
+            mMediaPlayer.play();
+        });
     }
 
     public void tuneNext() {
-        currentNitTransportStreamIndex++;
-        MediaPlayer.NitTransportStream nts = nit.getNitTransportStreams()[currentNitTransportStreamIndex];
-        if (nts.getCable() == null) {
-            // TODO Show error -> NOT CABLE TV!! (maybe satellite, terrestrial)
-            return;
-        }
+        MediaPlayer.NitTransportStream nts = nitTransportStreams.get(0);
+        nitTransportStreams.remove(0);
         String mod = decodeModulation(nts.getCable().getModulation());
         tune((int) nts.getCable().getFrequency().longValue(), null, mod);
         pmtFound = false;
@@ -99,7 +103,7 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvvvv");
 
-        args.add("--http-reconnect");
+        //args.add("--http-reconnect");
         args.add("--sout-keep");
         args.add("--vout=none");
         args.add("--aout=none");
@@ -109,8 +113,21 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         mMediaPlayer.setEventListener(this);
     }
 
+    public void unloadLibVLC() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+        if (mLibVLC != null) {
+            mLibVLC.release();
+            mLibVLC = null;
+        }
+    }
+
     @Override
     public void onEvent(MediaPlayer.Event event) {
+        Log.d("EVENTTYPE", event.type + "");
         switch (event.type) {
             case MediaPlayer.Event.PatReceived:
                 AsyncTask.execute(() -> {
@@ -132,22 +149,30 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
                 break;
             case MediaPlayer.Event.NitReceived:
                 AsyncTask.execute(() -> {
-                    if (nit != null) return;
+                    if (nitTransportStreams != null) return;
                     Log.d("SETUP_NIT", event.getRecordPath());
-                    nit = event.getNit();
+                    nitTransportStreams = new ArrayList<>();
+                    for(MediaPlayer.NitTransportStream nts : event.getNit().getNitTransportStreams()){
+                        if(nts.getCable() != null) {
+                            if(nts.getCable().getFrequency() != currentFrequencyBcd) {
+                                nitTransportStreams.add(nts);
+                            }
+                        } else {
+                            // TODO Show error -> NOT CABLE TV!! (maybe satellite, terrestrial)
+                        }
+                    }
 
-                    currentNitTransportStreamIndex = -1;
                     tuneNext();
                 });
                 break;
             case MediaPlayer.Event.EpgNewServiceInfoFinished:
                 AsyncTask.execute(() -> {
-                    Log.d("SETUP_SEARCH", (nit == null) + " nit is null?");
-                    if (nit == null) return;
-                    if (currentNitTransportStreamIndex + 1 < nit.getNitTransportStreams().length) {
+                    if (nitTransportStreams == null) return;
+                    if (!nitTransportStreams.isEmpty()) {
                         tuneNext();
                     } else {
                         // Finished all frequencies
+                        unloadLibVLC();
                         runOnUiThread(() -> {
                             skipToNext();
                         });
@@ -161,11 +186,14 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
                     HashSet<Integer> pids = new HashSet<>(List.of(0, 16, 17, 18, 20));
                     if(currentPids.containsKey(serviceInfo.getServiceId())) pids.add(currentPids.get(serviceInfo.getServiceId()));
                     for (int i : serviceInfo.getPids()) pids.add(i);
+                    Log.d("SETUP_EPGNEWSERVICEPIDS", "Service " + serviceInfo.getName() + "(" + serviceInfo.getServiceId() + ") with pids " + Arrays.toString(serviceInfo.getPids()) + " and pmtpid " + currentPids.get(serviceInfo.getServiceId()));
 
                     ChannelUtils.Channel channel = new ChannelUtils.Channel();
                     channel.number = ++channelNumber;
                     channel.title = serviceInfo.getName();
                     channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
+                    channel.tsId = serviceInfo.getTransportStreamId();
+                    channel.onId = serviceInfo.getNetworkId();
                     channel.provider = serviceInfo.getProvider();
                     channel.free = serviceInfo.isFreeCA() != null && serviceInfo.isFreeCA();
                     channel.url = "rtsp://" + ip + ":554/?avm=1&freq=" + currentFrequencyMhz + "&bw=8&msys=dvbc&mtype=" + currentModulation + "&sr=6900&specinv=1&pids=" + pids.stream().map(i -> i + "").collect(Collectors.joining(","));

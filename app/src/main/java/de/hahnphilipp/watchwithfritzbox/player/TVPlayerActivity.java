@@ -538,6 +538,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 AsyncTask.execute(() -> {
                     MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
                     ChannelUtils.Channel originalChannel = null;
+                    Log.d("SETUP_EPGNEWSERVICE", event.getRecordPath());
                     if (serviceInfo.getPids() != null && serviceInfo.getPids().length > 0) {
                         originalChannel = ChannelUtils.getChannelByPids(TVPlayerActivity.this, serviceInfo.getPids());
                     }
@@ -549,20 +550,24 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         channel.title = serviceInfo.getName();
                         channel.serviceId = serviceInfo.getServiceId();
                         channel.provider = serviceInfo.getProvider();
-                        channel.free = serviceInfo.isFreeCa() != null && serviceInfo.isFreeCa();
+                        channel.free = serviceInfo.isFreeCA() != null && serviceInfo.isFreeCA();
                         channel.onId = serviceInfo.getNetworkId();
                         channel.tsId = serviceInfo.getTransportStreamId();
                         try {
                             switch (Math.toIntExact(serviceInfo.getTypeId())) {
-                                case 1:
+                                case 1: // DVB SD
+                                case 22: // SKY SD
                                     channel.type = ChannelUtils.ChannelType.SD;
                                     break;
-                                case 25:
+                                case 25: // DVB HD
                                     channel.type = ChannelUtils.ChannelType.HD;
                                     break;
-                                case 2:
+                                case 2: // DVB Digital Radio
+                                case 10: // DVB FM Radio
                                     channel.type = ChannelUtils.ChannelType.RADIO;
                                     break;
+                                default:
+                                    channel.type = ChannelUtils.ChannelType.OTHER;
                             }
                         } catch (Exception unused) {
                         }

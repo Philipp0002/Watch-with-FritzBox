@@ -34,7 +34,8 @@
         android:id="@+id/tvoverlayrecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusable="false">
+        android:focusable="false"
+        android:clipChildren="false">
     </androidx.leanback.widget.VerticalGridView>
 
     </androidx.leanback.widget.BrowseFrameLayout>

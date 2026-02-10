@@ -90,6 +90,8 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
             holder.channelTypeIcon.setImageResource(R.drawable.radio_tower);
         }
 
+        holder.channelLockedIcon.setVisibility(item.free ? View.GONE : View.VISIBLE);
+
         Glide.with(context)
                 .load(Uri.parse(ChannelUtils.getIconURL(item)))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -192,6 +194,7 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
 
         public ImageView channelIcon;
         public ImageView channelTypeIcon;
+        public ImageView channelLockedIcon;
         public TextView channelName;
         public TextView channelNumber;
         public ConstraintLayout channelNumberLayout;
@@ -208,6 +211,7 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
             channelNumberLayout = itemView.findViewById(R.id.tvoverlaychannel_number_layout);
             channelIcon = itemView.findViewById(R.id.tvoverlaychannel_logo);
             channelTypeIcon = itemView.findViewById(R.id.tvoverlaychannel_type);
+            channelLockedIcon = itemView.findViewById(R.id.tvoverlaychannel_locked);
             cardView = itemView.findViewById(R.id.tvoverlaychannel_cardView);
 
         }

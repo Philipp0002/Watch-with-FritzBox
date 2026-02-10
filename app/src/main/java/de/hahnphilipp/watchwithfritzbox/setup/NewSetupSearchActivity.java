@@ -6,39 +6,33 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class NewSetupSearchActivity extends AppCompatActivity implements MediaPlayer.EventListener {
 
-    private static final int baseFrequency = 308; // Rasterfrequenz Basis
-    private static final int stepFrequency = 8; // Rasterfrequenz Schritte
-    private static final int startFrequency = 330;
+    private static final int startFrequency = 53477376; // 330 Mhz in BCD
+    private int currentFrequencyBcd = startFrequency;
+    private int currentFrequencyMhz;
+    private Map<Integer, Integer> currentPids;
+    private String currentModulation = "256qam";
     private String ip;
     private List<ChannelUtils.Channel> channelList;
 
@@ -49,27 +43,36 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
     private boolean pmtFound = false;
     private MediaPlayer.Nit nit = null;
     private int currentNitTransportStreamIndex = -1;
+    private int channelNumber = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setup_search);
+        setContentView(R.layout.activity_new_setup_search);
 
         ip = getIntent().getStringExtra("ip");
 
         loadLibVLC();
-        tune(startFrequency, null);
+        tune(startFrequency, null, currentModulation);
     }
 
     /**
      * Tune VLC to frequency
+     *
      * @param pmtPids PIDs for reading PMT (null if not yet known)
      */
-    public void tune(Integer frequency, List<Integer> pmtPids) {
+    public void tune(Integer frequencyBcd, Map<Integer, Integer> pmtPids, String modulation) {
+        this.currentFrequencyBcd = frequencyBcd;
+        this.currentModulation = modulation;
+        double freqMhz = decodeFrequency(frequencyBcd);
+        int frequency = roundToGrid(freqMhz);
+        this.currentFrequencyMhz = frequency;
+
         Log.d("SETUP_SEARCH", "Tuning frequency " + frequency + " with PMT-PIDs " + pmtPids);
-        List<Integer> pids = new ArrayList<>(List.of(0,16,17,18,20));
-        if(pmtPids != null) pids.addAll(pmtPids);
-        String uri = "rtsp://" + ip + ":554/?avm=1&freq=" + frequency + "&bw=8&msys=dvbc&mtype=256qam&sr=6900&specinv=1&pids=" + pids.stream().map(i -> i + "").collect(Collectors.joining(","));
+        List<Integer> pids = new ArrayList<>(List.of(0, 16, 17, 18, 20));
+        if (pmtPids != null) pids.addAll(pmtPids.values());
+        String uri = "rtsp://" + ip + ":554/?avm=1&freq=" + frequency + "&bw=8&msys=dvbc&mtype=" + modulation + "&sr=6900&specinv=1&pids=" + pids.stream().map(i -> i + "").collect(Collectors.joining(","));
+        this.currentPids = pmtPids;
 
         mMediaPlayer.stop();
         if (media != null && !media.isReleased()) {
@@ -80,11 +83,23 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         mMediaPlayer.play();
     }
 
+    public void tuneNext() {
+        currentNitTransportStreamIndex++;
+        MediaPlayer.NitTransportStream nts = nit.getNitTransportStreams()[currentNitTransportStreamIndex];
+        if (nts.getCable() == null) {
+            // TODO Show error -> NOT CABLE TV!! (maybe satellite, terrestrial)
+            return;
+        }
+        String mod = decodeModulation(nts.getCable().getModulation());
+        tune((int) nts.getCable().getFrequency().longValue(), null, mod);
+        pmtFound = false;
+    }
+
     public void loadLibVLC() {
         final ArrayList<String> args = new ArrayList<>();
         args.add("-vvvvv");
 
-        //args.add("--http-reconnect");
+        args.add("--http-reconnect");
         args.add("--sout-keep");
         args.add("--vout=none");
         args.add("--aout=none");
@@ -92,66 +107,6 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         mLibVLC = new LibVLC(this, args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mMediaPlayer.setEventListener(this);
-    }
-
-    public void presortChannels() {
-        findViewById(R.id.setup_order_no_button).setVisibility(View.INVISIBLE);
-        findViewById(R.id.setup_order_yes_button).setVisibility(View.INVISIBLE);
-        findViewById(R.id.setup_order_progressBar).setVisibility(View.VISIBLE);
-
-        OkHttpClient client = new OkHttpClient.Builder()
-                .followRedirects(true)
-                .followSslRedirects(true)
-                .build();
-        Request request = new Request.Builder()
-                .url("https://hahnphilipp.de/watchwithfritzbox/presetOrder.json")
-                .build();
-
-        // OkHttp Request
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                runOnUiThread(() -> {
-                    Toast.makeText(NewSetupSearchActivity.this, R.string.setup_order_error, Toast.LENGTH_LONG).show();
-
-                    findViewById(R.id.setup_order_no_button).setVisibility(View.VISIBLE);
-                    findViewById(R.id.setup_order_yes_button).setVisibility(View.VISIBLE);
-                    findViewById(R.id.setup_order_progressBar).setVisibility(View.GONE);
-                });
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                ArrayList<ChannelUtils.Channel> channelsList = ChannelUtils.getAllChannels(NewSetupSearchActivity.this);
-                int position = 0;
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                TypeReference<List<List<String>>> serialType = new TypeReference<>() {};
-                List<List<String>> responseBody = objectMapper.readValue(response.body().string(), serialType);
-                for (List<String> channelNames : responseBody) {
-                    for (String channelName : channelNames) {
-                        Optional<ChannelUtils.Channel> channelToMove = channelsList
-                                .stream()
-                                .filter(channel -> channel.title.equalsIgnoreCase(channelName))
-                                .findFirst();
-
-                        if (channelToMove.isPresent()) {
-                            position++;
-                            channelsList = ChannelUtils.moveChannelToPosition(NewSetupSearchActivity.this, channelToMove.get().number, position);
-                            break;
-                        }
-                    }
-                }
-
-                skipToNext();
-            }
-        });
-    }
-
-    public void skipToNext() {
-        startActivity(new Intent(NewSetupSearchActivity.this, ShowcaseGesturesActivity.class));
-        finish();
-        overridePendingTransition(0, 0);
     }
 
     @Override
@@ -162,87 +117,123 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
                     Log.d("SETUP_PAT", event.getRecordPath());
                     if (pmtFound) return;
                     MediaPlayer.Pat pat = event.getPat();
-                    List<Integer> pmtPids = new ArrayList<>();
+                    HashMap<Integer, Integer> pmtPids = new HashMap<>();
                     for (int i = 0; i < pat.getPatPids().length; i++) {
                         MediaPlayer.PatPid patPid = pat.getPatPids()[i];
-                        if(patPid.getNumber() != 0) {
-                            pmtPids.add(patPid.getPid());
+                        if (patPid.getNumber() != 0) {
+                            pmtPids.put(patPid.getNumber(), patPid.getPid());
                         }
                     }
                     pmtFound = true;
 
-                    int freqToTune = startFrequency;
-                    if(currentNitTransportStreamIndex != -1 && nit != null) {
-                        MediaPlayer.NitTransportStream nts = nit.getNitTransportStreams()[currentNitTransportStreamIndex];
-                        if(nts.getCable() != null) {
-                            double freqMhz = decodeFrequency((int) nts.getCable().getFrequency().longValue());
-                            freqToTune = roundToGrid(freqMhz);
-                        }
-                    }
-
-                    tune(freqToTune, pmtPids);
+                    tune(currentFrequencyBcd, pmtPids, currentModulation);
                 });
 
                 break;
             case MediaPlayer.Event.NitReceived:
                 AsyncTask.execute(() -> {
-                    if(nit != null) return;
+                    if (nit != null) return;
                     Log.d("SETUP_NIT", event.getRecordPath());
                     nit = event.getNit();
-                    Log.d("SETUP_NIT", nit.getNitTransportStreams().length + " Transport streams");
 
-                    for(MediaPlayer.NitTransportStream nts : nit.getNitTransportStreams()) {
-                        Log.d("SETUP_NIT", "======================");
-                        Log.d("SETUP_NIT", "TS freq " + nts.getCable().getFrequency() + " mod " + nts.getCable().getModulation());
-                        Log.d("SETUP_NIT", Arrays.toString(nts.getServices()));
+                    currentNitTransportStreamIndex = -1;
+                    tuneNext();
+                });
+                break;
+            case MediaPlayer.Event.EpgNewServiceInfoFinished:
+                AsyncTask.execute(() -> {
+                    Log.d("SETUP_SEARCH", (nit == null) + " nit is null?");
+                    if (nit == null) return;
+                    if (currentNitTransportStreamIndex + 1 < nit.getNitTransportStreams().length) {
+                        tuneNext();
+                    } else {
+                        // Finished all frequencies
+                        runOnUiThread(() -> {
+                            skipToNext();
+                        });
                     }
-
-                    currentNitTransportStreamIndex = 0;
-                    MediaPlayer.NitTransportStream nts = nit.getNitTransportStreams()[currentNitTransportStreamIndex];
-                    if(nts.getCable() == null) {
-                        // TODO Show error -> NOT CABLE TV!! (maybe satellite, terrestrial)
-                        return;
-                    }
-                    double freqMhz = decodeFrequency((int) nts.getCable().getFrequency().longValue());
-                    int freqGrid = roundToGrid(freqMhz);
-                    String mod = decodeModulation(nts.getCable().getModulation());
-                    tune(freqGrid, null);
-                    pmtFound = false;
-
                 });
                 break;
             case MediaPlayer.Event.EpgNewServiceInfo:
                 AsyncTask.execute(() -> {
-                    //MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
+                    MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
                     Log.d("SETUP_EPGNEWSERVICE", event.getRecordPath());
-                    /*ChannelUtils.Channel originalChannel = ChannelUtils.getChannelByTitle(TVPlayerActivity.this, serviceInfo.getName());
-                    if (originalChannel != null) {
-                        ChannelUtils.Channel channel = originalChannel.copy();
-                        channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
-                        channel.provider = serviceInfo.getProvider();
-                        channel.free = serviceInfo.isFreeCa();
-                        try {
-                            switch (Math.toIntExact(serviceInfo.getTypeId())) {
-                                case 1:
-                                    channel.type = ChannelUtils.ChannelType.SD;
-                                    break;
-                                case 25:
-                                    channel.type = ChannelUtils.ChannelType.HD;
-                                    break;
-                                case 2:
-                                    channel.type = ChannelUtils.ChannelType.RADIO;
-                                    break;
-                            }
-                        } catch (Exception unused) {
+                    HashSet<Integer> pids = new HashSet<>(List.of(0, 16, 17, 18, 20));
+                    if(currentPids.containsKey(serviceInfo.getServiceId())) pids.add(currentPids.get(serviceInfo.getServiceId()));
+                    for (int i : serviceInfo.getPids()) pids.add(i);
+
+                    ChannelUtils.Channel channel = new ChannelUtils.Channel();
+                    channel.number = ++channelNumber;
+                    channel.title = serviceInfo.getName();
+                    channel.serviceId = Math.toIntExact(serviceInfo.getServiceId());
+                    channel.provider = serviceInfo.getProvider();
+                    channel.free = serviceInfo.isFreeCA() != null && serviceInfo.isFreeCA();
+                    channel.url = "rtsp://" + ip + ":554/?avm=1&freq=" + currentFrequencyMhz + "&bw=8&msys=dvbc&mtype=" + currentModulation + "&sr=6900&specinv=1&pids=" + pids.stream().map(i -> i + "").collect(Collectors.joining(","));
+
+                    try {
+                        switch (Math.toIntExact(serviceInfo.getTypeId())) {
+                            case 1: // DVB SD
+                            case 22: // SKY SD
+                                channel.type = ChannelUtils.ChannelType.SD;
+                                break;
+                            case 25: // DVB HD
+                                channel.type = ChannelUtils.ChannelType.HD;
+                                break;
+                            case 2: // DVB Digital Radio
+                            case 10: // DVB FM Radio
+                                channel.type = ChannelUtils.ChannelType.RADIO;
+                                break;
+                            default:
+                                channel.type = ChannelUtils.ChannelType.OTHER;
                         }
-                        ChannelUtils.updateChannel(TVPlayerActivity.this, originalChannel, channel);
-                    }*/
+                    } catch (Exception unused) {
+                    }
+                    runOnUiThread(() -> {
+                        ((TextView) findViewById(R.id.setup_search_channels)).append("\n" + channel.title + " (" + (channel.free ? "free" : "paytv") + ")");
+                        ((ScrollView) findViewById(R.id.setup_search_channels_scroll)).fullScroll(View.FOCUS_DOWN);
+                    });
+                    ChannelUtils.updateChannel(NewSetupSearchActivity.this, null, channel);
                 });
 
                 break;
             default:
                 break;
         }
+    }
+
+    public void skipToNext() {
+        startActivity(new Intent(NewSetupSearchActivity.this, ShowcaseGesturesActivity.class));
+        finish();
+        overridePendingTransition(0, 0);
+    }
+
+
+    public static int encodeFrequency(double mhz) {
+        // MHz → 10 kHz Einheiten
+        long bcdValue = Math.round(mhz * 10_000);
+
+        // Einzelne 2-stellige Dezimalblöcke extrahieren
+        int part0 = (int) ((bcdValue / 1_000_000) % 100);
+        int part1 = (int) ((bcdValue / 10_000) % 100);
+        int part2 = (int) ((bcdValue / 100) % 100);
+        int part3 = (int) (bcdValue % 100);
+
+        int byte0 = bcdToByte(part0);
+        int byte1 = bcdToByte(part1);
+        int byte2 = bcdToByte(part2);
+        int byte3 = bcdToByte(part3);
+
+        // Zusammensetzen zu int
+        return (byte0 << 24)
+                | (byte1 << 16)
+                | (byte2 << 8)
+                | byte3;
+    }
+
+    private static int bcdToByte(int value) {
+        int high = value / 10;
+        int low = value % 10;
+        return (high << 4) | low;
     }
 
     /**
@@ -318,13 +309,20 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
      */
     public static String decodeModulation(long modValue) {
         switch ((int) modValue) {
-            case 0: return "undefined";
-            case 1: return "16qam";
-            case 2: return "32qam";
-            case 3: return "64qam";
-            case 4: return "128qam";
-            case 5: return "256qam";
-            default: return "unknown";
+            case 0:
+                return "undefined";
+            case 1:
+                return "16qam";
+            case 2:
+                return "32qam";
+            case 3:
+                return "64qam";
+            case 4:
+                return "128qam";
+            case 5:
+                return "256qam";
+            default:
+                return "unknown";
         }
     }
 }

@@ -3,6 +3,7 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -181,7 +182,7 @@ public class ChannelUtils {
 
         StringBuilder m3u = new StringBuilder("#EXTM3U\n");
         for (Channel channel : channels) {
-            m3u.append("#EXTINF:0 wwfb-type=\"").append(channel.type.toString()).append("\",").append(channel.title).append("\n");
+            m3u.append("#EXTINF:0 wwfb-type=\"").append(channel.type).append("\",").append(channel.title).append("\n");
             m3u.append("#EXTVLCOPT:network-caching=1000\n");
             //m3u.append("#EXTWWFB:"+ channel.type.toString() +"\n");
             m3u.append(channel.url).append("\n");
@@ -298,6 +299,7 @@ public class ChannelUtils {
             return Objects.hash(title, url, type, serviceId, provider);
         }
 
+        @JsonIgnore
         public Channel copy() {
             Channel copy = new Channel(number, title, url, type);
             copy.provider = provider;
@@ -305,6 +307,7 @@ public class ChannelUtils {
             return copy;
         }
 
+        @JsonIgnore
         public List<Integer> getPids() {
             try {
                 URI urlObj = new URI(url);
@@ -312,6 +315,7 @@ public class ChannelUtils {
                         .map(s -> s.split("=", 2))
                         .filter(o -> o.length == 2 && o[0].equalsIgnoreCase("pids"))
                         .flatMap(o -> Arrays.stream(o[1].split(",")))
+                        .filter(Objects::nonNull)
                         .map(Integer::valueOf)
                         .collect(Collectors.toList());
             } catch (URISyntaxException e) {
@@ -323,7 +327,7 @@ public class ChannelUtils {
     }
 
     public enum ChannelType {
-        SD, HD, RADIO;
+        SD, HD, RADIO, OTHER;
     }
 
 }

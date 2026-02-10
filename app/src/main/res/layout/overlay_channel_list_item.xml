@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="6dp"
     android:focusable="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:clipToPadding="false">
 
 
     <androidx.cardview.widget.CardView
@@ -21,6 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:duplicateParentState="true"
+        android:clipToPadding="false"
         >
 
 
@@ -121,11 +123,19 @@
                         android:background="@drawable/channel_quality_bg"
                         android:tint="@color/item_card_channel_quality_text"
                         android:layout_gravity="center"
-                        app:layout_constraintBottom_toBottomOf="@+id/tvoverlaychannel_number_layout"
-                        app:layout_constraintStart_toEndOf="@+id/tvoverlaychannel_number_layout"
-                        app:layout_constraintTop_toTopOf="@+id/tvoverlaychannel_number_layout"
-                        app:srcCompat="@drawable/high_definition"
+                        android:src="@drawable/high_definition"
                         app:tint="@color/item_card_channel_quality_text"
+                        android:duplicateParentState="true" />
+
+                    <ImageView
+                        android:id="@+id/tvoverlaychannel_locked"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:tint="@color/item_card_channel_number_text"
+                        android:layout_gravity="center"
+                        android:src="@drawable/round_lock"
+                        app:tint="@color/item_card_channel_number_text"
                         android:duplicateParentState="true" />
                 </LinearLayout>
             </LinearLayout>

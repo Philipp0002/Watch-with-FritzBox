@@ -22,6 +22,7 @@ import org.videolan.libvlc.MediaPlayer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,8 +35,39 @@ import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.EventListener {
 
     private static final String PARAM_IP = "ip";
-    private static final int startFrequency = 53477376; // 330 Mhz in BCD
-    private int currentFrequencyBcd = startFrequency;
+
+    // High-Probability (Quick-Scan)
+    private static final int[] PRIORITY_HIGH = {
+            466, 474, 490, 538, 554, 394, 410, 434
+    };
+
+    // Medium-Probability (if scan fails on High)
+    private static final int[] PRIORITY_MEDIUM = {
+            450, 458, 482, 498, 506, 514, 522, 530, 546, 562, 570
+    };
+
+    // Full-Scan: Band S21-S41
+    private static final int[] PRIORITY_LOW;
+
+    static {
+        // S21-S41: 346-610 MHz, 8 MHz Raster (ohne High/Medium Priority)
+        java.util.Set<Integer> high = new java.util.HashSet<>();
+        for (int f : PRIORITY_HIGH) high.add(f);
+        for (int f : PRIORITY_MEDIUM) high.add(f);
+
+        java.util.List<Integer> low = new java.util.ArrayList<>();
+        for (int freq = 346; freq <= 610; freq += 8) {
+            if (!high.contains(freq)) {
+                low.add(freq);
+            }
+        }
+        PRIORITY_LOW = low.stream().mapToInt(i -> i).toArray();
+    }
+
+    private boolean freqLocked = false;
+    private List<Integer> freqsToTest = null;
+
+    private int currentFrequencyBcd = 0;
     private int currentFrequencyMhz;
     private Map<Integer, Integer> currentPids;
     private String currentModulation = "256qam";
@@ -92,7 +124,32 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
         channelTextScroll = view.findViewById(R.id.setup_search_channels_scroll);
 
         loadLibVLC();
-        tune(startFrequency, null, currentModulation);
+        tuneFirstLockableFrequency();
+    }
+
+    public void tuneFirstLockableFrequency() {
+        if(freqsToTest == null) {
+            freqsToTest = new ArrayList<>();
+            Arrays.stream(PRIORITY_HIGH).boxed().forEach(freqsToTest::add);
+            Arrays.stream(PRIORITY_MEDIUM).boxed().forEach(freqsToTest::add);
+            Arrays.stream(PRIORITY_LOW).boxed().forEach(freqsToTest::add);
+        }
+
+        Thread thread = new Thread(() -> {
+            for(int freq : freqsToTest) {
+                tune(encodeFrequency(freq), null, currentModulation);
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                if(freqLocked) {
+                    return;
+                }
+            }
+        });
+        thread.start();
+
     }
 
     /**
@@ -168,6 +225,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
         Log.d("EVENTTYPE", event.type + "");
         switch (event.type) {
             case MediaPlayer.Event.PatReceived:
+                freqLocked = true;
                 AsyncTask.execute(() -> {
                     Log.d("SETUP_PAT", event.getRecordPath());
                     if (pmtFound) return;
@@ -186,6 +244,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
 
                 break;
             case MediaPlayer.Event.NitReceived:
+                freqLocked = true;
                 AsyncTask.execute(() -> {
                     if (nitTransportStreams != null) return;
                     Log.d("SETUP_NIT", event.getRecordPath());
@@ -204,6 +263,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                 });
                 break;
             case MediaPlayer.Event.EpgNewServiceInfoFinished:
+                freqLocked = true;
                 AsyncTask.execute(() -> {
                     if (nitTransportStreams == null) return;
                     if (!nitTransportStreams.isEmpty()) {
@@ -217,6 +277,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                 });
                 break;
             case MediaPlayer.Event.EpgNewServiceInfo:
+                freqLocked = true;
                 AsyncTask.execute(() -> {
                     MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
                     Log.d("SETUP_EPGNEWSERVICE", event.getRecordPath());

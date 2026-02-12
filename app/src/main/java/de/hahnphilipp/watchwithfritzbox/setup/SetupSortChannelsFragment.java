@@ -106,7 +106,7 @@ public class SetupSortChannelsFragment extends Fragment {
                     for (String channelName : channelNames) {
                         Optional<ChannelUtils.Channel> channelToMove = channelsList
                                 .stream()
-                                .filter(channel -> channel.title.equalsIgnoreCase(channelName))
+                                .filter(channel -> channel.title.equalsIgnoreCase(channelName) && channel.free)
                                 .findFirst();
 
                         if (channelToMove.isPresent()) {

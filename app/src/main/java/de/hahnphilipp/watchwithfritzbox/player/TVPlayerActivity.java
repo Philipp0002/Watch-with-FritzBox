@@ -2,6 +2,9 @@ package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,8 +33,10 @@ import org.videolan.libvlc.MediaPlayer;
 import org.videolan.libvlc.interfaces.IVLCVout;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.epg.EPGFragment;
@@ -169,6 +174,29 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mTeletextOverlayFragment = new TeletextTVOverlay();
         mTeletextOverlayFragment.context = this;
         mTeletextOverlayFragment.setArguments(getIntent().getExtras());
+    }
+
+    HashSet<String> currentCaSystems = new HashSet<>();
+
+    private void addCaInfo(String caInfo) {
+        View container = findViewById(R.id.ca_info_card);
+        TextView textView = findViewById(R.id.ca_info_text);
+
+        currentCaSystems.add(caInfo);
+
+        String caSystems = currentCaSystems.stream().map(s -> "- " + s).collect(Collectors.joining("\n"));
+        textView.setText(getString(R.string.ca_description, caSystems));
+        container.setVisibility(View.VISIBLE);
+    }
+
+    private void clearCaInfo() {
+        View container = findViewById(R.id.ca_info_card);
+        TextView textView = findViewById(R.id.ca_info_text);
+
+        currentCaSystems.clear();
+
+        textView.setText(getString(R.string.ca_description, ""));
+        container.setVisibility(View.GONE);
     }
 
     @Override
@@ -396,7 +424,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 runOnUiThread(() -> {
                     ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress(0);
                     findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
-                    if (clearHbbTv) mHbbTvOverlay.clearHbbTv();
                 });
                 SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
@@ -414,10 +441,12 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 media.addOption("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
 
                 teletextPageInfos.clear();
+                runOnUiThread(() -> {
+                    clearCaInfo();
+                    if (clearHbbTv) mHbbTvOverlay.clearHbbTv();
+                });
 
                 mMediaPlayer.play();
-
-
             }
         }, timeWait);
     }
@@ -505,6 +534,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 if (pageNumber != null && pageContent != null) {
                     mTeletextOverlayFragment.updateTeletextPage(pageNumber, pageContent);
                 }
+                break;
+            case MediaPlayer.Event.CaInfoReceived:
+                AsyncTask.execute(() -> {
+                    MediaPlayer.CaInfo caInfo = event.getCaInfo();
+                    runOnUiThread(() -> {
+                        addCaInfo(caInfo.getName());
+                    });
+                });
                 break;
             case MediaPlayer.Event.EpgNewEvent:
                 AsyncTask.execute(() -> {

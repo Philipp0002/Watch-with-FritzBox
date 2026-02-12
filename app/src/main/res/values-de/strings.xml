@@ -85,6 +85,8 @@
     <string name="settings_audio_delay_minus">Delay -</string>
     <string name="radio_running">Radio läuft</string>
 
+    <string name="ca_description">Die Video- und Audiofeed dieses Kanals ist mit folgenden CA-Systemen verschlüsselt:\n%s\nDie App kann geschützte Inhalte nicht wiedergeben!</string>
+
     <string name="no_audio_tracks">Keine Audiokanäle</string>
     <string name="no_subtitle_tracks">Keine Untertitelspuren</string>
     <string name="subtitles">Untertitel</string>
@@ -204,14 +206,14 @@
     <string name="teletext_subtitles_hearing_impaired">Teletext Untertitel für Hörgeschädigte</string>
     <string name="teletext_page_loading">Warte auf Seite %d…</string>
     <string name="teletext_page_receiving">Empfange Seite %d</string>
-    <string name="setup_welcome_title">Willkommen bei \\nWatch\u00A0with\u00A0FritzBox</string>
-    <string name="setup_welcome_subtitle">Hol\' alles aus deinem DVB-C Tuner</string>
-    <string name="setup_welcome_epg_teaser">Sehe was jetzt und später läuft</string>
-    <string name="setup_welcome_hbbtv_teaser">Nutze die Mediatheken der Sender</string>
+    <string name="setup_welcome_title">Willkommen bei \nWatch\u00A0with\u00A0FritzBox</string>
+    <string name="setup_welcome_subtitle">Hol alles aus deinem DVB-C Tuner raus</string>
+    <string name="setup_welcome_epg_teaser">Sieh was jetzt und später läuft</string>
+    <string name="setup_welcome_hbbtv_teaser">Rufe die Mediatheken der Sender auf</string>
     <string name="setup_welcome_tv_title">TV</string>
     <string name="setup_variant_dvbc">DVB-C Suche (beta)</string>
     <string name="setup_variant_dvbc_description">Sucht nach allen Fernsehsendern. Dies findet auch Sender, die auf andere Weise nicht gefunden werden (auch Pay TV).</string>
     <string name="setup_variant_fritzbox">FritzBox Suche</string>
-    <string name="setup_variant_fritzbox_description">Nimmt Kanalliste der FritzBox</string>
+    <string name="setup_variant_fritzbox_description">Nimmt Kanalliste deiner FritzBox</string>
     <string name="setup_variant_title">Kanalquelle</string>
 </resources>

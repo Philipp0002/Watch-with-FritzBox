@@ -11,13 +11,53 @@
         android:id="@+id/video_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="false"/>
+        android:fitsSystemWindows="false" />
 
     <SurfaceView
         android:id="@+id/subtitles_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="false"/>
+        android:fitsSystemWindows="false" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ca_info_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="500dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:cardBackgroundColor="#2a2939">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/round_encrypted"/>
+
+                <TextView
+                    android:id="@+id/ca_info_text"
+                    android:layout_marginStart="16dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="@string/ca_description"/>
+            </LinearLayout>
+
+
+
+
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/hbbtv_container"
@@ -26,10 +66,10 @@
 
     <include
         android:id="@+id/player_skip_overlay"
+        layout="@layout/overlay_channel_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        layout="@layout/overlay_channel_details"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/player_enter_number_overlay"
@@ -57,25 +97,25 @@
                     android:id="@+id/player_enter_number_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
                     android:text="0000"
                     android:textColor="#fff"
                     android:textSize="34sp"
                     android:textStyle="bold"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/player_enter_number_channel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:text="0000"
                     android:textColor="#fff"
                     android:textSize="20sp"
-                    android:layout_marginStart="16dp"
-                    app:layout_constraintTop_toBottomOf="@+id/player_enter_number_text"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/player_enter_number_text" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -90,8 +130,6 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:background="@android:color/transparent" />
-
-
 
 
 </FrameLayout>

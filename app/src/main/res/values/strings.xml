@@ -97,6 +97,8 @@
 
     <string name="radio_running">Listening to radio</string>
 
+    <string name="ca_description">The video and audio feed of this channel is encrypted using the following conditional access systems:\n%s\nThis app can\'t play protected content!</string>
+
     <string name="no_audio_tracks">No audio tracks</string>
     <string name="no_subtitle_tracks">No subtitles available</string>
     <string name="subtitles">Subtitles</string>

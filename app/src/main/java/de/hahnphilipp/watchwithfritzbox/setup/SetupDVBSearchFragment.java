@@ -67,6 +67,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
 
     private boolean freqLocked = false;
     private List<Integer> freqsToTest = null;
+    private Thread freqSearchThread = null;
 
     private int currentFrequencyBcd = 0;
     private int currentFrequencyMhz;
@@ -136,25 +137,27 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
             Arrays.stream(PRIORITY_LOW).boxed().forEach(freqsToTest::add);
         }
 
-        Thread thread = new Thread(() -> {
-            for(int freq : freqsToTest) {
-                tune(encodeFrequency(freq), null, currentModulation);
-                try {
-                    Thread.sleep(1500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    return;
+        if(freqSearchThread == null || !freqSearchThread.isAlive()) {
+            freqSearchThread = new Thread(() -> {
+                for (int freq : freqsToTest) {
+                    tune(encodeFrequency(freq), null, currentModulation);
+                    try {
+                        Thread.sleep(1500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    if (freqLocked) {
+                        return;
+                    }
                 }
-                if(freqLocked) {
-                    return;
-                }
-            }
-            requireActivity().runOnUiThread(() -> {
-                Toast.makeText(requireContext(), R.string.setup_search_dvb_error, Toast.LENGTH_LONG).show();
-                ((OnboardingActivity)requireActivity()).previousScreen();
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(requireContext(), R.string.setup_search_dvb_error, Toast.LENGTH_LONG).show();
+                    ((OnboardingActivity) requireActivity()).previousScreen();
+                });
             });
-        });
-        thread.start();
+            freqSearchThread.start();
+        }
     }
 
     /**
@@ -343,6 +346,16 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(freqSearchThread != null && freqSearchThread.isAlive()) {
+            freqSearchThread.interrupt();
+            freqSearchThread = null;
+        }
+        unloadLibVLC();
     }
 
     public List<ChannelUtils.Channel> getChannelList() {

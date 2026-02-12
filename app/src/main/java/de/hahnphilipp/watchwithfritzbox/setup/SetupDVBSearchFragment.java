@@ -1,16 +1,20 @@
 package de.hahnphilipp.watchwithfritzbox.setup;
 
-import android.content.Intent;
+import static android.view.View.GONE;
+
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
@@ -22,22 +26,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 
-public class NewSetupSearchActivity extends AppCompatActivity implements MediaPlayer.EventListener {
+public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.EventListener {
 
+    private static final String PARAM_IP = "ip";
     private static final int startFrequency = 53477376; // 330 Mhz in BCD
     private int currentFrequencyBcd = startFrequency;
     private int currentFrequencyMhz;
     private Map<Integer, Integer> currentPids;
     private String currentModulation = "256qam";
     private String ip;
-    private List<ChannelUtils.Channel> channelList;
-
     private LibVLC mLibVLC = null;
     public MediaPlayer mMediaPlayer = null;
     public Media media;
@@ -46,12 +48,48 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
     private List<MediaPlayer.NitTransportStream> nitTransportStreams = null;
     private int channelNumber = 0;
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_setup_search);
+    private List<ChannelUtils.Channel> channelList = new ArrayList<>();
 
-        ip = getIntent().getStringExtra("ip");
+    private int hdChannelsFound = 0;
+    private int sdChannelsFound = 0;
+    private int radioChannelsFound = 0;
+    private int otherChannelsFound = 0;
+
+    private TextView sdSearchText, hdSearchText, radioSearchText, otherSearchText, channelsText;
+    private ScrollView channelTextScroll;
+
+    public static SetupDVBSearchFragment newInstance(String ip) {
+        SetupDVBSearchFragment fragment = new SetupDVBSearchFragment();
+        Bundle args = new Bundle();
+        args.putString(PARAM_IP, ip);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            ip = getArguments().getString(PARAM_IP);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_setup_dvb_search, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        sdSearchText = view.findViewById(R.id.setup_sd_search_text);
+        hdSearchText = view.findViewById(R.id.setup_hd_search_text);
+        radioSearchText = view.findViewById(R.id.setup_radio_search_text);
+        otherSearchText = view.findViewById(R.id.setup_other_search_text);
+        channelsText = view.findViewById(R.id.setup_search_channels);
+        channelTextScroll = view.findViewById(R.id.setup_search_channels_scroll);
 
         loadLibVLC();
         tune(startFrequency, null, currentModulation);
@@ -108,7 +146,7 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         args.add("--vout=none");
         args.add("--aout=none");
 
-        mLibVLC = new LibVLC(this, args);
+        mLibVLC = new LibVLC(requireContext(), args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mMediaPlayer.setEventListener(this);
     }
@@ -173,9 +211,8 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
                     } else {
                         // Finished all frequencies
                         unloadLibVLC();
-                        runOnUiThread(() -> {
-                            skipToNext();
-                        });
+                        requireActivity().runOnUiThread(() -> requireView().findViewById(R.id.setup_search_progressBar).setVisibility(GONE));
+                        ((OnboardingActivity)requireActivity()).enableNextButton(true);
                     }
                 });
                 break;
@@ -216,11 +253,24 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
                         }
                     } catch (Exception unused) {
                     }
-                    runOnUiThread(() -> {
-                        ((TextView) findViewById(R.id.setup_search_channels)).append("\n" + channel.title + " (" + (channel.free ? "free" : "paytv") + ")");
-                        ((ScrollView) findViewById(R.id.setup_search_channels_scroll)).fullScroll(View.FOCUS_DOWN);
+
+                    switch(channel.type) {
+                        case HD -> hdChannelsFound++;
+                        case SD -> sdChannelsFound++;
+                        case RADIO -> radioChannelsFound++;
+                        case OTHER -> otherChannelsFound++;
+                    }
+
+                    requireActivity().runOnUiThread(() -> {
+                        channelsText.append("\n" + channel.title + " (" + (channel.free ? "free" : "paytv") + ")");
+                        channelTextScroll.post(() -> channelTextScroll.fullScroll(View.FOCUS_DOWN));
+
+                        sdSearchText.setText(getString(R.string.setup_search_sd_result, sdChannelsFound));
+                        hdSearchText.setText(getString(R.string.setup_search_hd_result, hdChannelsFound));
+                        radioSearchText.setText(getString(R.string.setup_search_radio_result, radioChannelsFound));
+                        otherSearchText.setText(getString(R.string.setup_search_other_result, otherChannelsFound));
                     });
-                    ChannelUtils.updateChannel(NewSetupSearchActivity.this, null, channel);
+                    channelList.add(channel);
                 });
 
                 break;
@@ -229,12 +279,9 @@ public class NewSetupSearchActivity extends AppCompatActivity implements MediaPl
         }
     }
 
-    public void skipToNext() {
-        startActivity(new Intent(NewSetupSearchActivity.this, ShowcaseGesturesActivity.class));
-        finish();
-        overridePendingTransition(0, 0);
+    public List<ChannelUtils.Channel> getChannelList() {
+        return channelList;
     }
-
 
     public static int encodeFrequency(double mhz) {
         // MHz → 10 kHz Einheiten

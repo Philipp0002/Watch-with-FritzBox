@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="4dp"
     android:orientation="vertical">
@@ -9,8 +10,8 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/tvoverlaysetting_cardView"
-        android:layout_width="350dp"
-        android:layout_height="64dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:focusable="true"
@@ -24,41 +25,91 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:paddingVertical="4dp"
             android:duplicateParentState="true">
 
             <ImageView
                 android:id="@+id/tvoverlaysetting_logo"
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
+                android:layout_width="70dp"
+                android:layout_height="0dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="8dp"
                 android:layout_marginStart="32dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:duplicateParentState="true"
                 android:scaleType="fitCenter"
                 android:tint="@color/item_card_icon_color"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/item_card_icon_color"
-                android:duplicateParentState="true" />
+                app:tint="@color/item_card_icon_color" />
 
-            <TextView
-                android:id="@+id/tvoverlaysetting_name"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/linearLayout2"
+                app:layout_constraintStart_toEndOf="@+id/tvoverlaysetting_logo"
+                app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:text="EINSTELLUNG"
-                android:textColor="@color/item_card_text_color"
-                android:textSize="24sp"
                 android:duplicateParentState="true"
+                android:orientation="vertical"
+                android:layout_marginVertical="12dp">
+
+                <TextView
+                    android:id="@+id/tvoverlaysetting_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:duplicateParentState="true"
+                    tools:text="EINSTELLUNG"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:textColor="@color/item_card_text_color"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/tvoverlaysetting_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Beschreibung"
+                    android:textColor="@color/item_card_channel_number_text"
+                    android:duplicateParentState="true"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:duplicateParentState="true"
+                android:gravity="center_vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tvoverlaysetting_logo"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/tvoverlaysetting_radio_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:useMaterialThemeColors="false"
+                    app:buttonTint="@color/item_card_icon_color"
+                    android:buttonTint="@color/item_card_icon_color"
+                    android:duplicateParentState="true"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    />
+
+                <ImageView
+                    android:id="@+id/tvoverlaysetting_chevron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:duplicateParentState="true"
+                    android:src="@drawable/round_chevron_right"
+                    android:tint="@color/item_card_icon_color"
+                    app:tint="@color/item_card_icon_color" />
+
+            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

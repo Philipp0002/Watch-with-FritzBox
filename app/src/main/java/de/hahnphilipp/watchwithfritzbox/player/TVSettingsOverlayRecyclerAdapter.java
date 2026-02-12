@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.radiobutton.MaterialRadioButton;
+
 import java.util.List;
 
 import de.hahnphilipp.watchwithfritzbox.R;
@@ -66,24 +68,53 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
             final TVSetting item = (TVSetting) objects.get(position);
 
             holder.settingName.setText(item.name);
+            if(item.subtitle == null || item.subtitle.isEmpty()) {
+                holder.settingDescription.setVisibility(View.GONE);
+            } else {
+                holder.settingDescription.setText(item.subtitle);
+                holder.settingDescription.setVisibility(View.VISIBLE);
+            }
 
             if(item.drawableId != null) {
                 holder.settingIcon.setImageResource(item.drawableId);
             } else {
                 holder.settingIcon.setImageDrawable(null);
             }
+
+            switch (item.navigationIcon) {
+                case NONE -> {
+                    holder.settingChevron.setVisibility(View.GONE);
+                    holder.settingRadioButton.setVisibility(View.GONE);
+                }
+                case CHEVRON -> {
+                    holder.settingChevron.setVisibility(View.VISIBLE);
+                    holder.settingRadioButton.setVisibility(View.GONE);
+                }
+                case RADIO_SELECTED -> {
+                    holder.settingChevron.setVisibility(View.GONE);
+                    holder.settingRadioButton.setVisibility(View.VISIBLE);
+                    holder.settingRadioButton.setChecked(true);
+                }
+                case RADIO_UNSELECTED -> {
+                    holder.settingChevron.setVisibility(View.GONE);
+                    holder.settingRadioButton.setVisibility(View.VISIBLE);
+                    holder.settingRadioButton.setChecked(false);
+                }
+            }
+
             holder.cardView.setOnFocusChangeListener((v, hasFocus) -> {
                 if (hasFocus) {
                     AnimationUtils.scaleView(holder.mainView, 1F, 1.025F, 1F, 1.025F, 100L);
                     holder.mainView.setElevation(12);
-                    for(Object object : objects) {
+                    /*for(Object object : objects) {
                         if(object instanceof TVSetting otherItem) {
                             if(otherItem == item) {
                                 recyclerView.post(() -> recyclerView.smoothScrollBy(0, -500));
                             }
                             break;
                         }
-                    }
+                    }*/
+                    recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView, null, position);
                 } else {
                     AnimationUtils.scaleView(holder.mainView, 1.025F, 1F, 1.025F, 1F, 20L);
                     holder.mainView.setElevation(1);
@@ -114,6 +145,9 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
 
         public ImageView settingIcon;
         public TextView settingName;
+        public TextView settingDescription;
+        public MaterialRadioButton settingRadioButton;
+        public ImageView settingChevron;
         public View mainView;
         public CardView cardView;
 
@@ -121,7 +155,10 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
             super(itemView);
             mainView = itemView;
             settingName = itemView.findViewById(R.id.tvoverlaysetting_name);
+            settingDescription = itemView.findViewById(R.id.tvoverlaysetting_description);
             settingIcon = itemView.findViewById(R.id.tvoverlaysetting_logo);
+            settingRadioButton = itemView.findViewById(R.id.tvoverlaysetting_radio_button);
+            settingChevron = itemView.findViewById(R.id.tvoverlaysetting_chevron);
             cardView = itemView.findViewById(R.id.tvoverlaysetting_cardView);
 
         }

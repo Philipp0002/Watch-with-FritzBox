@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.utils.CenterScrollLayoutManager;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
 
@@ -47,7 +48,7 @@ public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
 
 
         tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettingsWithTitle, recyclerView);
-        final LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        final CenterScrollLayoutManager llm = new CenterScrollLayoutManager(getContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
 

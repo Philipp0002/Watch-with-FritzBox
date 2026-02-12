@@ -31,7 +31,8 @@
         android:id="@+id/tvoverlayrecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusable="false">
+        android:focusable="false"
+        android:overScrollMode="never">
     </androidx.recyclerview.widget.RecyclerView>
 
     </androidx.leanback.widget.BrowseFrameLayout>

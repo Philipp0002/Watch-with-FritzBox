@@ -11,22 +11,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ViewAnimator;
-import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 import de.hahnphilipp.watchwithfritzbox.R;
@@ -88,6 +83,8 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
             holder.channelTypeIcon.setImageResource(R.drawable.standard_definition);
         } else if (item.type == ChannelUtils.ChannelType.RADIO) {
             holder.channelTypeIcon.setImageResource(R.drawable.radio_tower);
+        } else if (item.type == ChannelUtils.ChannelType.OTHER) {
+            holder.channelTypeIcon.setImageResource(R.drawable.round_feed);
         }
 
         holder.channelLockedIcon.setVisibility(item.free ? View.GONE : View.VISIBLE);
@@ -216,52 +213,6 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
 
         }
     }
-
-    public void scrollToPositionCentered(int position) {
-        RecyclerView.SmoothScroller smoothScroller = new CenterSmoothScroller(recyclerView.getContext());
-        smoothScroller.setTargetPosition(position);
-        recyclerView.getLayoutManager().startSmoothScroll(smoothScroller);
-    }
-
-    public class CenterSmoothScroller extends LinearSmoothScroller {
-        public CenterSmoothScroller(Context context) {
-            super(context);
-        }
-
-        public float getSlowness() {
-            return 400f;
-        }
-
-        @Override
-        protected int getVerticalSnapPreference() {
-            return SNAP_TO_START;
-        }
-
-        @Override
-        public PointF computeScrollVectorForPosition(int targetPosition) {
-            return ((LinearLayoutManager) getLayoutManager()).computeScrollVectorForPosition(targetPosition);
-        }
-
-        @Override
-        protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
-            int itemHeight = targetView.getHeight();
-            int screenHeight = recyclerView.getHeight();
-            int dy = (targetView.getTop() - (screenHeight / 2)) + (itemHeight / 2);
-            action.update(0, dy, calculateTimeForScrolling(Math.abs(dy)), mDecelerateInterpolator);
-        }
-
-        @Override
-        protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
-            float slowness = getSlowness();
-            return slowness / displayMetrics.densityDpi;
-        }
-
-        @Override
-        protected int calculateTimeForScrolling(int dx) {
-            return super.calculateTimeForScrolling(dx) / 2; // Beschleunigt das Scrolling
-        }
-    }
-
 
 }
 

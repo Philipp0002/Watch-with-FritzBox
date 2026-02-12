@@ -8,16 +8,31 @@
     <string name="not_tv_title">Not a TV?</string>
     <string name="not_tv_msg">This app is made for Android TV and Fire TV. Platforms without remote controls can not use this app properly.</string>
 
+    <string name="setup_welcome_title">Welcome to \nWatch\u00A0with\u00A0FritzBox</string>
+    <string name="setup_welcome_subtitle">Get the most out of your DVB-C tuner</string>
+    <string name="setup_welcome_epg_teaser">See what\'s running now and coming up next</string>
+    <string name="setup_welcome_hbbtv_teaser">Use VOD services provided by the channel operator</string>
+    <string name="setup_welcome_tv_title">TV</string>
+    <string name="setup_welcome_tv_teaser">Watch all your favorite channels for free</string>
     <string name="setup_ip_address_hint">IP address of FritzBox</string>
     <string name="setup_ip_address_title">Setup</string>
     <string name="setup_ip_address_text">Please enter the IP address of your FritzBox to continue.</string>
     <string name="setup_ip_continue_button">Continue</string>
+    <string name="setup_variant_dvbc">DVB-C search (beta)</string>
+    <string name="setup_variant_dvbc_description">Searches for all available cable channels. This can find channels that otherwise would not be found (even pay tv).</string>
+    <string name="setup_variant_fritzbox">FritzBox search</string>
+    <string name="setup_variant_fritzbox_description">Grab channel list from FritzBox</string>
+    <string name="setup_variant_title">Channel source</string>
+    <string name="setup_variant_subtitle">How would you like to search for channels?</string>
+    <string name="setup_searching_title">Channel search</string>
     <string name="setup_searching_sd">Searching SD channels...</string>
     <string name="setup_searching_hd">Searching HD channels...</string>
     <string name="setup_searching_radio">Searching radio stations...</string>
+    <string name="setup_searching_other">Searching other channels...</string>
     <string name="setup_search_sd_result">%d SD channels found</string>
     <string name="setup_search_hd_result">%d HD channels found</string>
     <string name="setup_search_radio_result">%d radio stations found</string>
+    <string name="setup_search_other_result">%d other channels found</string>
     <string name="setup_search_error">There was an error while searching channels. Aborted.</string>
     <string name="setup_search_error_connect">There was an error while connecting to FritzBox. Aborted.</string>
     <string name="setup_search_error_not_supported_title">Unsupported FritzBox</string>
@@ -25,9 +40,12 @@
     <string name="setup_search_error_not_supported_continue">Continue</string>
     <string name="setup_search_error_not_supported_abort">Cancel</string>
 
-    <string name="setup_order_description">Your channel list is unsorted. Apply auto-order now?</string>
+    <string name="setup_order_title">Channel order</string>
+    <string name="setup_order_description">The channel list is currently unsorted.</string>
     <string name="setup_order_yes">Presort</string>
+    <string name="setup_order_yes_subtitle">Tries to apply a default order to your channel list. You can still change the order later.</string>
     <string name="setup_order_no">Keep as is</string>
+    <string name="setup_order_no_subtitle">You can still change the order later.</string>
     <string name="setup_order_error">There was an error while ordering channels. Aborted.</string>
 
     <string name="setup_gesture_up">Channel +</string>
@@ -57,6 +75,7 @@
     <string name="settings_reset_app">Reset app data</string>
     <string name="settings_reset_confirm">Confirm</string>
     <string name="settings_reset_cancel">Cancel</string>
+    <string name="settings_aspect_ratio_auto">Automatic</string>
     <string name="settings_deinterlace">Deinterlace</string>
     <string name="settings_deinterlace_disable">Disable</string>
     <string name="settings_deinterlace_mode_auto">Automatic</string>
@@ -200,5 +219,7 @@
     <string name="teletext_page_receiving">Receiving page %d</string>
 
     <string name="test_lorem_ipsum" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -7,16 +7,21 @@
     <string name="not_tv_title">Kein Fernseher?</string>
     <string name="not_tv_msg">Diese App wurde für Android TV und Fire TV gemacht. Geräte ohne Fernbedienung können diese App nicht nutzen!</string>
 
+    <string name="setup_welcome_tv_teaser">Schaue kostelos deine Lieblingssender</string>
     <string name="setup_ip_address_hint">IP-Adresse der FritzBox</string>
     <string name="setup_ip_address_title">Einrichten</string>
     <string name="setup_ip_address_text">Bitte gib die IP-Adresse der FritzBox ein um fortzufahren.</string>
     <string name="setup_ip_continue_button">Fortfahren</string>
+    <string name="setup_variant_subtitle">Wie soll nach Sendern gesucht werden?</string>
+    <string name="setup_searching_title">Sendersuchlauf</string>
     <string name="setup_searching_sd">Suche SD-Sender...</string>
     <string name="setup_searching_hd">Suche HD-Sender...</string>
     <string name="setup_searching_radio">Suche Radiosender...</string>
+    <string name="setup_searching_other">Suche andere Sender...</string>
     <string name="setup_search_sd_result">%d SD-Sender gefunden</string>
     <string name="setup_search_hd_result">%d HD-Sender gefunden</string>
     <string name="setup_search_radio_result">%d Radiosender gefunden</string>
+    <string name="setup_search_other_result">%d andere Sender gefunden</string>
     <string name="setup_search_error">Fehler bei der Suche. Abbruch.</string>
     <string name="setup_search_error_connect">Fehler bei Verbindung mit FritzBox. Abbruch.</string>
     <string name="setup_search_error_not_supported_title">Nicht unterstützte FritzBox</string>
@@ -24,9 +29,12 @@
     <string name="setup_search_error_not_supported_continue">Fortfahren</string>
     <string name="setup_search_error_not_supported_abort">Abbrechen</string>
 
-    <string name="setup_order_description">Deine Senderliste ist momentan unsortiert. Soll eine automatische Vorsortierung durchgeführt werden?</string>
+    <string name="setup_order_title">Kanalreihenfolge</string>
+    <string name="setup_order_description">Deine Senderliste ist momentan unsortiert.</string>
     <string name="setup_order_yes">Vorsortieren</string>
+    <string name="setup_order_yes_subtitle">Versucht eine Standardreihenfolge festzulegen. Du kannst die Reihenfolge später noch ändern.</string>
     <string name="setup_order_no">Nicht vorsortieren</string>
+    <string name="setup_order_no_subtitle">Du kannst die Reihenfolge später trotzdem noch ändern.</string>
     <string name="setup_order_error">Fehler beim Vorsortieren. Abbruch.</string>
 
     <string name="setup_gesture_up">Sender +</string>
@@ -57,6 +65,7 @@
     <string name="settings_reset_app">App zurücksetzen</string>
     <string name="settings_reset_confirm">Zurücksetzen</string>
     <string name="settings_reset_cancel">Abbrechen</string>
+    <string name="settings_aspect_ratio_auto">Automatisch</string>
     <string name="settings_deinterlace">Deinterlace</string>
     <string name="settings_deinterlace_disable">Deaktivieren</string>
     <string name="settings_deinterlace_mode_auto">Automatisch</string>
@@ -195,4 +204,14 @@
     <string name="teletext_subtitles_hearing_impaired">Teletext Untertitel für Hörgeschädigte</string>
     <string name="teletext_page_loading">Warte auf Seite %d…</string>
     <string name="teletext_page_receiving">Empfange Seite %d</string>
+    <string name="setup_welcome_title">Willkommen bei \\nWatch\u00A0with\u00A0FritzBox</string>
+    <string name="setup_welcome_subtitle">Hol\' alles aus deinem DVB-C Tuner</string>
+    <string name="setup_welcome_epg_teaser">Sehe was jetzt und später läuft</string>
+    <string name="setup_welcome_hbbtv_teaser">Nutze die Mediatheken der Sender</string>
+    <string name="setup_welcome_tv_title">TV</string>
+    <string name="setup_variant_dvbc">DVB-C Suche (beta)</string>
+    <string name="setup_variant_dvbc_description">Sucht nach allen Fernsehsendern. Dies findet auch Sender, die auf andere Weise nicht gefunden werden (auch Pay TV).</string>
+    <string name="setup_variant_fritzbox">FritzBox Suche</string>
+    <string name="setup_variant_fritzbox_description">Nimmt Kanalliste der FritzBox</string>
+    <string name="setup_variant_title">Kanalquelle</string>
 </resources>

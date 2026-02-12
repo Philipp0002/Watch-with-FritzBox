@@ -39,8 +39,9 @@ public class RichTvInputSetupActivity extends Activity /*implements SyncStatusBr
             long channelId = Long.parseLong(uri.getLastPathSegment());
             channelRichMap.put(channelId, channelApp.number);
             ChannelUtils.saveChannelIDMappingForRichTv(getApplicationContext(), channelRichMap);
-
         }
+
+        finish();
     }
 
 

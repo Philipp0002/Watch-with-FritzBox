@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,14 +20,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.videolan.libvlc.MediaPlayer;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import de.hahnphilipp.watchwithfritzbox.R;
-import de.hahnphilipp.watchwithfritzbox.setup.SetupIPActivity;
+import de.hahnphilipp.watchwithfritzbox.setup.OnboardingActivity;
+import de.hahnphilipp.watchwithfritzbox.utils.CenterScrollLayoutManager;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.CustomTVSetting;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
+import de.hahnphilipp.watchwithfritzbox.utils.TVSetting.NavigationIcon;
 
 public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
@@ -55,7 +57,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         ArrayList<Object> tvSettings = new ArrayList<Object>();
 
         tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings, recyclerView);
-        final LinearLayoutManager llm = new LinearLayoutManager(context);
+        final CenterScrollLayoutManager llm = new CenterScrollLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
         updateTVSettings();
@@ -99,34 +101,34 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
         tvSettings.add(context.getString(R.string.playback_title));
 
-        tvSettings.add(new TVSetting(context.getString(R.string.settings_open_epg), R.drawable.round_remote, this::showEpg, true));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_open_epg), null, NavigationIcon.NONE, R.drawable.round_remote, this::showEpg));
 
         if(teletextAvailable) {
-            tvSettings.add(new TVSetting(context.getString(R.string.settings_open_teletext), R.drawable.round_teletext, this::showTeletext, true));
+            tvSettings.add(new TVSetting(context.getString(R.string.settings_open_teletext), null, NavigationIcon.NONE, R.drawable.round_teletext, this::showTeletext));
         }
 
         if (descriptionsAudio != null && descriptionsAudio.length != 0) {
-            tvSettings.add(new TVSetting(context.getString(R.string.audio_tracks), R.drawable.round_audiotrack, this::showAudioTrackSelection, true));
+            tvSettings.add(new TVSetting(context.getString(R.string.audio_tracks), null, NavigationIcon.CHEVRON, R.drawable.round_audiotrack, this::showAudioTrackSelection));
         }
 
         if (subtitlesExist()) {
-        tvSettings.add(new TVSetting(context.getString(R.string.subtitles), R.drawable.round_closed_caption, this::showSubtitleTrackSelection, true));
+        tvSettings.add(new TVSetting(context.getString(R.string.subtitles), null, NavigationIcon.CHEVRON, R.drawable.round_closed_caption, this::showSubtitleTrackSelection));
         }
 
         if (ChannelUtils.getChannelByNumber(context, ChannelUtils.getLastSelectedChannel(context)).type != ChannelUtils.ChannelType.RADIO) {
-            tvSettings.add(new TVSetting(context.getString(R.string.video_aspect), R.drawable.round_video_settings, this::showVideoFormatSelection, true));
+            tvSettings.add(new TVSetting(context.getString(R.string.video_aspect), null, NavigationIcon.CHEVRON, R.drawable.round_video_settings, this::showVideoFormatSelection));
         }
 
 
         tvSettings.add(context.getString(R.string.settings_title));
 
-        tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay), R.drawable.round_timeline, this::showAudioDelaySelection, false));
-        tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration), R.drawable.round_speed, this::showHWAcelerationSelection, false));
-        tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace), R.drawable.round_gradient, this::showDeinterlaceSelection, false));
-        tvSettings.add(new TVSetting(context.getString(R.string.settings_open_hbbtv), R.drawable.interactive_space, this::showHbbTV, false));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay), null, NavigationIcon.CHEVRON, R.drawable.round_timeline, this::showAudioDelaySelection));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration), null, NavigationIcon.CHEVRON, R.drawable.round_speed, this::showHWAcelerationSelection));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace), null, NavigationIcon.CHEVRON, R.drawable.round_gradient, this::showDeinterlaceSelection));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_open_hbbtv), null, NavigationIcon.CHEVRON, R.drawable.interactive_space, this::showHbbTV));
 
-        tvSettings.add(new TVSetting(context.getString(R.string.settings_reorder_channels), R.drawable.round_reorder, this::showChannelEditor, false));
-        tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_app), R.drawable.round_reset_settings, this::showAppResetSelection, false));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_reorder_channels), null, NavigationIcon.CHEVRON, R.drawable.round_reorder, this::showChannelEditor));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_app), null, NavigationIcon.CHEVRON, R.drawable.round_reset_settings, this::showAppResetSelection));
 
         if (tvOverlayRecyclerAdapter != null) {
             tvOverlayRecyclerAdapter.objects = tvSettings;
@@ -154,19 +156,21 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
+        boolean enabled = sp.getBoolean("setting_enable_hbbtv", false);
+
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         selectionTVOverlay.title = context.getString(R.string.settings_open_hbbtv);
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hbbtv_enable), R.drawable.round_power, () -> {
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hbbtv_enable), null, NavigationIcon.selected(enabled), R.drawable.round_power, () -> {
             editor.putBoolean("setting_enable_hbbtv", true);
             editor.commit();
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hbbtv_disable), R.drawable.round_power_off, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hbbtv_disable), null, NavigationIcon.selected(!enabled), R.drawable.round_power_off, () -> {
             editor.putBoolean("setting_enable_hbbtv", false);
             editor.commit();
             context.stopHbbTV();
             context.popOverlayFragment();
-        }, true));
+        }));
         selectionTVOverlay.tvSettings.add(new CustomTVSetting(R.layout.hbbtv_info_block, null));
         context.addOverlayFragment(selectionTVOverlay);
     }
@@ -178,18 +182,18 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         selectionTVOverlay.title = context.getString(R.string.settings_reset_app);
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_cancel), R.drawable.round_arrow_back, () -> {
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_cancel), null, NavigationIcon.NONE, R.drawable.round_arrow_back, () -> {
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_confirm), R.drawable.round_reset_settings, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_confirm), null, NavigationIcon.NONE, R.drawable.round_reset_settings, () -> {
             ChannelUtils.setChannels(requireContext(), new ArrayList<>());
             editor.clear();
             editor.commit();
             EpgUtils.resetEpgDatabase(context);
-            startActivity(new Intent(context, SetupIPActivity.class));
+            startActivity(new Intent(context, OnboardingActivity.class));
             context.finish();
             context.overridePendingTransition(0, 0);
-        }, true));
+        }));
         context.addOverlayFragment(selectionTVOverlay);
     }
 
@@ -200,7 +204,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         selectionTVOverlay.title = context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms");
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay_plus), R.drawable.round_add, () -> {
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay_plus), null, NavigationIcon.NONE, R.drawable.round_add, () -> {
             long val = sp.getLong("setting_audio_delay", 0);
             val += 250;
             editor.putLong("setting_audio_delay", val);
@@ -209,8 +213,8 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                 context.mMediaPlayer.setAudioDelay(val * 1000);
             }
             selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay_minus), R.drawable.round_minus, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay_minus), null, NavigationIcon.NONE, R.drawable.round_minus, () -> {
             long val = sp.getLong("setting_audio_delay", 0);
             val -= 250;
             editor.putLong("setting_audio_delay", val);
@@ -219,7 +223,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                 context.mMediaPlayer.setAudioDelay(val * 1000);
             }
             selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
-        }, true));
+        }));
         context.addOverlayFragment(selectionTVOverlay);
     }
 
@@ -228,26 +232,28 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
+        int currentSetting = sp.getInt("setting_hwaccel", 1);
+
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         selectionTVOverlay.title = context.getString(R.string.settings_hardware_acceleration);
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration_disable), R.drawable.round_power_off, () -> {
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration_disable), null, NavigationIcon.selected(currentSetting == 0), R.drawable.round_power_off, () -> {
             editor.putInt("setting_hwaccel", 0);
             editor.commit();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration_auto), R.drawable.round_auto_awesome, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration_auto), null, NavigationIcon.selected(currentSetting == 1), R.drawable.round_auto_awesome, () -> {
             editor.putInt("setting_hwaccel", 1);
             editor.commit();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration_force), R.drawable.round_power, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration_force), null, NavigationIcon.selected(currentSetting == 2), R.drawable.round_power, () -> {
             editor.putInt("setting_hwaccel", 2);
             editor.commit();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
+        }));
         context.addOverlayFragment(selectionTVOverlay);
     }
 
@@ -256,96 +262,98 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
+        String currentSetting = sp.getString("setting_deinterlace", null);
+
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         selectionTVOverlay.title = context.getString(R.string.settings_deinterlace);
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_disable), R.drawable.round_power_off, () -> {
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_disable), null, NavigationIcon.selected(currentSetting == null), R.drawable.round_power_off, () -> {
             editor.remove("setting_deinterlace");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_auto), R.drawable.round_auto_awesome, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_auto), null, NavigationIcon.selected("auto".equals(currentSetting)), R.drawable.round_auto_awesome, () -> {
             editor.putString("setting_deinterlace", "auto");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_blend), R.drawable.round_tv, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_blend), null, NavigationIcon.selected("blend".equals(currentSetting)), R.drawable.round_tv, () -> {
             editor.putString("setting_deinterlace", "blend");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_linear), R.drawable.round_tv, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_linear), null, NavigationIcon.selected("linear".equals(currentSetting)), R.drawable.round_tv, () -> {
             editor.putString("setting_deinterlace", "linear");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_bob), R.drawable.round_tv, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_bob), null, NavigationIcon.selected("bob".equals(currentSetting)), R.drawable.round_tv, () -> {
             editor.putString("setting_deinterlace", "bob");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_ivtc), R.drawable.round_tv, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_ivtc), null, NavigationIcon.selected("ivtc".equals(currentSetting)), R.drawable.round_tv, () -> {
             editor.putString("setting_deinterlace", "ivtc");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_discard), R.drawable.round_tv, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_discard), null, NavigationIcon.selected("discard".equals(currentSetting)), R.drawable.round_tv, () -> {
             editor.putString("setting_deinterlace", "discard");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_yadif), R.drawable.round_tv, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_yadif), null, NavigationIcon.selected("yadif".equals(currentSetting)), R.drawable.round_tv, () -> {
             editor.putString("setting_deinterlace", "yadif");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_yadifx2), R.drawable.round_tv, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_yadifx2), null, NavigationIcon.selected("yadif2x".equals(currentSetting)), R.drawable.round_tv, () -> {
             editor.putString("setting_deinterlace", "yadif2x");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_phosphor), R.drawable.round_tv, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_phosphor), null, NavigationIcon.selected("phosphor".equals(currentSetting)), R.drawable.round_tv, () -> {
             editor.putString("setting_deinterlace", "phosphor");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_mean), R.drawable.round_tv, () -> {
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_mean), null, NavigationIcon.selected("mean".equals(currentSetting)), R.drawable.round_tv, () -> {
             editor.putString("setting_deinterlace", "mean");
             editor.commit();
             context.unloadLibVLC();
             context.loadLibVLC();
             context.launchPlayer(false);
             context.popOverlayFragment();
-        }, true));
+        }));
 
         context.addOverlayFragment(selectionTVOverlay);
     }
@@ -354,13 +362,15 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         final MediaPlayer player = context.mMediaPlayer;
         selectionTVOverlay.title = context.getString(R.string.video_aspect);
-        String[] aspect_ratios = {"16:9", "4:3", "21:9", "16:10"};
+        String[] aspect_ratios = { context.getString(R.string.settings_aspect_ratio_auto), "16:9", "4:3", "21:9", "16:10"};
         //this should actually never be true, but just to be sure we do it anyways
-        for (String aspect : aspect_ratios) {
-            selectionTVOverlay.tvSettings.add(new TVSetting(aspect, R.drawable.round_video_settings, () -> {
-                player.setAspectRatio(aspect);
+        for (int i = 0; i < aspect_ratios.length; i++) {
+            String aspect = aspect_ratios[i];
+            String vlcAspect = i == 0 ? null : aspect;
+            selectionTVOverlay.tvSettings.add(new TVSetting(aspect, null, NavigationIcon.selected(Objects.equals(player.getAspectRatio(), vlcAspect)), R.drawable.round_video_settings, () -> {
+                player.setAspectRatio(vlcAspect);
                 context.popOverlayFragment();
-            }, true));
+            }));
         }
 
         context.addOverlayFragment(selectionTVOverlay);
@@ -381,14 +391,20 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                 if (description.name.contains("Teletext")) {
                     continue; //skip teletext subtitles here, as they are handled differently
                 }
-                selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.round_closed_caption, () -> {
+                NavigationIcon navIcon;
+                if(description.id == -1) {
+                    navIcon = NavigationIcon.selected(player.getTeletext() == TVPlayerActivity.TELETEXT_IDLE_PAGE);
+                } else {
+                    navIcon = NavigationIcon.selected(player.getSpuTrack() == description.id);
+                }
+                selectionTVOverlay.tvSettings.add(new TVSetting(description.name, null, navIcon, R.drawable.round_closed_caption, () -> {
                     if(description.id == -1) {
                         player.setTeletext(TVPlayerActivity.TELETEXT_IDLE_PAGE);
                     } else {
                         player.setSpuTrack(description.id);
                     }
                     context.popOverlayFragment();
-                }, true));
+                }));
             }
         }
         for (final MediaPlayer.TeletextPageInfo teletextPageInfo : new ArrayList<>(context.teletextPageInfos)) {
@@ -400,10 +416,11 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             } else {
                 continue;
             }
-            selectionTVOverlay.tvSettings.add(new TVSetting(getString(descriptionResId), R.drawable.round_closed_caption, () -> {
+
+            selectionTVOverlay.tvSettings.add(new TVSetting(getString(descriptionResId), null, NavigationIcon.selected(player.getTeletext() == teletextPageInfo.getPageNumber()), R.drawable.round_closed_caption, () -> {
                 player.setTeletext(teletextPageInfo.getPageNumber());
                 context.popOverlayFragment();
-            }, true));
+            }));
         }
 
 
@@ -421,10 +438,10 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             return;
         }
         for (final MediaPlayer.TrackDescription description : descriptions) {
-            selectionTVOverlay.tvSettings.add(new TVSetting(description.name, R.drawable.round_audiotrack, () -> {
+            selectionTVOverlay.tvSettings.add(new TVSetting(description.name, null, NavigationIcon.selected(player.getAudioTrack() == description.id), R.drawable.round_audiotrack, () -> {
                 player.setAudioTrack(description.id);
                 context.popOverlayFragment();
-            }, true));
+            }));
         }
 
         context.addOverlayFragment(selectionTVOverlay);

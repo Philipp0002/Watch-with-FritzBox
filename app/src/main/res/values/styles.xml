@@ -5,6 +5,7 @@
         <item name="android:windowBackground">@color/windowBg</item>
         <item name="wwfbColorButton">?colorPrimary</item>
         <item name="wwfbColorSelection">?colorOnPrimary</item>
+        <item name="android:fontFamily">@font/inter</item>
     </style>
 
 

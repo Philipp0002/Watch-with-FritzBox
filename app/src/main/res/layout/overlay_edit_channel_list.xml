@@ -30,7 +30,8 @@
         android:focusedByDefault="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/view">
+        app:layout_constraintTop_toTopOf="@+id/view"
+        android:overScrollMode="never">
         <!--android:nextFocusForward="@id/editChannelListImportRecycler"
         android:nextFocusRight="@id/editChannelListImportRecycler"-->
 

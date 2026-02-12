@@ -239,7 +239,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
         return mHbbTvOverlay.onKeyDownLong(keyCode, event);
-        //return super.onKeyLongPress(keyCode, event);
     }
 
     long keyPressDownTime;
@@ -454,7 +453,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             @Override
             public void run() {
 
-                mMediaPlayer.setMedia(media);
                 if (selection != null)
                     ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);
                 runOnUiThread(() -> {

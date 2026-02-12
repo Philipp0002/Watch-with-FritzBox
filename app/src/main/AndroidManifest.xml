@@ -29,7 +29,7 @@
         android:banner="@mipmap/ic_banner"
         android:theme="@style/AppTheme">
         <activity
-            android:name="de.hahnphilipp.watchwithfritzbox.setup.SetupIPActivity"
+            android:name="de.hahnphilipp.watchwithfritzbox.setup.OnboardingActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,10 +38,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="de.hahnphilipp.watchwithfritzbox.setup.SetupSearchActivity"/>
-        <activity android:name="de.hahnphilipp.watchwithfritzbox.setup.NewSetupSearchActivity"/>
         <activity android:name="de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity"/>
-        <activity android:name="de.hahnphilipp.watchwithfritzbox.setup.ShowcaseGesturesActivity"/>
         <activity android:name="de.hahnphilipp.watchwithfritzbox.rich.RichTvInputSetupActivity"
             android:exported="true">
             <intent-filter>

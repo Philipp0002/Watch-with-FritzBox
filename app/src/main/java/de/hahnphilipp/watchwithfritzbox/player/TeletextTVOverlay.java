@@ -255,6 +255,9 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
             context.popOverlayFragment();
             return true;
         }*/
+        if(!isShown) {
+            return false;
+        }
         if (event.getAction() == KeyEvent.ACTION_UP) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_0:

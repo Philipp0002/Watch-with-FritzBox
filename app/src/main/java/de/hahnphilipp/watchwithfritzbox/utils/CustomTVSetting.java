@@ -10,7 +10,7 @@ public class CustomTVSetting extends TVSetting {
     public CustomTVSettingLayoutCallback layoutCallback;
 
     public CustomTVSetting(@LayoutRes int customLayoutRes, CustomTVSettingLayoutCallback layoutCallback) {
-        super(null, null, null, false);
+        super(null, null, null,null, null);
         this.customLayoutRes = customLayoutRes;
         this.layoutCallback = layoutCallback;
     }

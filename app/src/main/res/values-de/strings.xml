@@ -28,6 +28,7 @@
     <string name="setup_search_error_not_supported_msg">Deine FritzBox scheint nicht kompatibel mit dieser App zu sein. Bitte überprüfe, ob die Modellbezeichnung auf \'Cable\' endet. Trotzdem fortfahren?</string>
     <string name="setup_search_error_not_supported_continue">Fortfahren</string>
     <string name="setup_search_error_not_supported_abort">Abbrechen</string>
+    <string name="setup_search_dvb_error">Keine tunebaren Frequenzen gefunden! Versuche stattdessen die FritzBox Suche!</string>
 
     <string name="setup_order_title">Kanalreihenfolge</string>
     <string name="setup_order_description">Deine Senderliste ist momentan unsortiert.</string>

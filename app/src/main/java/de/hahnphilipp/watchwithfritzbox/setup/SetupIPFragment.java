@@ -42,6 +42,7 @@ public class SetupIPFragment extends Fragment {
     }
 
     public String getEnteredIp(){
+        if(getView() == null) return null;
         EditText et = ((TextInputLayout)requireView().findViewById(R.id.setup_ip_address_input)).getEditText();
         return et.getText().toString().trim();
     }

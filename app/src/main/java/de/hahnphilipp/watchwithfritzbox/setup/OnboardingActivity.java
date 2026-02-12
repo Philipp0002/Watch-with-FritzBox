@@ -110,6 +110,9 @@ public class OnboardingActivity extends FragmentActivity {
             showSetupIPScreen();
         } else if (currentFragment instanceof SetupIPFragment) {
             showWelcomeScreen();
+        } else if (currentFragment instanceof SetupDVBSearchFragment ||
+                currentFragment instanceof SetupFritzboxSearchFragment) {
+            showSearchVariantsScreen();
         }
     }
 
@@ -119,7 +122,7 @@ public class OnboardingActivity extends FragmentActivity {
             showSetupIPScreen();
         } else if (currentFragment instanceof SetupIPFragment sif) {
             String enteredIp = sif.getEnteredIp();
-            if (enteredIp.isEmpty()) {
+            if (enteredIp == null || enteredIp.isEmpty()) {
                 return;
             }
             this.ip = enteredIp;

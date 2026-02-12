@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -141,15 +142,19 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
+                    return;
                 }
                 if(freqLocked) {
                     return;
                 }
             }
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(requireContext(), R.string.setup_search_dvb_error, Toast.LENGTH_LONG).show();
+                ((OnboardingActivity)requireActivity()).previousScreen();
+            });
         });
         thread.start();
-
     }
 
     /**

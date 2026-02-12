@@ -39,6 +39,7 @@
     <string name="setup_search_error_not_supported_msg">Your FritzBox does not seem compatible with this app. Please check if the model name of your FritzBox ends with \'Cable\'. Proceed anyways?</string>
     <string name="setup_search_error_not_supported_continue">Continue</string>
     <string name="setup_search_error_not_supported_abort">Cancel</string>
+    <string name="setup_search_dvb_error">Couldn\'t find any tunable frequencies. Try FritzBox search instead!</string>
 
     <string name="setup_order_title">Channel order</string>
     <string name="setup_order_description">The channel list is currently unsorted.</string>

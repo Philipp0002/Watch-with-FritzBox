@@ -1,17 +1,11 @@
 package de.hahnphilipp.watchwithfritzbox.rich;
 
 import android.app.Activity;
-import android.media.tv.TvContract;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
-import androidx.tvprovider.media.tv.Channel;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import de.hahnphilipp.watchwithfritzbox.R;
-import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 
 public class RichTvInputSetupActivity extends Activity /*implements SyncStatusBroadcastReceiver.SyncListener */{
 
@@ -22,26 +16,13 @@ public class RichTvInputSetupActivity extends Activity /*implements SyncStatusBr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rich_tv_input_setup);
 
-        getApplicationContext().getContentResolver().delete(TvContract.Channels.CONTENT_URI, null, null);
+        AsyncTask.execute(() -> {
+            RichTvUtils.reinsertChannels(getApplicationContext());
+            RichTvUtils.reinsertAllEpgEvents(getApplicationContext(), EpgUtils.getAllEvents(getApplicationContext()));
 
-        ArrayList<ChannelUtils.Channel> channelsApp = ChannelUtils.getAllChannels(getApplicationContext());
-        HashMap<Long, Integer> channelRichMap = new HashMap<>();
-        for(ChannelUtils.Channel channelApp : channelsApp) {
+            runOnUiThread(this::finish);
+        });
 
-            Channel channel = new Channel.Builder()
-                    .setDisplayName(channelApp.title)
-                    .setDisplayNumber(channelApp.number + "")
-                    .setInputId("de.hahnphilipp.watchwithfritzbox/.rich.RichTvInputService")
-                    .build();
-
-            Uri uri = getApplicationContext().getContentResolver().insert(TvContract.Channels.CONTENT_URI, channel.toContentValues());
-
-            long channelId = Long.parseLong(uri.getLastPathSegment());
-            channelRichMap.put(channelId, channelApp.number);
-            ChannelUtils.saveChannelIDMappingForRichTv(getApplicationContext(), channelRichMap);
-        }
-
-        finish();
     }
 
 

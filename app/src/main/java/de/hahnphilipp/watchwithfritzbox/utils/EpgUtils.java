@@ -11,6 +11,9 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.Room;
+import androidx.tvprovider.media.tv.TvContractCompat;
+
+import org.videolan.libvlc.MediaPlayer;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -23,6 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 
 public class EpgUtils {
 
@@ -33,6 +37,28 @@ public class EpgUtils {
 
     private static final long REMOVE_EVENT_TIME = 60 * 60; // 1 hour
 
+    public static void processVlcEpgEvent(Context context, MediaPlayer.EpgEvent vlcEvent) {
+        ChannelUtils.Channel ch = ChannelUtils.getChannelByDvb(context, vlcEvent.getNetworkId(), vlcEvent.getTransportStreamId(), vlcEvent.getServiceId());
+
+        if (ch != null) {
+            EpgUtils.EpgEvent epgEvent = new EpgUtils.EpgEvent();
+            epgEvent.channelNumber = ch.number;
+            epgEvent.id = vlcEvent.getEventId();
+            epgEvent.description = vlcEvent.getDescription();
+            epgEvent.subtitle = vlcEvent.getShortDescription();
+            epgEvent.title = vlcEvent.getName();
+            epgEvent.duration = vlcEvent.getDuration();
+            epgEvent.startTime = vlcEvent.getStart();
+            epgEvent.eitReceivedTimeMillis = System.currentTimeMillis();
+            epgEvent.rating = vlcEvent.getRating();
+            epgEvent.genre = vlcEvent.getGenre();
+            epgEvent.subGenre = vlcEvent.getSubGenre();
+            epgEvent.lang = vlcEvent.getLanguage();
+
+            EpgUtils.addEvent(context, epgEvent);
+        }
+    }
+
     private static EpgDatabase getDatabase(Context context) {
         if(db == null) {
             db = Room.databaseBuilder(context, EpgDatabase.class, "epg.db").allowMainThreadQueries().build();
@@ -42,6 +68,10 @@ public class EpgUtils {
 
     public static List<EpgEvent> getAllEvents(Context context, int channelNumber) {
         return getDatabase(context).epgDao().getEventsForChannel(channelNumber);
+    }
+
+    public static List<EpgEvent> getAllEvents(Context context) {
+        return getDatabase(context).epgDao().getAllEvents();
     }
 
     public static List<EpgEvent> getAllEventsEndingAfter(Context context, int channelNumber, long time) {
@@ -70,7 +100,6 @@ public class EpgUtils {
     }
 
     public static void addEvent(Context context, EpgEvent epgEvent) {
-
         getDatabase(context).epgDao().deleteExpiredAndOverlappingEvents(
                 epgEvent.channelNumber,
                 epgEvent.startTime,
@@ -80,6 +109,12 @@ public class EpgUtils {
         );
 
         getDatabase(context).epgDao().insert(epgEvent);
+
+        try {
+            RichTvUtils.insertEpgEvent(context, epgEvent);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static EpgEvent getEventAtTime(Context context, int channelNumber, LocalDateTime localDateTime) {
@@ -217,11 +252,32 @@ public class EpgUtils {
             return genreMap.get(Pair.create(this.genre, subGenre));
         }
 
+        @Ignore
+        public String getRichTvGenre() {
+            if(this.genre == null) {
+                return null;
+            }
+            return richGenreMap.get(this.genre);
+        }
+
     }
 
     private static Map<Pair<Integer, Integer>, Integer> genreMap;
+    private static Map<Integer, String> richGenreMap;
 
     static {
+        richGenreMap = new HashMap<>();
+        richGenreMap.put(0x01,  TvContractCompat.Programs.Genres.MOVIES);
+        richGenreMap.put(0x02,  TvContractCompat.Programs.Genres.NEWS);
+        richGenreMap.put(0x03,  TvContractCompat.Programs.Genres.ENTERTAINMENT);
+        richGenreMap.put(0x04,  TvContractCompat.Programs.Genres.SPORTS);
+        richGenreMap.put(0x05,  TvContractCompat.Programs.Genres.FAMILY_KIDS);
+        richGenreMap.put(0x06,  TvContractCompat.Programs.Genres.MUSIC);
+        richGenreMap.put(0x07,  TvContractCompat.Programs.Genres.ARTS);
+        richGenreMap.put(0x08,  TvContractCompat.Programs.Genres.LIFE_STYLE);
+        richGenreMap.put(0x09,  TvContractCompat.Programs.Genres.EDUCATION);
+        richGenreMap.put(0x0A,  TvContractCompat.Programs.Genres.TRAVEL);
+
         genreMap = new HashMap<>();
         genreMap.put(Pair.create(0x01, 0x00), R.string.epg_event_category_movie);
         genreMap.put(Pair.create(0x01, 0x01), R.string.epg_event_category_movie_detective);

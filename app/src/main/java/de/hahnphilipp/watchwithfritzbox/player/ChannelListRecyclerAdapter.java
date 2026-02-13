@@ -38,8 +38,6 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
     private final RecyclerView recyclerView;
     private final boolean editMode;
 
-    int focus = 0;
-
     public ChannelListRecyclerAdapter(Fragment context, ArrayList<ChannelUtils.Channel> objects, RecyclerView recyclerView, boolean editMode) {
         this.objects = objects;
         this.context = context;
@@ -97,7 +95,6 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
         if (editMode) {
             holder.channelProgramNow.setVisibility(View.GONE);
 
-
             holder.itemView.setOnKeyListener((view, i, keyEvent) -> {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && (i == KeyEvent.KEYCODE_DPAD_UP || i == KeyEvent.KEYCODE_DPAD_DOWN)) {
                     if (selectedChannel != -1) {
@@ -113,8 +110,10 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
                         ChannelUtils.Channel a = objects.get(pos);
                         ChannelUtils.Channel b = objects.get(pos + direction);
                         ChannelUtils.moveChannelToPosition(context.getContext(), a.number, b.number);
-                        updateView(pos);
-                        updateView(pos + direction);
+                        recyclerView.post(() -> {
+                            updateView(pos);
+                            updateView(pos + direction);
+                        });
                         return true;
                     }
                 }
@@ -149,7 +148,6 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
                     }
                     holder.cardView.setElevation(12);
                     AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
-                    focus = indexPos;
                     holder.channelProgramNow.setSelected(true);
                 } else {
                     AnimationUtils.scaleView(holder.cardView, 1.025F, 1F, 1.025F, 1F, 20L);

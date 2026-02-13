@@ -2,17 +2,18 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.videolan.libvlc.MediaPlayer;
+
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +22,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
@@ -32,6 +32,46 @@ public class ChannelUtils {
     static ArrayList<Channel> channelsCache = null;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static void processVlcServiceInfo(Context context, MediaPlayer.ServiceInfo serviceInfo) {
+        ChannelUtils.Channel originalChannel = null;
+        if (serviceInfo.getPids() != null && serviceInfo.getPids().length > 0) {
+            originalChannel = ChannelUtils.getChannelByPids(context, serviceInfo.getPids());
+        }
+        if(originalChannel == null) {
+            originalChannel = ChannelUtils.getChannelByDvb(context, serviceInfo.getNetworkId(), serviceInfo.getTransportStreamId(), serviceInfo.getServiceId());
+        }
+        if (originalChannel != null) {
+            ChannelUtils.Channel channel = originalChannel.copy();
+            channel.title = serviceInfo.getName();
+            channel.serviceId = serviceInfo.getServiceId();
+            channel.provider = serviceInfo.getProvider();
+            channel.free = serviceInfo.isFreeCA() != null && serviceInfo.isFreeCA();
+            channel.onId = serviceInfo.getNetworkId();
+            channel.tsId = serviceInfo.getTransportStreamId();
+            try {
+                switch (Math.toIntExact(serviceInfo.getTypeId())) {
+                    case 1: // DVB SD
+                    case 22: // SKY SD
+                        channel.type = ChannelUtils.ChannelType.SD;
+                        break;
+                    case 25: // DVB HD
+                        channel.type = ChannelUtils.ChannelType.HD;
+                        break;
+                    case 2: // DVB Digital Radio
+                    case 10: // DVB FM Radio
+                        channel.type = ChannelUtils.ChannelType.RADIO;
+                        break;
+                    default:
+                        channel.type = ChannelUtils.ChannelType.OTHER;
+                }
+            } catch (Exception unused) {
+            }
+            ChannelUtils.updateChannel(context, originalChannel, channel);
+        } else {
+            Log.w("ChannelUpdater", "Channel " + serviceInfo.getName() + " not found for EPG update.");
+        }
+    }
 
     public static void setChannels(Context context, List<Channel> channels) {
         Collections.sort(channels, Comparator.comparingInt(o -> o.number));
@@ -93,9 +133,9 @@ public class ChannelUtils {
 
             setChannels(context, channels);
             EpgUtils.swapChannelPositions(context, fromChannelPos, toChannelPos);
+            swapChannelIDMappingForRichTv(context, fromChannelPos, toChannelPos);
         }
         return channels;
-
     }
 
     public static Channel getPreviousChannel(Context context, int number) {
@@ -219,6 +259,26 @@ public class ChannelUtils {
         editor.commit();
     }
 
+    public static void swapChannelIDMappingForRichTv(Context context, int appChannelNumber1, int appChannelNumber2){
+        Map<Long, Integer> channelMapping = getChannelIDMappingForRichTv(context);
+        if(channelMapping == null) return;
+        Long richChannelNumber1 = channelMapping.entrySet().stream().filter(e -> e.getValue() == appChannelNumber1).map(Map.Entry::getKey).findFirst().orElse(null);
+        Long richChannelNumber2 = channelMapping.entrySet().stream().filter(e -> e.getValue() == appChannelNumber2).map(Map.Entry::getKey).findFirst().orElse(null);
+
+        if(richChannelNumber1 != null && richChannelNumber2 != null) {
+            channelMapping.put(richChannelNumber1, appChannelNumber2);
+            channelMapping.put(richChannelNumber2, appChannelNumber1);
+
+            saveChannelIDMappingForRichTv(context, channelMapping);
+        }
+    }
+
+    public static Long getRichChannelID(Context context, int appChannelNumber) {
+        Map<Long, Integer> channelMapping = getChannelIDMappingForRichTv(context);
+        if(channelMapping == null) return null;
+        return channelMapping.entrySet().stream().filter(e -> e.getValue() == appChannelNumber).map(Map.Entry::getKey).findFirst().orElse(null);
+    }
+
     public static Map<Long, Integer> getChannelIDMappingForRichTv(Context context) {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
@@ -229,7 +289,7 @@ public class ChannelUtils {
         try {
             channels = objectMapper.readValue(sp.getString("channelMappingRichTv", "[]"), channelListType);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            return null;
         }
         return channels;
     }

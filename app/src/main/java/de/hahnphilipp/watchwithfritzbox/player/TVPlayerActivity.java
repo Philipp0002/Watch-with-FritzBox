@@ -519,7 +519,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 // HbbTV = 0x0010
                 AsyncTask.execute(() -> {
                     MediaPlayer.CommonDescriptors commonDescriptors = event.getCommonDescriptors();
-                    if (commonDescriptors.getApplicationId().equals("0x0010")) {
+                    if ("0x0010".equals(commonDescriptors.getApplicationId())) {
                         mHbbTvOverlay.processHbbTvInfo(commonDescriptors);
                     }
                 });
@@ -546,70 +546,13 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             case MediaPlayer.Event.EpgNewEvent:
                 AsyncTask.execute(() -> {
                     MediaPlayer.EpgEvent vlcEvent = event.getEvent();
-                    ChannelUtils.Channel ch = ChannelUtils.getChannelByDvb(TVPlayerActivity.this, vlcEvent.getNetworkId(), vlcEvent.getTransportStreamId(), vlcEvent.getServiceId());
-
-                    if (ch != null) {
-                        EpgUtils.EpgEvent epgEvent = new EpgUtils.EpgEvent();
-                        epgEvent.channelNumber = ch.number;
-                        epgEvent.id = vlcEvent.getEventId();
-                        epgEvent.description = vlcEvent.getDescription();
-                        epgEvent.subtitle = vlcEvent.getShortDescription();
-                        epgEvent.title = vlcEvent.getName();
-                        epgEvent.duration = vlcEvent.getDuration();
-                        epgEvent.startTime = vlcEvent.getStart();
-                        epgEvent.eitReceivedTimeMillis = System.currentTimeMillis();
-                        epgEvent.rating = vlcEvent.getRating();
-                        epgEvent.genre = vlcEvent.getGenre();
-                        epgEvent.subGenre = vlcEvent.getSubGenre();
-                        epgEvent.lang = vlcEvent.getLanguage();
-
-                        EpgUtils.addEvent(TVPlayerActivity.this, epgEvent);
-                    }
+                    EpgUtils.processVlcEpgEvent(TVPlayerActivity.this, vlcEvent);
                 });
-
-
                 break;
             case MediaPlayer.Event.EpgNewServiceInfo:
                 AsyncTask.execute(() -> {
                     MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
-                    ChannelUtils.Channel originalChannel = null;
-                    Log.d("SETUP_EPGNEWSERVICE", event.getRecordPath());
-                    if (serviceInfo.getPids() != null && serviceInfo.getPids().length > 0) {
-                        originalChannel = ChannelUtils.getChannelByPids(TVPlayerActivity.this, serviceInfo.getPids());
-                    }
-                    if(originalChannel == null) {
-                        originalChannel = ChannelUtils.getChannelByDvb(TVPlayerActivity.this, serviceInfo.getNetworkId(), serviceInfo.getTransportStreamId(), serviceInfo.getServiceId());
-                    }
-                    if (originalChannel != null) {
-                        ChannelUtils.Channel channel = originalChannel.copy();
-                        channel.title = serviceInfo.getName();
-                        channel.serviceId = serviceInfo.getServiceId();
-                        channel.provider = serviceInfo.getProvider();
-                        channel.free = serviceInfo.isFreeCA() != null && serviceInfo.isFreeCA();
-                        channel.onId = serviceInfo.getNetworkId();
-                        channel.tsId = serviceInfo.getTransportStreamId();
-                        try {
-                            switch (Math.toIntExact(serviceInfo.getTypeId())) {
-                                case 1: // DVB SD
-                                case 22: // SKY SD
-                                    channel.type = ChannelUtils.ChannelType.SD;
-                                    break;
-                                case 25: // DVB HD
-                                    channel.type = ChannelUtils.ChannelType.HD;
-                                    break;
-                                case 2: // DVB Digital Radio
-                                case 10: // DVB FM Radio
-                                    channel.type = ChannelUtils.ChannelType.RADIO;
-                                    break;
-                                default:
-                                    channel.type = ChannelUtils.ChannelType.OTHER;
-                            }
-                        } catch (Exception unused) {
-                        }
-                        ChannelUtils.updateChannel(TVPlayerActivity.this, originalChannel, channel);
-                    } else {
-                        Log.w("ChannelUpdater", "Channel " + serviceInfo.getName() + " not found for EPG update.");
-                    }
+                    ChannelUtils.processVlcServiceInfo(TVPlayerActivity.this, serviceInfo);
                 });
 
                 break;

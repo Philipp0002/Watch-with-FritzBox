@@ -46,7 +46,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="de.hahnphilipp.watchwithfritzbox.rich.RichTvInputService"
+        <service android:name=".rich.RichTvInputService"
             android:label="@string/rich_input_label"
             android:permission="android.permission.BIND_TV_INPUT"
             android:exported="true">

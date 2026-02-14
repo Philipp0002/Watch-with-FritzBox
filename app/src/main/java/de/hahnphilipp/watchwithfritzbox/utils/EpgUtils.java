@@ -3,6 +3,7 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.Nullable;

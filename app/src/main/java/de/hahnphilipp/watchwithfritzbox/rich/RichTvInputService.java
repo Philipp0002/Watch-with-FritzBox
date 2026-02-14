@@ -37,7 +37,6 @@ public class RichTvInputService extends TvInputService {
     @Nullable
     @Override
     public TvInputService.Session onCreateSession(String inputId) {
-        Log.d("onCREATEsession", inputId + " is the inputid");
         RichTvInputSessionImpl session = new RichTvInputSessionImpl(this);
         //session.setOverlayViewEnabled(true);
         return session;
@@ -101,12 +100,6 @@ public class RichTvInputService extends TvInputService {
 
             try {
                 final Media media = new Media(libVlc, Uri.parse(channel.url));
-                /*media.setHWDecoderEnabled(true, false);
-                media.addOption(":clock-jitter=0");
-                media.addOption(":clock-synchro=0");
-                media.addOption(":network-caching=1000"); // In milliseconds
-                media.addOption(":sout-keep");
-                media.addOption(":audio-time-stretch");*/
 
                 player.setMedia(media);
 
@@ -174,7 +167,6 @@ public class RichTvInputService extends TvInputService {
         public void onEvent(MediaPlayer.Event event) {
             switch (event.type) {
                 case MediaPlayer.Event.CaInfoReceived:
-                    Log.d("CAINFO", "LOCKED");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_CAS_NO_CARD);
                     } else {
@@ -192,7 +184,7 @@ public class RichTvInputService extends TvInputService {
                         MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
                         ChannelUtils.processVlcServiceInfo(getApplicationContext(), serviceInfo);
                     });
-
+                    break;
                 case MediaPlayer.Event.CommonDescriptorsFound:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         // HbbTV = 0x0010

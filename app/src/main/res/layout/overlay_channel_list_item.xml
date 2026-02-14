@@ -10,7 +10,8 @@
     android:clipToPadding="false">
 
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
+        style="?attr/materialCardViewFilledStyle"
         android:id="@+id/tvoverlaychannel_cardView"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
@@ -145,6 +146,6 @@
         </LinearLayout>
 
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

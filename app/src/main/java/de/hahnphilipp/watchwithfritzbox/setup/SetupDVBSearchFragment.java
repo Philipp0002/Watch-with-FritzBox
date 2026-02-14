@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 
 public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.EventListener {
@@ -279,6 +280,8 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                     } else {
                         // Finished all frequencies
                         unloadLibVLC();
+                        ChannelUtils.setChannels(requireContext(), channelList);
+                        RichTvUtils.reinsertChannels(requireContext());
                         requireActivity().runOnUiThread(() -> requireView().findViewById(R.id.setup_search_progressBar).setVisibility(GONE));
                         ((OnboardingActivity)requireActivity()).enableNextButton(true);
                     }

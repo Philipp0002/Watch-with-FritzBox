@@ -1,5 +1,6 @@
 package de.hahnphilipp.watchwithfritzbox.setup;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import java.util.List;
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.async.GetFritzInfo;
 import de.hahnphilipp.watchwithfritzbox.async.GetPlaylists;
+import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 
 public class SetupFritzboxSearchFragment extends Fragment {
@@ -60,16 +62,21 @@ public class SetupFritzboxSearchFragment extends Fragment {
 
             @Override
             public void onAllLoaded(boolean error, List<ChannelUtils.Channel> channelList) {
-                requireActivity().runOnUiThread(() -> {
-                    if (error) {
-                        Toast.makeText(requireContext(), R.string.setup_search_error, Toast.LENGTH_LONG).show();
-                        ((OnboardingActivity)requireActivity()).previousScreen();
-                    } else {
-                        view.findViewById(R.id.setup_search_progressBar).setVisibility(View.INVISIBLE);
-                        ((OnboardingActivity)requireActivity()).enableNextButton(true);
-                        SetupFritzboxSearchFragment.this.channelList = channelList;
-                    }
+                AsyncTask.execute(() -> {
+                    ChannelUtils.setChannels(requireContext(), channelList);
+                    RichTvUtils.reinsertChannels(requireContext());
+                    requireActivity().runOnUiThread(() -> {
+                        if (error) {
+                            Toast.makeText(requireContext(), R.string.setup_search_error, Toast.LENGTH_LONG).show();
+                            ((OnboardingActivity)requireActivity()).previousScreen();
+                        } else {
+                            view.findViewById(R.id.setup_search_progressBar).setVisibility(View.INVISIBLE);
+                            ((OnboardingActivity)requireActivity()).enableNextButton(true);
+                            SetupFritzboxSearchFragment.this.channelList = channelList;
+                        }
+                    });
                 });
+
 
             }
         };

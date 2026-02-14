@@ -1,6 +1,9 @@
 package de.hahnphilipp.watchwithfritzbox.rich;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.media.tv.TvContentRating;
 import android.media.tv.TvContract;
@@ -20,33 +23,59 @@ import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 public class RichTvUtils {
 
     public static void reinsertChannels(Context context) {
-        context.getContentResolver().delete(TvContract.Channels.CONTENT_URI, null, null);
+        try {
+            context.getContentResolver().delete(TvContract.Channels.CONTENT_URI, null, null);
 
-        ArrayList<ChannelUtils.Channel> channelsApp = ChannelUtils.getAllChannels(context);
-        HashMap<Long, Integer> channelRichMap = new HashMap<>();
-        for(ChannelUtils.Channel channelApp : channelsApp) {
+            ArrayList<ChannelUtils.Channel> channelsApp = ChannelUtils.getAllChannels(context);
+            HashMap<Long, Integer> channelRichMap = new HashMap<>();
+            ArrayList<ContentProviderOperation> operations = new ArrayList<>();
 
-            Channel channel = new Channel.Builder()
-                    .setDisplayName(channelApp.title)
-                    .setDisplayNumber(channelApp.number + "")
-                    .setInputId("de.hahnphilipp.watchwithfritzbox/.rich.RichTvInputService")
-                    .build();
+            for (ChannelUtils.Channel channelApp : channelsApp) {
 
-            Uri uri = context.getContentResolver().insert(TvContract.Channels.CONTENT_URI, channel.toContentValues());
+                Channel channel = new Channel.Builder()
+                        .setDisplayName(channelApp.title)
+                        .setDisplayNumber(channelApp.number + "")
+                        .setInputId("de.hahnphilipp.watchwithfritzbox/.rich.RichTvInputService")
+                        .build();
 
-            long channelId = Long.parseLong(uri.getLastPathSegment());
-            channelRichMap.put(channelId, channelApp.number);
+                operations.add(ContentProviderOperation.newInsert(TvContract.Channels.CONTENT_URI)
+                        .withValues(channel.toContentValues())
+                        .build());
+            }
+            ContentProviderResult[] results = context.getContentResolver().applyBatch(TvContract.AUTHORITY, operations);
+
+            for (int i = 0; i < results.length; i++) {
+                Uri uri = results[i].uri;
+                long channelId = Long.parseLong(uri.getLastPathSegment());
+                channelRichMap.put(channelId, channelsApp.get(i).number);
+            }
+
             ChannelUtils.saveChannelIDMappingForRichTv(context, channelRichMap);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public static void reinsertAllEpgEvents(Context context, List<EpgUtils.EpgEvent> epgEvent) {
+    public static void reinsertAllEpgEvents(Context context, List<EpgUtils.EpgEvent> epgEvents) {
         ContentResolver resolver = context.getContentResolver();
 
         // Alte Programme für diesen Kanal löschen (optional)
         resolver.delete(TvContract.Programs.CONTENT_URI, null, null);
 
-        epgEvent.forEach(e -> insertEpgEvent(context, e));
+        ContentValues[] programs = new ContentValues[epgEvents.size()];
+        for(int i = 0; i < epgEvents.size(); i++) {
+            EpgUtils.EpgEvent e = epgEvents.get(i);
+            Long richChannelID = ChannelUtils.getRichChannelID(context, e.channelNumber);
+            if(richChannelID == null) {
+                return;
+            }
+
+            Program program = programFromEpgEvent(e, richChannelID);
+
+            programs[i] = program.toContentValues();
+        }
+        resolver.bulkInsert(TvContract.Programs.CONTENT_URI, programs);
     }
 
     public static void insertEpgEvent(Context context, EpgUtils.EpgEvent epgEvent) {
@@ -62,23 +91,27 @@ public class RichTvUtils {
         ContentResolver resolver = context.getContentResolver();
 
         try {
-            String eventGenre = epgEvent.getRichTvGenre();
-            @TvContractCompat.Programs.Genres.Genre
-            String[] richGenre = eventGenre == null ? new String[0] : new String[]{eventGenre};
-            Program program = new Program.Builder()
-                    .setEventId((int) epgEvent.id)
-                    .setId(epgEvent.id)
-                    .setChannelId(richChannelID)
-                    .setTitle(epgEvent.title)
-                    .setDescription(epgEvent.description)
-                    .setBroadcastGenres(richGenre)
-                    .setStartTimeUtcMillis(epgEvent.startTime * 1000)
-                    .setEndTimeUtcMillis((epgEvent.startTime + epgEvent.duration) * 1000)
-                    .build();
+            Program program = programFromEpgEvent(epgEvent, richChannelID);
 
             resolver.insert(TvContract.Programs.CONTENT_URI, program.toContentValues());
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static Program programFromEpgEvent(EpgUtils.EpgEvent epgEvent, long richChannelID) {
+        String eventGenre = epgEvent.getRichTvGenre();
+        @TvContractCompat.Programs.Genres.Genre
+        String[] richGenre = eventGenre == null ? new String[0] : new String[]{eventGenre};
+        return new Program.Builder()
+                .setEventId((int) epgEvent.id)
+                //.setId(epgEvent.id)
+                .setChannelId(richChannelID)
+                .setTitle(epgEvent.title)
+                .setDescription(epgEvent.description)
+                .setBroadcastGenres(richGenre)
+                .setStartTimeUtcMillis(epgEvent.startTime * 1000)
+                .setEndTimeUtcMillis((epgEvent.startTime + epgEvent.duration) * 1000)
+                .build();
     }
 }

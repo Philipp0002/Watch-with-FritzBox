@@ -1,10 +1,12 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.StateSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
@@ -125,9 +128,13 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
                 if (selectedChannel == -1) {
                     selectedChannel = item.number;
                     overlay.showSidepanel(1);
+                    holder.cardView.setElevation(12);
+                    AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
                 } else {
                     selectedChannel = -1;
                     overlay.showSidepanel(0);
+                    AnimationUtils.scaleView(holder.cardView, 1.025F, 1F, 1.025F, 1F, 20L);
+                    holder.cardView.setElevation(0);
                 }
             });
 

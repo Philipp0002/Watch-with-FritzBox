@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
@@ -24,6 +25,7 @@ import java.util.List;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
+import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 
 public class OnboardingActivity extends FragmentActivity {
@@ -134,13 +136,9 @@ public class OnboardingActivity extends FragmentActivity {
             } else if (searchVariant == SetupSearchVariantsFragment.SearchVariant.DVB) {
                 showDVBSearchScreen(this.ip);
             }
-        } else if (currentFragment instanceof SetupFritzboxSearchFragment ssf) {
-            List<ChannelUtils.Channel> channelList = ssf.getChannelList();
-            ChannelUtils.setChannels(this, channelList);
+        } else if (currentFragment instanceof SetupFritzboxSearchFragment) {
             showSortChannelsScreen();
-        } else if (currentFragment instanceof SetupDVBSearchFragment dsf) {
-            List<ChannelUtils.Channel> channelList = dsf.getChannelList();
-            ChannelUtils.setChannels(this, channelList);
+        } else if (currentFragment instanceof SetupDVBSearchFragment) {
             showSortChannelsScreen();
         } else if (currentFragment instanceof SetupSortChannelsFragment) {
             showShowcaseGesturesScreen();

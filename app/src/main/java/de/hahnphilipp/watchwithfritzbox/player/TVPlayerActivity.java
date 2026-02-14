@@ -404,12 +404,15 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         ((TextView) findViewById(R.id.player_number)).setText("CH " + channel.number);
         ((TextView) findViewById(R.id.player_channel)).setText(channel.title);
 
+        ImageView channelTypeView = findViewById(R.id.player_type);
         if (channel.type == ChannelUtils.ChannelType.HD) {
-            ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.high_definition);
+            channelTypeView.setImageResource(R.drawable.high_definition);
         } else if (channel.type == ChannelUtils.ChannelType.SD) {
-            ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.standard_definition);
+            channelTypeView.setImageResource(R.drawable.standard_definition);
         } else if (channel.type == ChannelUtils.ChannelType.RADIO) {
-            ((ImageView) findViewById(R.id.player_type)).setImageResource(R.drawable.radio_tower);
+            channelTypeView.setImageResource(R.drawable.radio_tower);
+        } else if (channel.type == ChannelUtils.ChannelType.OTHER) {
+            channelTypeView.setImageResource(R.drawable.round_feed);
         }
 
         int timeWait = withWaitInterval ? 500 : 0;

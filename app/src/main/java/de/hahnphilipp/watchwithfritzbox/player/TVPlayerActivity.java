@@ -403,6 +403,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
         ((TextView) findViewById(R.id.player_number)).setText("CH " + channel.number);
         ((TextView) findViewById(R.id.player_channel)).setText(channel.title);
+        TextView epgEventView = findViewById(R.id.player_epg_event);
+        EpgUtils.EpgEvent epgEventNow = EpgUtils.getEventNowFromCache(channel.number);
+        if(epgEventNow != null) {
+            epgEventView.setText(epgEventNow.title);
+            epgEventView.setVisibility(View.VISIBLE);
+        } else {
+            epgEventView.setVisibility(View.GONE);
+        }
 
         ImageView channelTypeView = findViewById(R.id.player_type);
         if (channel.type == ChannelUtils.ChannelType.HD) {

@@ -2,7 +2,6 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,7 +25,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
-import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 
 public class ChannelUtils {
 
@@ -261,8 +259,17 @@ public class ChannelUtils {
         editor.commit();
     }
 
+    public static boolean richTvEnabled(Context context) {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
+        return sp.contains("channelMappingRichTv");
+    }
+
     public static void swapChannelIDMappingForRichTv(Context context, int appChannelNumber1, int appChannelNumber2){
-        long a = System.currentTimeMillis();
+        if(!ChannelUtils.richTvEnabled(context)) {
+            return;
+        }
         Map<Long, Integer> channelMapping = getChannelIDMappingForRichTv(context);
         if(channelMapping == null) return;
         Long richChannelNumber1 = channelMapping.entrySet().stream().filter(e -> e.getValue() == appChannelNumber1).map(Map.Entry::getKey).findFirst().orElse(null);
@@ -274,8 +281,6 @@ public class ChannelUtils {
 
             saveChannelIDMappingForRichTv(context, channelMapping);
         }
-        long b = System.currentTimeMillis() - a;
-        Log.d("SWAPPIE", "time to swap " + b);
     }
 
     public static Long getRichChannelID(Context context, int appChannelNumber) {

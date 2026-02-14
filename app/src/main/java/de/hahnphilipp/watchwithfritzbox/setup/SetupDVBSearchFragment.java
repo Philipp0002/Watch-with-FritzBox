@@ -231,12 +231,10 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
 
     @Override
     public void onEvent(MediaPlayer.Event event) {
-        Log.d("EVENTTYPE", event.type + "");
         switch (event.type) {
             case MediaPlayer.Event.PatReceived:
                 freqLocked = true;
                 AsyncTask.execute(() -> {
-                    Log.d("SETUP_PAT", event.getRecordPath());
                     if (pmtFound) return;
                     MediaPlayer.Pat pat = event.getPat();
                     HashMap<Integer, Integer> pmtPids = new HashMap<>();
@@ -256,7 +254,6 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                 freqLocked = true;
                 AsyncTask.execute(() -> {
                     if (nitTransportStreams != null) return;
-                    Log.d("SETUP_NIT", event.getRecordPath());
                     nitTransportStreams = new ArrayList<>();
                     for(MediaPlayer.NitTransportStream nts : event.getNit().getNitTransportStreams()){
                         if(nts.getCable() != null) {
@@ -281,7 +278,6 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                         // Finished all frequencies
                         unloadLibVLC();
                         ChannelUtils.setChannels(requireContext(), channelList);
-                        RichTvUtils.reinsertChannels(requireContext());
                         requireActivity().runOnUiThread(() -> requireView().findViewById(R.id.setup_search_progressBar).setVisibility(GONE));
                         ((OnboardingActivity)requireActivity()).enableNextButton(true);
                     }
@@ -291,11 +287,9 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                 freqLocked = true;
                 AsyncTask.execute(() -> {
                     MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
-                    Log.d("SETUP_EPGNEWSERVICE", event.getRecordPath());
                     HashSet<Integer> pids = new HashSet<>(List.of(0, 16, 17, 18, 20));
                     if(currentPids.containsKey(serviceInfo.getServiceId())) pids.add(currentPids.get(serviceInfo.getServiceId()));
                     for (int i : serviceInfo.getPids()) pids.add(i);
-                    Log.d("SETUP_EPGNEWSERVICEPIDS", "Service " + serviceInfo.getName() + "(" + serviceInfo.getServiceId() + ") with pids " + Arrays.toString(serviceInfo.getPids()) + " and pmtpid " + currentPids.get(serviceInfo.getServiceId()));
 
                     ChannelUtils.Channel channel = new ChannelUtils.Channel();
                     channel.number = ++channelNumber;
@@ -359,10 +353,6 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
             freqSearchThread = null;
         }
         unloadLibVLC();
-    }
-
-    public List<ChannelUtils.Channel> getChannelList() {
-        return channelList;
     }
 
     public static int encodeFrequency(double mhz) {

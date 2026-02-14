@@ -18,7 +18,6 @@ import java.util.List;
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.async.GetFritzInfo;
 import de.hahnphilipp.watchwithfritzbox.async.GetPlaylists;
-import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 
 public class SetupFritzboxSearchFragment extends Fragment {
@@ -64,7 +63,6 @@ public class SetupFritzboxSearchFragment extends Fragment {
             public void onAllLoaded(boolean error, List<ChannelUtils.Channel> channelList) {
                 AsyncTask.execute(() -> {
                     ChannelUtils.setChannels(requireContext(), channelList);
-                    RichTvUtils.reinsertChannels(requireContext());
                     requireActivity().runOnUiThread(() -> {
                         if (error) {
                             Toast.makeText(requireContext(), R.string.setup_search_error, Toast.LENGTH_LONG).show();
@@ -111,10 +109,6 @@ public class SetupFritzboxSearchFragment extends Fragment {
         };
         getFritzInfo.execute();
 
-    }
-
-    public List<ChannelUtils.Channel> getChannelList() {
-        return channelList;
     }
 
     @Override

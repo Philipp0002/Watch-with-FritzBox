@@ -111,10 +111,12 @@ public class EpgUtils {
 
         getDatabase(context).epgDao().insert(epgEvent);
 
-        try {
-            RichTvUtils.insertEpgEvent(context, epgEvent);
-        }catch (Exception e) {
-            e.printStackTrace();
+        if(ChannelUtils.richTvEnabled(context)) {
+            try {
+                RichTvUtils.insertEpgEvent(context, epgEvent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

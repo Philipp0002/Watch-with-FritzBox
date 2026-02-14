@@ -277,7 +277,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                     } else {
                         // Finished all frequencies
                         unloadLibVLC();
-                        ChannelUtils.setChannels(requireContext(), channelList);
+                        ChannelUtils.setChannels(requireContext(), channelList, true);
                         requireActivity().runOnUiThread(() -> requireView().findViewById(R.id.setup_search_progressBar).setVisibility(GONE));
                         ((OnboardingActivity)requireActivity()).enableNextButton(true);
                     }

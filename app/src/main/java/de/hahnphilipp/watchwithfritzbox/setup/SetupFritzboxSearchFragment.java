@@ -62,7 +62,7 @@ public class SetupFritzboxSearchFragment extends Fragment {
             @Override
             public void onAllLoaded(boolean error, List<ChannelUtils.Channel> channelList) {
                 AsyncTask.execute(() -> {
-                    ChannelUtils.setChannels(requireContext(), channelList);
+                    ChannelUtils.setChannels(requireContext(), channelList, true);
                     requireActivity().runOnUiThread(() -> {
                         if (error) {
                             Toast.makeText(requireContext(), R.string.setup_search_error, Toast.LENGTH_LONG).show();

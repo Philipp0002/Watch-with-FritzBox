@@ -186,7 +186,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             context.popOverlayFragment();
         }));
         selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_confirm), null, NavigationIcon.NONE, R.drawable.round_reset_settings, () -> {
-            ChannelUtils.setChannels(requireContext(), new ArrayList<>());
+            ChannelUtils.setChannels(requireContext(), new ArrayList<>(), false);
             editor.clear();
             editor.commit();
             EpgUtils.resetEpgDatabase(context);

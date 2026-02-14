@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -73,7 +74,33 @@ public class ChannelUtils {
         }
     }
 
-    public static void setChannels(Context context, List<Channel> channels) {
+    public static void setChannels(Context context, List<Channel> channels, boolean presort) {
+        if(presort) {
+            Collections.sort(channels, new Comparator<>() {
+                @Override
+                public int compare(Channel c1, Channel c2) {
+                    int freeComparison = Boolean.compare(c2.free, c1.free);
+                    if (freeComparison != 0) {
+                        return freeComparison;
+                    }
+
+                    return Integer.compare(getTypePriority(c1.type), getTypePriority(c2.type));
+                }
+
+                private int getTypePriority(ChannelType type) {
+                    return switch (type) {
+                        case HD -> 1;
+                        case SD -> 2;
+                        case RADIO -> 3;
+                        case OTHER -> 4;
+                    };
+                }
+            });
+            int chNumber = 0;
+            for(Channel channel : channels) {
+                channel.number = ++chNumber;
+            }
+        }
         Collections.sort(channels, Comparator.comparingInt(o -> o.number));
         channelsCache = new ArrayList<>(channels);
         SharedPreferences sp = context.getSharedPreferences(
@@ -95,7 +122,7 @@ public class ChannelUtils {
         ArrayList<Channel> channels = getAllChannels(context);
         channels.remove(oldChannel);
         channels.add(newChannel);
-        setChannels(context, channels);
+        setChannels(context, channels, false);
     }
 
     public static Channel getNextChannel(Context context, int number) {
@@ -131,9 +158,9 @@ public class ChannelUtils {
                 i++;
             }
 
-            setChannels(context, channels);
-            EpgUtils.swapChannelPositions(context, fromChannelPos, toChannelPos);
-            swapChannelIDMappingForRichTv(context, fromChannelPos, toChannelPos);
+            setChannels(context, channels, false);
+            EpgUtils.moveChannelPosition(context, fromChannelPos, toChannelPos);
+            moveChannelIDMappingForRichTv(context, fromChannelPos, toChannelPos);
         }
         return channels;
     }
@@ -266,21 +293,32 @@ public class ChannelUtils {
         return sp.contains("channelMappingRichTv");
     }
 
-    public static void swapChannelIDMappingForRichTv(Context context, int appChannelNumber1, int appChannelNumber2){
+    public static void moveChannelIDMappingForRichTv(Context context, int appChannelNumberFrom, int appChannelNumberTo){
         if(!ChannelUtils.richTvEnabled(context)) {
             return;
         }
-        Map<Long, Integer> channelMapping = getChannelIDMappingForRichTv(context);
-        if(channelMapping == null) return;
-        Long richChannelNumber1 = channelMapping.entrySet().stream().filter(e -> e.getValue() == appChannelNumber1).map(Map.Entry::getKey).findFirst().orElse(null);
-        Long richChannelNumber2 = channelMapping.entrySet().stream().filter(e -> e.getValue() == appChannelNumber2).map(Map.Entry::getKey).findFirst().orElse(null);
+        Map<Long, Integer> channelMappingEdit = getChannelIDMappingForRichTv(context);
+        Map<Long, Integer> channelMapping = new HashMap<>(channelMappingEdit);
 
-        if(richChannelNumber1 != null && richChannelNumber2 != null) {
-            channelMapping.put(richChannelNumber1, appChannelNumber2);
-            channelMapping.put(richChannelNumber2, appChannelNumber1);
-
-            saveChannelIDMappingForRichTv(context, channelMapping);
+        for(Map.Entry<Long, Integer> entry : channelMapping.entrySet()) {
+            if(entry.getValue() == appChannelNumberFrom) {
+                Log.d("MOVEEA", entry.getValue() + " to " + appChannelNumberTo);
+                channelMappingEdit.put(entry.getKey(), appChannelNumberTo);
+            }
+            if(appChannelNumberFrom > appChannelNumberTo) {
+                if (entry.getValue() >= appChannelNumberTo && entry.getValue() < appChannelNumberFrom) {
+                    Log.d("MOVEEB", entry.getValue() + " to " + (entry.getValue() + 1));
+                    channelMappingEdit.put(entry.getKey(), entry.getValue() + 1);
+                }
+            } else {
+                if (entry.getValue() <= appChannelNumberTo && entry.getValue() > appChannelNumberFrom) {
+                    Log.d("MOVEEC", entry.getValue() + " to " + (entry.getValue() - 1));
+                    channelMappingEdit.put(entry.getKey(), entry.getValue() - 1);
+                }
+            }
         }
+
+        saveChannelIDMappingForRichTv(context, channelMappingEdit);
     }
 
     public static Long getRichChannelID(Context context, int appChannelNumber) {

@@ -79,25 +79,13 @@ public class EpgUtils {
         return getDatabase(context).epgDao().getEventsForChannelEndingAfter(channelNumber, time);
     }
 
-    public static void swapChannelPositions(Context context, int fromChannelPos, int toChannelPos) {
-        getDatabase(context).epgDao().swapChannelEvents(fromChannelPos, toChannelPos);
-        if(epgNowCache.containsKey(fromChannelPos) && epgNowCache.containsKey(toChannelPos)) {
-            EpgEvent eventFrom = epgNowCache.get(fromChannelPos);
-            EpgEvent eventTo = epgNowCache.get(toChannelPos);
-            epgNowCache.put(fromChannelPos, eventTo);
-            epgNowCache.put(toChannelPos, eventFrom);
+    public static void moveChannelPosition(Context context, int fromChannelPos, int toChannelPos) {
+        if (fromChannelPos == toChannelPos) {
             return;
         }
-        if(epgNowCache.containsKey(fromChannelPos)) {
-            EpgEvent event = epgNowCache.get(fromChannelPos);
-            epgNowCache.remove(fromChannelPos);
-            epgNowCache.put(toChannelPos, event);
-        }
-        if(epgNowCache.containsKey(toChannelPos)) {
-            EpgEvent event = epgNowCache.get(toChannelPos);
-            epgNowCache.remove(toChannelPos);
-            epgNowCache.put(fromChannelPos, event);
-        }
+        getDatabase(context).epgDao().moveChannelEvents(fromChannelPos, toChannelPos);
+
+        epgNowCache.clear();
     }
 
     public static void addEvent(Context context, EpgEvent epgEvent) {

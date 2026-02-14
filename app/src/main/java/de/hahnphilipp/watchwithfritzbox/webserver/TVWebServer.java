@@ -55,7 +55,8 @@ public class TVWebServer {
                             .replace("%CHANNELNAME%", channel.title)
                             .replace("%CHANNELNUMBER%", Integer.toString(channel.number))
                             .replace("%CHANNELBADGE%", channel.type.toString())
-                            .replace("%LOGOURL%", "https://tv.avm.de/tvapp/logos/" + (channel.type == ChannelUtils.ChannelType.HD ? "hd/" : (channel.type == ChannelUtils.ChannelType.RADIO ? "radio/" : "")) + channel.title.toLowerCase().replace(" ", "_").replace("+", "") + ".png");
+                            .replace("%CHANNELLOCK%", channel.free ? "" : "<span class=\"channelLock\">\uD83D\uDD12</span>")
+                            .replace("%LOGOURL%", ChannelUtils.getIconURL(channel));
                 }
                 reorderChannelsView = reorderChannelsView.replace("%CHANNELS%", channels);
                 response.send(reorderChannelsView);
@@ -94,7 +95,7 @@ public class TVWebServer {
                     channels.add(channel);
                     channelNumber++;
                 }
-                ChannelUtils.setChannels(context, channels);
+                ChannelUtils.setChannels(context, channels, false);
                 response.send("{\"msg\": \"success\"}");
                 EditChannelListTVOverlay.notifyChannelListChanged();
                 ChannelListTVOverlay.notifyChannelListChanged();

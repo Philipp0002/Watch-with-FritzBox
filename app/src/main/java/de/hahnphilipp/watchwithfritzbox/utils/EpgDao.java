@@ -29,6 +29,34 @@ public interface  EpgDao {
         updateChannelNumber(-1, to);
     }
 
+    @Transaction
+    default void moveChannelEvents(int from, int to) {
+        if (from == to) {
+            return; // Keine Änderung notwendig
+        }
+
+        if (from < to) {
+            // Kanal nach oben verschieben (z.B. 2 → 5)
+            // Zuerst den zu verschiebenden Kanal auf temporären Wert
+            updateChannelNumber(from, -1);
+            // Alle Kanäle zwischen from+1 und to um 1 nach unten
+            updateChannelNumberRange(from + 1, to, -1);
+            // Dann den temporären Kanal auf Zielposition
+            updateChannelNumber(-1, to);
+        } else {
+            // Kanal nach unten verschieben (z.B. 5 → 2)
+            // Zuerst den zu verschiebenden Kanal auf temporären Wert
+            updateChannelNumber(from, -1);
+            // Alle Kanäle zwischen to und from-1 um 1 nach oben
+            updateChannelNumberRange(to, from - 1, 1);
+            // Dann den temporären Kanal auf Zielposition
+            updateChannelNumber(-1, to);
+        }
+    }
+
+    @Query("UPDATE EpgEvent SET channelNumber = channelNumber + :offset WHERE channelNumber BETWEEN :start AND :end")
+    void updateChannelNumberRange(int start, int end, int offset);
+
     @Query("UPDATE EpgEvent SET channelNumber = :newChannel WHERE channelNumber = :oldChannel")
     void updateChannelNumber(int oldChannel, int newChannel);
 

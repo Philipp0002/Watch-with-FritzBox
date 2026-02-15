@@ -305,17 +305,14 @@ public class ChannelUtils {
 
         for(Map.Entry<Long, Integer> entry : channelMapping.entrySet()) {
             if(entry.getValue() == appChannelNumberFrom) {
-                Log.d("MOVEEA", entry.getValue() + " to " + appChannelNumberTo);
                 channelMappingEdit.put(entry.getKey(), appChannelNumberTo);
             }
             if(appChannelNumberFrom > appChannelNumberTo) {
                 if (entry.getValue() >= appChannelNumberTo && entry.getValue() < appChannelNumberFrom) {
-                    Log.d("MOVEEB", entry.getValue() + " to " + (entry.getValue() + 1));
                     channelMappingEdit.put(entry.getKey(), entry.getValue() + 1);
                 }
             } else {
                 if (entry.getValue() <= appChannelNumberTo && entry.getValue() > appChannelNumberFrom) {
-                    Log.d("MOVEEC", entry.getValue() + " to " + (entry.getValue() - 1));
                     channelMappingEdit.put(entry.getKey(), entry.getValue() - 1);
                 }
             }

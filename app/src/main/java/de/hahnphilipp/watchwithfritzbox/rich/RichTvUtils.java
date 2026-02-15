@@ -92,8 +92,27 @@ public class RichTvUtils {
 
         try {
             Program program = programFromEpgEvent(epgEvent, richChannelID);
+            ContentValues values = program.toContentValues();
 
-            resolver.insert(TvContract.Programs.CONTENT_URI, program.toContentValues());
+            // Prüfe auf existierendes Programm anhand von Channel-ID und Event-ID
+            String selection = TvContract.Programs.COLUMN_CHANNEL_ID + " = ? AND " +
+                    TvContract.Programs.COLUMN_EVENT_ID + " = ?";
+            String[] selectionArgs = new String[] {
+                    String.valueOf(richChannelID),
+                    String.valueOf(epgEvent.id)
+            };
+
+            int rowsUpdated = resolver.update(
+                    TvContract.Programs.CONTENT_URI,
+                    values,
+                    selection,
+                    selectionArgs
+            );
+
+            // Falls kein Update stattgefunden hat, neuen Eintrag einfügen
+            if (rowsUpdated == 0) {
+                resolver.insert(TvContract.Programs.CONTENT_URI, values);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

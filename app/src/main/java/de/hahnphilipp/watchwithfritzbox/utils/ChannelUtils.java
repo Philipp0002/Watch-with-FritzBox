@@ -29,7 +29,6 @@ import de.hahnphilipp.watchwithfritzbox.R;
 
 public class ChannelUtils {
 
-    static int selectedChannel = -1;
     static ArrayList<Channel> channelsCache = null;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -182,11 +181,7 @@ public class ChannelUtils {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        if (selectedChannel == -1) {
-            return sp.getInt("lastChannel", 1);
-        } else {
-            return selectedChannel;
-        }
+        return sp.getInt("lastChannel", 1);
     }
 
     public static void updateLastSelectedChannel(Context context, int number) {

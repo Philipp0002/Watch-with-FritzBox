@@ -249,9 +249,12 @@ public class ChannelUtils {
 
         StringBuilder m3u = new StringBuilder("#EXTM3U\n");
         for (Channel channel : channels) {
-            m3u.append("#EXTINF:0 wwfb-type=\"").append(channel.type).append("\",").append(channel.title).append("\n");
+            m3u.append("#EXTINF:0 ")
+                    .append("wwfb-type=\"").append(channel.type).append("\" ")
+                    .append("wwfb-free=\"").append(channel.free).append("\",")
+                    .append(channel.title)
+                    .append("\n");
             m3u.append("#EXTVLCOPT:network-caching=1000\n");
-            //m3u.append("#EXTWWFB:"+ channel.type.toString() +"\n");
             m3u.append(channel.url).append("\n");
         }
 

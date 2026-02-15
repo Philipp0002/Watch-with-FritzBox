@@ -20,6 +20,7 @@ import de.hahnphilipp.watchwithfritzbox.player.ChannelListTVOverlay;
 import de.hahnphilipp.watchwithfritzbox.player.EditChannelListTVOverlay;
 import de.hahnphilipp.watchwithfritzbox.utils.AssetUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 
 public class TVWebServer {
 
@@ -84,6 +85,7 @@ public class TVWebServer {
                 ArrayList<ChannelUtils.Channel> channels = new ArrayList<>();
                 for (Track t : playlist.getTrackSetMap().get("")) {
                     ChannelUtils.ChannelType type = ChannelUtils.ChannelType.SD;
+                    boolean free = true;
                     String wwfbType = t.getExtInfo().getWwfbType();
                     if (wwfbType != null) {
                         try{
@@ -91,11 +93,18 @@ public class TVWebServer {
                         } catch (IllegalArgumentException ignored) {
                         }
                     }
+
+                    String wwfbFree = t.getExtInfo().getWwfbFree();
+                    if (wwfbFree != null && !wwfbFree.isEmpty()) {
+                        free = Boolean.parseBoolean(wwfbFree);
+                    }
                     ChannelUtils.Channel channel = new ChannelUtils.Channel(channelNumber, t.getExtInfo().getTitle(), t.getUrl(), type);
+                    channel.free = free;
                     channels.add(channel);
                     channelNumber++;
                 }
                 ChannelUtils.setChannels(context, channels, false);
+                EpgUtils.resetEpgDatabase(context);
                 response.send("{\"msg\": \"success\"}");
                 EditChannelListTVOverlay.notifyChannelListChanged();
                 ChannelListTVOverlay.notifyChannelListChanged();

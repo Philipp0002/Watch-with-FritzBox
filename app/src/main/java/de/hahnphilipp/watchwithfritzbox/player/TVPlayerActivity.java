@@ -57,6 +57,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public EPGFragment mEPGOverlayFragment;
     public TeletextTVOverlay mTeletextOverlayFragment;
     public ArrayList<MediaPlayer.TeletextPageInfo> teletextPageInfos = new ArrayList<>();
+    private HashSet<String> currentCaSystems = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +159,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 .commit();
 
         mChannelOverlayFragment = new ChannelListTVOverlay();
-        mChannelOverlayFragment.context = this;
         mChannelOverlayFragment.setArguments(getIntent().getExtras());
 
         mSettingsOverlayFragment = new SettingsTVOverlay();
@@ -172,8 +172,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mTeletextOverlayFragment.context = this;
         mTeletextOverlayFragment.setArguments(getIntent().getExtras());
     }
-
-    HashSet<String> currentCaSystems = new HashSet<>();
 
     private void addCaInfo(String caInfo) {
         View container = findViewById(R.id.ca_info_card);

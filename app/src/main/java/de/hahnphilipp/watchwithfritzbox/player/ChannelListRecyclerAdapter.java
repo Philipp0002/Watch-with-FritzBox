@@ -165,9 +165,11 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
 
             holder.itemView.setOnClickListener(v -> {
                 ChannelListTVOverlay overlay = (ChannelListTVOverlay) context;
-                overlay.context.popOverlayFragment();
-                ChannelUtils.updateLastSelectedChannel(((ChannelListTVOverlay) context).context, item.number);
-                overlay.context.launchPlayer(false);
+                TVPlayerActivity activity = overlay.getTVPlayerActivity();
+                if(activity == null) return;
+                activity.popOverlayFragment();
+                ChannelUtils.updateLastSelectedChannel(activity, item.number);
+                activity.launchPlayer(false);
             });
         }
 

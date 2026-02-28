@@ -28,7 +28,6 @@ import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 
 public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, EpgUtils.EpgUpdateListener {
 
-    public TVPlayerActivity context;
     private ChannelListRecyclerAdapter tvOverlayRecyclerAdapter;
     private VerticalGridView recyclerView;
     private Timer clockTimer;
@@ -45,7 +44,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
         tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(requireContext());
         requireActivity().runOnUiThread(() -> {
             tvOverlayRecyclerAdapter.notifyDataSetChanged();
-            tvOverlayRecyclerAdapter.selectChannel(ChannelUtils.getLastSelectedChannel(context));
+            tvOverlayRecyclerAdapter.selectChannel(ChannelUtils.getLastSelectedChannel(requireContext()));
         });
     }
 
@@ -67,7 +66,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
         tvOverlayRecyclerAdapter = new ChannelListRecyclerAdapter(this, ChannelUtils.getAllChannels(requireContext()), recyclerView, false);
 
 
-        LinearLayoutManager llm = new LinearLayoutManager(context);
+        LinearLayoutManager llm = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
         int lastSelectedChannel = ChannelUtils.getLastSelectedChannel(requireContext());
@@ -112,7 +111,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
 
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if(event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-            context.popOverlayFragment();
+            getTVPlayerActivity().popOverlayFragment();
             return true;
         }
         return false;
@@ -121,6 +120,13 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
     @Override
     public boolean onKeyDownLong(int keyCode, KeyEvent event) {
         return false;
+    }
+
+    public TVPlayerActivity getTVPlayerActivity() {
+        if(getActivity() instanceof TVPlayerActivity) {
+            return (TVPlayerActivity) requireActivity();
+        }
+        return null;
     }
 
 
@@ -173,8 +179,8 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
         DateFormat dftime = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault());
         final String time = dftime.format(new Date());
 
-        if (context != null)
-            context.runOnUiThread(() -> {
+        if (getActivity() != null)
+            requireActivity().runOnUiThread(() -> {
                 if(getView() != null) {
                     TextView dateView = getView().findViewById(R.id.tvoverlaydate);
                     TextView timeView = getView().findViewById(R.id.tvoverlaytime);

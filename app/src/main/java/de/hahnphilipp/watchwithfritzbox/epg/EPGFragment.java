@@ -69,11 +69,13 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
         CircularProgressIndicator loadingProgressIndicator = getView().findViewById(R.id.loading_indicator);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
+            if(context == null) context = (TVPlayerActivity) getActivity();
+            if(context == null || isDetached()) return;
             ArrayList<ChannelUtils.Channel> channels = new ArrayList<>(ChannelUtils.getAllChannels(context));
             HashMap<Integer, List<ProgramGuideSchedule>> channelEpgMap = new HashMap<>();
             for (ChannelUtils.Channel channel : channels) {
-                requireActivity().runOnUiThread(() -> {
-                    loadingTextView.setText(getString(R.string.epg_loading_channels, channel.number, channels.size()));
+                context.runOnUiThread(() -> {
+                    loadingTextView.setText(context.getString(R.string.epg_loading_channels, channel.number, channels.size()));
                     loadingProgressIndicator.setIndeterminate(false);
                     loadingProgressIndicator.setMax(channels.size());
                     loadingProgressIndicator.setProgress(channel.number);
@@ -88,13 +90,14 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
                         ))
                         .collect(Collectors.toList());
                 channelEpgMap.put(channel.number, schedules);
+                if(context == null || isDetached()) return;
             }
-            requireActivity().runOnUiThread(() -> {
-                loadingTextView.setText(getString(R.string.epg_loading_channels_wait));
+            context.runOnUiThread(() -> {
+                loadingTextView.setText(context.getString(R.string.epg_loading_channels_wait));
                 setData(channels, channelEpgMap, localDate);
                 getView().post(() -> {
                     setState(State.Content.INSTANCE);
-                    scrollToChannelWithId(ChannelUtils.getLastSelectedChannel(requireContext()));
+                    scrollToChannelWithId(ChannelUtils.getLastSelectedChannel(context));
                 });
             });
         });

@@ -440,11 +440,15 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 }
                 media = new Media(mLibVLC, Uri.parse(channel.url));
                 mMediaPlayer.setMedia(media);
-                media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
+                try {
+                    media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
-                media.addOption("--video-filter=deinterlace");
-                media.addOption("--deinterlace=1");
-                media.addOption("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
+                    media.addOption("--video-filter=deinterlace");
+                    media.addOption("--deinterlace=1");
+                    media.addOption("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
+                } catch (Exception e) {
+                    Log.e("TVPlayerActivity", "Error setting HW acceleration", e);
+                }
 
                 teletextPageInfos.clear();
                 runOnUiThread(() -> {

@@ -8,7 +8,7 @@
 </head>
 
 <body>
-<h1><a href="/">🔙 Channel list</a></h1>
+<h1><a href="/"><img src="asset?name=chevron_back.svg&contentType=image/svg+xml"> Channel list</a></h1>
 <div class="disclamer">💻 PC users: Drag and drop the channels to the desired position.</div>
 <div class="disclamer">📱 Mobile users: Long-tap and move the channels to the desired position.</div>
 <div id="channelCards">
@@ -48,8 +48,8 @@
 
     .card {
         display: grid;
-        grid-template-areas: "logo info info";
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-areas: "logo info edit";
+        grid-template-columns: 1fr 2fr 0.5fr;
         border-radius: 25px;
         background-color: #2a2939 !important;
         width: min(calc(97% - 50px), 550px);
@@ -83,7 +83,7 @@
         background-size: contain;
     }
 
-    .card > div:not(.cardLogo) {
+    .cardInfo {
         grid-area: info;
         width: 100%;
         position: absolute;
@@ -91,6 +91,16 @@
         transform: translateY(-50%);
         padding: 25px;
         font-size: 20pt;
+    }
+
+    .cardEdit {
+        grid-area: edit;
+        width: 100%;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 25px;
+        cursor: pointer;
     }
 
     .channelLock {
@@ -178,6 +188,16 @@ sortable('#channelCards')[0].addEventListener('sortupdate', function(e) {
     })
 
 });
+
+function move(channelNumber) {
+    const input = window.prompt("Move channel "+channelNumber+" to position:", channelNumber);
+    if(input != null && input >>> 0 === parseFloat(input)){
+        httpGetAsync("/moveChannel?from="+channelNumber+"&to="+input, function(callback){
+            console.log(callback);
+            location.reload();
+        })
+    }
+}
 
 
 

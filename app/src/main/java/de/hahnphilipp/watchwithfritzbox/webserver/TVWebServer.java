@@ -51,7 +51,7 @@ public class TVWebServer {
                 String reorderChannelsView = AssetUtils.getStringFromAsset(context, "reorderChannelsView.html");
                 String channelItemView = AssetUtils.getStringFromAsset(context, "channelItem.html");
                 String channels = "";
-                for (ChannelUtils.Channel channel : ChannelUtils.getAllChannels(context)) {
+                for (ChannelUtils.Channel channel : new ArrayList<>(ChannelUtils.getAllChannels(context))) {
                     channels += channelItemView
                             .replace("%CHANNELNAME%", channel.title)
                             .replace("%CHANNELNUMBER%", Integer.toString(channel.number))

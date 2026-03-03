@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.widget.BrowseFrameLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.videolan.libvlc.MediaPlayer;
@@ -45,6 +44,13 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.overlay_settings, container, false);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        context = getActivity();
     }
 
     @Override
@@ -467,7 +473,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+        if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_DPAD_LEFT && context != null) {
             context.popOverlayFragment();
             return true;
         }

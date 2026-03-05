@@ -121,6 +121,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         args.add("--freetype-background-opacity=128");
         args.add("--network-caching=1500");
         args.add("--live-caching=1500");
+        args.add("--satip-buffer=1500");
         args.add("--sout-mux-caching=1500");
         args.add("--avcodec-hurry-up");
         args.add("1");
@@ -435,11 +436,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("PlaybackActivity", "Starting playback of " + channel.title + " -" + channel.url);
-                if (media != null && !media.isReleased()) {
+                /*if (media != null && !media.isReleased()) {
                     media.release();
                 }
+                Log.d("PlaybackActivity", "Released media");*/
                 media = new Media(mLibVLC, Uri.parse(channel.url));
+                Log.d("PlaybackActivity", "Created media");
                 mMediaPlayer.setMedia(media);
+                Log.d("PlaybackActivity", "Set media");
                 try {
                     media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
@@ -449,6 +453,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 } catch (Exception e) {
                     Log.e("TVPlayerActivity", "Error setting HW acceleration", e);
                 }
+                Log.d("PlaybackActivity", "Set hwdecode");
 
                 teletextPageInfos.clear();
                 runOnUiThread(() -> {

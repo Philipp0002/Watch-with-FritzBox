@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,11 +48,19 @@ public class SetupSortChannelsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        ArrayList<ChannelUtils.Channel> channelsList = ChannelUtils.getAllChannels(requireContext());
+        boolean supportsLCN = channelsList.stream().anyMatch(c -> c.lcn != null);
+
         ArrayList<Object> tvSettingsWithTitle = new ArrayList<>();
-        tvSettingsWithTitle.add(new TVSetting(getString(R.string.setup_order_yes), getString(R.string.setup_order_yes_subtitle), TVSetting.NavigationIcon.CHEVRON, R.drawable.round_sort, () -> {
-            presortChannels();
+        if(supportsLCN) {
+            tvSettingsWithTitle.add(new TVSetting(getString(R.string.setup_order_yes_lcn), getString(R.string.setup_order_yes_lcn_subtitle), TVSetting.NavigationIcon.CHEVRON, R.drawable.round_sort, () -> {
+                presortChannelsLCN();
+            }));
+        }
+        tvSettingsWithTitle.add(new TVSetting(getString(R.string.setup_order_yes_online), getString(R.string.setup_order_yes_online_subtitle), TVSetting.NavigationIcon.CHEVRON, R.drawable.round_sort, () -> {
+            presortChannelsOnline();
         }));
-        tvSettingsWithTitle.add(new TVSetting(getString(R.string.setup_order_no), getString(R.string.setup_order_no_subtitle), TVSetting.NavigationIcon.CHEVRON, R.drawable.round_filter_list_off, () -> {
+        tvSettingsWithTitle.add(new TVSetting(getString(R.string.setup_order_no), null, TVSetting.NavigationIcon.CHEVRON, R.drawable.round_filter_list_off, () -> {
             ((OnboardingActivity) requireActivity()).nextScreen();
         }));
 
@@ -70,7 +79,19 @@ public class SetupSortChannelsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_setup_sort_channels, container, false);
     }
 
-    public void presortChannels() {
+    public void presortChannelsLCN() {
+        ArrayList<ChannelUtils.Channel> channelsList = ChannelUtils.getAllChannels(requireContext());
+        channelsList.sort(
+                Comparator.comparing(o -> o.lcn, Comparator.nullsLast(Integer::compareTo))
+        );
+        for (int i = 0; i < channelsList.size(); i++) {
+            channelsList.get(i).number = i + 1;
+        }
+        ChannelUtils.setChannels(requireContext(), channelsList, false);
+        ((OnboardingActivity)requireActivity()).nextScreen();
+    }
+
+    public void presortChannelsOnline() {
         requireView().findViewById(R.id.recyclerView).setVisibility(View.INVISIBLE);
         requireView().findViewById(R.id.setup_order_progressBar).setVisibility(View.VISIBLE);
 

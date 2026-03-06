@@ -366,12 +366,14 @@ public class ChannelUtils {
         public String url;
         public ChannelType type;
 
-        public long onId;
-        public long tsId;
+        public int onId;
+        public int tsId;
         public int serviceId;
 
         public String provider;
         public boolean free;
+        public Integer lcn;
+        public Boolean lcnVisible;
 
         public Channel() {
 

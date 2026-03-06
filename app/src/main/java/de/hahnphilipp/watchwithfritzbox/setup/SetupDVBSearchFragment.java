@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import org.videolan.libvlc.MediaPlayer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -92,6 +94,8 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
 
     private TextView sdSearchText, hdSearchText, radioSearchText, otherSearchText, channelsText;
     private ScrollView channelTextScroll;
+
+    private HashMap<Pair<Integer, Integer>, MediaPlayer.NitService[]> nitServices = new HashMap<>();
 
     public static SetupDVBSearchFragment newInstance(String ip) {
         SetupDVBSearchFragment fragment = new SetupDVBSearchFragment();
@@ -211,6 +215,8 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
         args.add("--sout-keep");
         args.add("--vout=none");
         args.add("--aout=none");
+        args.add("--no-audio");
+        args.add("--no-video");
 
         mLibVLC = new LibVLC(requireContext(), args);
         mMediaPlayer = new MediaPlayer(mLibVLC);
@@ -257,6 +263,8 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                     nitTransportStreams = new ArrayList<>();
                     for(MediaPlayer.NitTransportStream nts : event.getNit().getNitTransportStreams()){
                         if(nts.getCable() != null) {
+                            Log.d("SETUP_SEARCH", "Found ts | freq " + decodeFrequency(nts.getCable().getFrequency().intValue()) + " MHz, mod " + decodeModulation(nts.getCable().getModulation()));
+                            nitServices.put(new Pair<>(nts.getOrigNetworkId(), nts.getTsId()), nts.getServices());
                             if(nts.getCable().getFrequency() != currentFrequencyBcd) {
                                 nitTransportStreams.add(nts);
                             }
@@ -277,6 +285,25 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                     } else {
                         // Finished all frequencies
                         unloadLibVLC();
+
+                        if(!nitServices.isEmpty()) {
+                            for(ChannelUtils.Channel channel : channelList) {
+                                MediaPlayer.NitService[] services = nitServices.get(new Pair<>(channel.onId, channel.tsId));
+                                if(services != null) {
+                                    Arrays.stream(services)
+                                            .filter(s -> s.getServiceId() == channel.serviceId)
+                                            .findFirst()
+                                            .ifPresent(s -> {
+                                                channel.lcn = s.getLogicalChannelNumber();
+                                                channel.lcnVisible = s.isLcnVisible();
+                                            });
+                                }
+                            }
+                        }
+
+                        channelList.sort(
+                                Comparator.comparing(o -> o.lcn, Comparator.nullsLast(Integer::compareTo))
+                        );
                         ChannelUtils.setChannels(requireContext(), channelList, true);
                         requireActivity().runOnUiThread(() -> requireView().findViewById(R.id.setup_search_progressBar).setVisibility(GONE));
                         ((OnboardingActivity)requireActivity()).enableNextButton(true);

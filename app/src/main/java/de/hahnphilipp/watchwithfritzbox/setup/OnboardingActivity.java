@@ -24,6 +24,7 @@ import com.google.android.material.button.MaterialButton;
 import java.util.List;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.player.TVPlayer3;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
 import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
@@ -41,7 +42,7 @@ public class OnboardingActivity extends FragmentActivity {
         SharedPreferences sp = getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         if (sp.contains("channels")) {
-            startActivity(new Intent(OnboardingActivity.this, TVPlayerActivity.class));
+            startActivity(new Intent(OnboardingActivity.this, TVPlayer3.class));
             finish();
             overridePendingTransition(0, 0);
             return;

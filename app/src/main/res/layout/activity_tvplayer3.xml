@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000000">
+
+    <!-- Video Surface -->
+    <SurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Controls -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="#CC000000">
+
+        <!-- URL Input -->
+        <EditText
+            android:id="@+id/etServerUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="SAT>IP Server URL (z.B. http://192.168.1.100/stream)"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#888888"
+            android:background="#333333"
+            android:padding="8dp"
+            android:inputType="textUri"
+            android:singleLine="true"
+            android:text="http://192.168.1.100:554/stream" />
+
+        <Space android:layout_height="8dp" android:layout_width="match_parent"/>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnPlay"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="▶ Play"
+                android:backgroundTint="#1DB954"
+                android:textColor="#FFFFFF" />
+
+            <Space android:layout_width="8dp" android:layout_height="match_parent"/>
+
+            <Button
+                android:id="@+id/btnStop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="■ Stop"
+                android:backgroundTint="#CC3333"
+                android:textColor="#FFFFFF"
+                android:enabled="false" />
+        </LinearLayout>
+
+        <Space android:layout_height="8dp" android:layout_width="match_parent"/>
+
+        <!-- Status -->
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bereit"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp"
+            android:gravity="center" />
+
+    </LinearLayout>
+</LinearLayout>

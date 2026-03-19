@@ -196,7 +196,7 @@ public class OnboardingActivity extends FragmentActivity {
         getSupportFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.fragment_container_view, fragment, null)
-                .commit();
+                .commitAllowingStateLoss();
     }
 
 

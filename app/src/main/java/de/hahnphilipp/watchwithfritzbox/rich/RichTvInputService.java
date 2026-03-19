@@ -205,54 +205,55 @@ public class RichTvInputService extends TvInputService {
                         String subtitleId = null;
 
                         MediaPlayer.TrackDescription[] descriptionsAudio = player.getAudioTracks();
-                        for (MediaPlayer.TrackDescription desc : descriptionsAudio) {
-                            if (desc.name.equalsIgnoreCase("Disable")) {
-                                deselectAudioTrackId = desc.id;
-                                continue;
-                            }
-
-                            TvTrackInfo.Builder builder = new TvTrackInfo.Builder(TYPE_AUDIO, desc.id + "");
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                builder.setDescription(desc.name);
-                            }
-                            a:
-                            for (Locale locale : Locale.getAvailableLocales()) {
-                                if (desc.name.toLowerCase().contains(locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase())) {
-                                    builder.setLanguage(locale.getISO3Language());
-                                    break a;
+                        if(descriptionsAudio != null) {
+                            for (MediaPlayer.TrackDescription desc : descriptionsAudio) {
+                                if (desc.name.equalsIgnoreCase("Disable")) {
+                                    deselectAudioTrackId = desc.id;
+                                    continue;
                                 }
-                            }
-                            tvTrackInfoList.add(builder.build());
 
-                            if (player.getAudioTrack() == desc.id) {
-                                audioId = desc.name;
+                                TvTrackInfo.Builder builder = new TvTrackInfo.Builder(TYPE_AUDIO, desc.id + "");
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    builder.setDescription(desc.name);
+                                }
+                                for (Locale locale : Locale.getAvailableLocales()) {
+                                    if (desc.name.toLowerCase().contains(locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase())) {
+                                        builder.setLanguage(locale.getISO3Language());
+                                    }
+                                }
+                                tvTrackInfoList.add(builder.build());
+
+                                if (player.getAudioTrack() == desc.id) {
+                                    audioId = desc.name;
+                                }
                             }
                         }
                         MediaPlayer.TrackDescription[] descriptionsSubtitle = player.getSpuTracks();
-                        for (MediaPlayer.TrackDescription desc : descriptionsSubtitle) {
-                            if (desc.name.equalsIgnoreCase("Disable")) {
-                                deselectSubtitleTrackId = desc.id;
-                                continue;
-                            }
+                        if(descriptionsSubtitle != null) {
+                            for (MediaPlayer.TrackDescription desc : descriptionsSubtitle) {
+                                if (desc.name.equalsIgnoreCase("Disable")) {
+                                    deselectSubtitleTrackId = desc.id;
+                                    continue;
+                                }
 
-                            TvTrackInfo.Builder builder = new TvTrackInfo.Builder(TYPE_SUBTITLE, desc.id + "");
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                builder.setDescription(desc.name);
-                            }
-                            for (Locale locale : Locale.getAvailableLocales()) {
-                                if (desc.name.toLowerCase().contains(locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase())) {
-                                    builder.setLanguage(locale.getISO3Language());
-                                    break;
+                                TvTrackInfo.Builder builder = new TvTrackInfo.Builder(TYPE_SUBTITLE, desc.id + "");
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    builder.setDescription(desc.name);
+                                }
+                                for (Locale locale : Locale.getAvailableLocales()) {
+                                    if (desc.name.toLowerCase().contains(locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase())) {
+                                        builder.setLanguage(locale.getISO3Language());
+                                        break;
+                                    }
+                                }
+                                tvTrackInfoList.add(builder.build());
+
+                                if (player.getSpuTrack() == desc.id) {
+                                    subtitleId = desc.name;
                                 }
                             }
-                            tvTrackInfoList.add(builder.build());
-
-                            if (player.getSpuTrack() == desc.id) {
-                                subtitleId = desc.name;
-                            }
+                            notifyTracksChanged(tvTrackInfoList);
                         }
-                        notifyTracksChanged(tvTrackInfoList);
-
 
                         Media.VideoTrack videoTrack = player.getCurrentVideoTrack();
                         if (videoTrack != null) {

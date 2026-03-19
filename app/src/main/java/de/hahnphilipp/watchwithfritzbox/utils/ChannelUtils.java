@@ -423,7 +423,7 @@ public class ChannelUtils {
                         .filter(Objects::nonNull)
                         .map(Integer::valueOf)
                         .collect(Collectors.toList());
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return List.of();

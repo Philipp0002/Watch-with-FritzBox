@@ -91,7 +91,11 @@ public class RichTvInputService extends TvInputService {
                 notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_UNKNOWN);
                 return false;
             }
-            int channelNr = mapping.get(richChannelId);
+            Integer channelNr = mapping.get(richChannelId);
+            if(channelNr == null) {
+                notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_UNKNOWN);
+                return false;
+            }
             ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(getApplicationContext(), channelNr);
             if(channel == null) {
                 notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_UNKNOWN);

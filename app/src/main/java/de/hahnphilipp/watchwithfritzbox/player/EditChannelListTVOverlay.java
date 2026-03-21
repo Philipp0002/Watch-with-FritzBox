@@ -89,7 +89,7 @@ public class EditChannelListTVOverlay extends Fragment implements KeyDownReceive
         String rawIP = IPUtils.getIPAddress(true);
         if (!rawIP.isEmpty()) {
             ip = "http://" + rawIP + ":8080";
-            ((TextView) view.findViewById(R.id.editChannelListInfoText2)).setText(getResources().getString(R.string.settings_reorder_channels_webserver_info).replace("%d", ip));
+            ((TextView) view.findViewById(R.id.editChannelListInfoText2)).setText(getResources().getString(R.string.settings_reorder_channels_webserver_info, ip));
 
             try {
                 BarcodeEncoder barcodeEncoder = new BarcodeEncoder();

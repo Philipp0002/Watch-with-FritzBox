@@ -6,11 +6,11 @@
     <string name="rich_input_setup_wait">Just a second...</string>
 
     <string name="not_tv_title">Not a TV?</string>
-    <string name="not_tv_msg">This app is made for Android TV and Fire TV. Platforms without remote controls can not use this app properly.</string>
+    <string name="not_tv_msg">This app is made for Android TV and Fire TV. Platforms without remote controls cannot use this app properly.</string>
 
     <string name="setup_welcome_title">Welcome to \nWatch\u00A0with\u00A0FritzBox</string>
     <string name="setup_welcome_subtitle">Get the most out of your DVB-C tuner</string>
-    <string name="setup_welcome_epg_teaser">See what\'s running now and coming up next</string>
+    <string name="setup_welcome_epg_teaser">See what\'s on now and coming up next</string>
     <string name="setup_welcome_hbbtv_teaser">Use VOD services provided by the channel operator</string>
     <string name="setup_welcome_tv_title">TV</string>
     <string name="setup_welcome_tv_teaser">Watch all your favorite channels for free</string>
@@ -21,7 +21,7 @@
     <string name="setup_variant_dvbc">DVB-C search (beta)</string>
     <string name="setup_variant_dvbc_description">Searches for all available cable channels. This can find channels that otherwise would not be found (even pay tv).</string>
     <string name="setup_variant_fritzbox">FritzBox search</string>
-    <string name="setup_variant_fritzbox_description">Grab channel list from FritzBox</string>
+    <string name="setup_variant_fritzbox_description">Retrieve channel list from FritzBox</string>
     <string name="setup_variant_title">Channel source</string>
     <string name="setup_variant_subtitle">How would you like to search for channels?</string>
     <string name="setup_searching_title">Channel search</string>
@@ -33,10 +33,10 @@
     <string name="setup_search_hd_result">%d HD channels found</string>
     <string name="setup_search_radio_result">%d radio stations found</string>
     <string name="setup_search_other_result">%d other channels found</string>
-    <string name="setup_search_error">There was an error while searching channels. Aborted.</string>
-    <string name="setup_search_error_connect">There was an error while connecting to FritzBox. Aborted.</string>
+    <string name="setup_search_error">Channel search failed. Please try again.</string>
+    <string name="setup_search_error_connect">Contacting FritzBox failed. Please try again.</string>
     <string name="setup_search_error_not_supported_title">Unsupported FritzBox</string>
-    <string name="setup_search_error_not_supported_msg">Your FritzBox does not seem compatible with this app. Please check if the model name of your FritzBox ends with \'Cable\'. Proceed anyways?</string>
+    <string name="setup_search_error_not_supported_msg">Your FritzBox does not seem compatible with this app. Please check if the model name of your FritzBox ends with \'Cable\'. Proceed anyway?</string>
     <string name="setup_search_error_not_supported_continue">Continue</string>
     <string name="setup_search_error_not_supported_abort">Cancel</string>
     <string name="setup_search_dvb_error">Couldn\'t find any tunable frequencies. Try FritzBox search instead!</string>
@@ -44,9 +44,9 @@
     <string name="setup_order_title">Channel order</string>
     <string name="setup_order_description">The channel list is currently unsorted. You can manually change the order later.</string>
     <string name="setup_order_yes_online">Online presort</string>
-    <string name="setup_order_yes_online_subtitle">Tries to apply a default order to your channel list by contacting a 3rd party server.</string>
+    <string name="setup_order_yes_online_subtitle">Applies a default channel order by contacting a third-party server.</string>
     <string name="setup_order_yes_lcn">Provider sort (LCN)</string>
-    <string name="setup_order_yes_lcn_subtitle">Choose this if you\'re unsure. This will use the channel order provided by your tv provider.</string>
+    <string name="setup_order_yes_lcn_subtitle">Choose this if you\'re unsure. This will use the channel order provided by your TV provider.</string>
     <string name="setup_order_no">Keep as is</string>
     <string name="setup_order_error">There was an error while ordering channels. Aborted.</string>
 
@@ -70,7 +70,7 @@
     <string name="settings_hbbtv_info">HbbTV available</string>
     <string name="settings_reorder_channels_move">Move up or down to change the position of this channel. Press OK to confirm.</string>
     <string name="settings_reorder_channels_select">Select the channel that you want to move</string>
-    <string name="settings_reorder_channels_webserver_info">or visit %d in your web browser</string>
+    <string name="settings_reorder_channels_webserver_info">or visit %s in your web browser</string>
     <string name="settings_reorder_channels_import">Import from another tv</string>
     <string name="settings_open_epg">EPG</string>
     <string name="settings_open_teletext">Teletext</string>
@@ -112,10 +112,10 @@
 
     <string name="hbbtv_info">HbbTV (Red-Button) combines TV with interactive online content. Press and hold the Right button while watching TV to show the color keys.</string>
 
-    <string name="epg_no_program">No epg info</string>
+    <string name="epg_no_program">No EPG info</string>
     <string name="epg_starting_from">from %s</string>
     <string name="epg_until">until %s</string>
-    <string name="epg_no_program_load_info">Watch this channel for a few minutes to receive epg data</string>
+    <string name="epg_no_program_load_info">Watch this channel for a few minutes to receive EPG data</string>
     <string name="epg_error_fetching_data">Unable to display content. Please try again later.</string>
     <string name="epg_loading_channels">Loading channel %d / %d</string>
     <string name="epg_loading_channels_wait">Just a second…</string>
@@ -162,7 +162,7 @@
     <string name="epg_event_category_sports_equestrian">Equestrian sports</string>
     <string name="epg_event_category_sports_martial">Martial sports</string>
 
-    <string name="epg_event_category_children_prescool">Preschool children</string>
+    <string name="epg_event_category_children_preschool">Preschool children</string>
     <string name="epg_event_category_children_0614">Kids 6 to 14 yrs</string>
     <string name="epg_event_category_children_1016">Kids 10 to 16 yrs</string>
     <string name="epg_event_category_children_educational">Kids educational programmes</string>
@@ -207,8 +207,8 @@
     <string name="epg_event_category_leisure_shopping">Advertisement / shopping</string>
     <string name="epg_event_category_leisure_gardening">Gardening</string>
 
-    <string name="epg_event_category_special_originallanguage">Special (Original language)</string>
-    <string name="epg_event_category_special_blackwhite">Special (Black and white)</string>
+    <string name="epg_event_category_special_originallanguage">Special (original language)</string>
+    <string name="epg_event_category_special_blackwhite">Special (black and white)</string>
     <string name="epg_event_category_special_unpublished">Special (unpublished)</string>
     <string name="epg_event_category_special_live">Special (live broadcast)</string>
 
@@ -217,13 +217,11 @@
     <string name="extra_key_red">Red</string>
     <string name="extra_key_blue">Blue</string>
 
-    <string name="teletext_subtitles">Teletext subtitles</string>
-    <string name="teletext_subtitles_hearing_impaired">Teletext subtitles for hearing impaired</string>
+    <string name="teletext_subtitles">Subtitles (teletext)</string>
+    <string name="teletext_subtitles_hearing_impaired">Subtitles for hearing impaired (teletext)</string>
     <string name="teletext_page_loading">Waiting for page %d…</string>
     <string name="teletext_page_receiving">Receiving page %d</string>
 
     <string name="test_lorem_ipsum" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

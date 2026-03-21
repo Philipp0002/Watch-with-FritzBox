@@ -305,7 +305,7 @@ public class EpgUtils {
         genreMap.put(Pair.create(0x04, 0x0B), R.string.epg_event_category_sports_martial);
 
         genreMap.put(Pair.create(0x05, 0x00), R.string.epg_event_category_children);
-        genreMap.put(Pair.create(0x05, 0x01), R.string.epg_event_category_children_prescool);
+        genreMap.put(Pair.create(0x05, 0x01), R.string.epg_event_category_children_preschool);
         genreMap.put(Pair.create(0x05, 0x02), R.string.epg_event_category_children_0614);
         genreMap.put(Pair.create(0x05, 0x03), R.string.epg_event_category_children_1016);
         genreMap.put(Pair.create(0x05, 0x04), R.string.epg_event_category_children_educational);

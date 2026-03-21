@@ -92,6 +92,7 @@
     <string name="no_audio_tracks">Keine Audiokanäle</string>
     <string name="no_subtitle_tracks">Keine Untertitelspuren</string>
     <string name="subtitles">Untertitel</string>
+    <string name="pip">Bild im Bild</string>
     <string name="audio_tracks">Audiokanäle</string>
     <string name="video_aspect">Seitenverhältnis</string>
     <string name="audio_tracks_desc">Wähle den Audiokanal</string>

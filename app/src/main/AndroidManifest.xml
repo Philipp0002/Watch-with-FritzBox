@@ -38,7 +38,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity"/>
+        <activity
+            android:name="de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity"
+            android:supportsPictureInPicture="true"
+            android:configChanges=
+                "screenSize|smallestScreenSize|screenLayout|orientation"/>
         <activity android:name="de.hahnphilipp.watchwithfritzbox.rich.RichTvInputSetupActivity"
             android:exported="true">
             <intent-filter>

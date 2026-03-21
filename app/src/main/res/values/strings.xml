@@ -104,6 +104,7 @@
     <string name="no_audio_tracks">No audio tracks</string>
     <string name="no_subtitle_tracks">No subtitles available</string>
     <string name="subtitles">Subtitles</string>
+    <string name="pip">Picture in Picture</string>
     <string name="audio_tracks">Audio tracks</string>
     <string name="video_aspect">Aspect ratio</string>
     <string name="audio_tracks_desc">Choose an audio track</string>

@@ -1,9 +1,14 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
+import static android.content.pm.PackageManager.FEATURE_PICTURE_IN_PICTURE;
+
+import android.app.PictureInPictureParams;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Rational;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,7 +100,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         if (player != null) {
             descriptionsAudio = player.getAudioTracks();
             MediaPlayer.TrackDescription[] descriptionsSubtitle = player.getSpuTracks();
-            if(descriptionsSubtitle != null) {
+            if (descriptionsSubtitle != null) {
                 for (final MediaPlayer.TrackDescription description : descriptionsSubtitle) {
                     if (description.name.contains("Teletext")) {
                         teletextAvailable = true;
@@ -109,7 +114,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
         tvSettings.add(new TVSetting(context.getString(R.string.settings_open_epg), null, NavigationIcon.NONE, R.drawable.round_remote, this::showEpg));
 
-        if(teletextAvailable) {
+        if (teletextAvailable) {
             tvSettings.add(new TVSetting(context.getString(R.string.settings_open_teletext), null, NavigationIcon.NONE, R.drawable.round_teletext, this::showTeletext));
         }
 
@@ -118,13 +123,17 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         }
 
         if (subtitlesExist()) {
-        tvSettings.add(new TVSetting(context.getString(R.string.subtitles), null, NavigationIcon.CHEVRON, R.drawable.round_closed_caption, this::showSubtitleTrackSelection));
+            tvSettings.add(new TVSetting(context.getString(R.string.subtitles), null, NavigationIcon.CHEVRON, R.drawable.round_closed_caption, this::showSubtitleTrackSelection));
         }
 
         if (ChannelUtils.getChannelByNumber(context, ChannelUtils.getLastSelectedChannel(context)).type != ChannelUtils.ChannelType.RADIO) {
             tvSettings.add(new TVSetting(context.getString(R.string.video_aspect), null, NavigationIcon.CHEVRON, R.drawable.round_video_settings, this::showVideoFormatSelection));
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                context.getPackageManager().hasSystemFeature(FEATURE_PICTURE_IN_PICTURE)) {
+            tvSettings.add(new TVSetting(context.getString(R.string.pip), null, NavigationIcon.NONE, R.drawable.round_pip, this::enterPip));
+        }
 
         tvSettings.add(context.getString(R.string.settings_title));
 
@@ -140,6 +149,24 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             tvOverlayRecyclerAdapter.objects = tvSettings;
             tvOverlayRecyclerAdapter.notifyDataSetChanged();
         }
+    }
+
+    public void enterPip() {
+        View view = getView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                context.getPackageManager().hasSystemFeature(FEATURE_PICTURE_IN_PICTURE) &&
+                view != null) {
+            Rational aspectRatio = new Rational(view.getWidth(), view.getHeight());
+            PictureInPictureParams.Builder builder = new PictureInPictureParams.Builder();
+            builder.setAspectRatio(aspectRatio);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                builder.setTitle(getString(R.string.app_name));
+                builder.setSubtitle("");
+            }
+            context.enterPictureInPictureMode(builder.build());
+        }
+
+        context.popOverlayFragment();
     }
 
     public void showChannelEditor() {
@@ -269,7 +296,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
-        if(deinterlaceMode == null) {
+        if (deinterlaceMode == null) {
             editor.remove("setting_deinterlace");
         } else {
             editor.putString("setting_deinterlace", deinterlaceMode);
@@ -309,7 +336,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         final MediaPlayer player = context.mMediaPlayer;
         selectionTVOverlay.title = context.getString(R.string.video_aspect);
-        String[] aspect_ratios = { context.getString(R.string.settings_aspect_ratio_auto), "16:9", "4:3", "21:9", "16:10"};
+        String[] aspect_ratios = {context.getString(R.string.settings_aspect_ratio_auto), "16:9", "4:3", "21:9", "16:10"};
         //this should actually never be true, but just to be sure we do it anyways
         for (int i = 0; i < aspect_ratios.length; i++) {
             String aspect = aspect_ratios[i];
@@ -339,14 +366,14 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                     continue; //skip teletext subtitles here, as they are handled differently
                 }
                 NavigationIcon navIcon;
-                if(description.id == -1) {
+                if (description.id == -1) {
                     navIcon = NavigationIcon.selected(player.getTeletext() == TVPlayerActivity.TELETEXT_IDLE_PAGE);
                 } else {
                     navIcon = NavigationIcon.selected(player.getSpuTrack() == description.id);
                 }
                 selectionTVOverlay.tvSettings.add(new TVSetting(description.name, null, navIcon, R.drawable.round_closed_caption, () -> {
                     context.runOnVLCThread(() -> {
-                        if(description.id == -1) {
+                        if (description.id == -1) {
                             player.setTeletext(TVPlayerActivity.TELETEXT_IDLE_PAGE);
                         } else {
                             player.setSpuTrack(description.id);

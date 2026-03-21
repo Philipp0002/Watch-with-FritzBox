@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
@@ -45,8 +47,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public static final int TELETEXT_IDLE_PAGE = 99;
     public IVLCVout ivlcVout;
-    public SurfaceView surfaceView;
-    public SurfaceView subtitlesView;
+    public SurfaceView surfaceView, subtitlesView;
     private LibVLC mLibVLC = null;
     public MediaPlayer mMediaPlayer = null;
     public Media media;
@@ -58,6 +59,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public TeletextTVOverlay mTeletextOverlayFragment;
     public ArrayList<MediaPlayer.TeletextPageInfo> teletextPageInfos = new ArrayList<>();
     private HashSet<String> currentCaSystems = new HashSet<>();
+    private final Handler mPlayerHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         initializeOverlay();
 
         initGlide();
+    }
+
+    public void runOnVLCThread(Runnable runnable) {
+        mPlayerHandler.post(runnable);
     }
 
     public void unloadLibVLC() {
@@ -199,16 +205,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     protected void onDestroy() {
         super.onDestroy();
 
-        mMediaPlayer.stop();
-        ivlcVout.detachViews();
-        mLibVLC.release();
-        mMediaPlayer.release();
-        if (media != null) {
-            media.release();
-            media = null;
-        }
-        mMediaPlayer = null;
-        mLibVLC = null;
+        unloadLibVLC();
     }
 
 
@@ -380,7 +377,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     public void pausePlayer() {
-        mMediaPlayer.pause();
+        runOnVLCThread(() -> mMediaPlayer.pause());
     }
 
     Timer switchChannelTimer = null;
@@ -390,7 +387,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     public void launchPlayer(boolean withWaitInterval, boolean withLoadingScreen, boolean clearHbbTv) {
-        mMediaPlayer.pause();
+        pausePlayer();
         if (withLoadingScreen) {
             findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
         }
@@ -435,33 +432,29 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 SharedPreferences sp = TVPlayerActivity.this.getSharedPreferences(
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
-                Log.d("PlaybackActivity", "Starting playback of " + channel.title + " -" + channel.url);
-                /*if (media != null && !media.isReleased()) {
-                    media.release();
-                }
-                Log.d("PlaybackActivity", "Released media");*/
+                Log.d("PlaybackActivity", "Starting playback of " + channel.title + " - " + channel.url);
                 media = new Media(mLibVLC, Uri.parse(channel.url));
-                Log.d("PlaybackActivity", "Created media");
-                mMediaPlayer.setMedia(media);
-                Log.d("PlaybackActivity", "Set media");
-                try {
-                    media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
-                    media.addOption("--video-filter=deinterlace");
-                    media.addOption("--deinterlace=1");
-                    media.addOption("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
-                } catch (Exception e) {
-                    Log.e("TVPlayerActivity", "Error setting HW acceleration", e);
-                }
-                Log.d("PlaybackActivity", "Set hwdecode");
+                runOnVLCThread(() -> {
+                    mMediaPlayer.setMedia(media);
+                    try {
+                        media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
-                teletextPageInfos.clear();
-                runOnUiThread(() -> {
-                    clearCaInfo();
-                    if (clearHbbTv) mHbbTvOverlay.clearHbbTv();
+                        media.addOption("--video-filter=deinterlace");
+                        media.addOption("--deinterlace=1");
+                        media.addOption("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
+                    } catch (Exception e) {
+                        Log.e("TVPlayerActivity", "Error setting HW acceleration", e);
+                    }
+                    mMediaPlayer.play();
+
+                    teletextPageInfos.clear();
+                    runOnUiThread(() -> {
+                        clearCaInfo();
+                        if (clearHbbTv) stopHbbTV();
+                    });
                 });
 
-                mMediaPlayer.play();
             }
         }, timeWait);
     }
@@ -576,7 +569,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                     ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
 
                     if (event.getBuffering() == 100F) {
-                        mMediaPlayer.setTeletext(TELETEXT_IDLE_PAGE);
+                        runOnVLCThread(() -> mMediaPlayer.setTeletext(TELETEXT_IDLE_PAGE));
                         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
                         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
 

@@ -206,31 +206,32 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     public void showAudioDelaySelection() {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
 
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         selectionTVOverlay.title = context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms");
         selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay_plus), null, NavigationIcon.NONE, R.drawable.round_add, () -> {
-            long val = sp.getLong("setting_audio_delay", 0);
-            val += 250;
-            editor.putLong("setting_audio_delay", val);
-            editor.commit();
-            if (context.mMediaPlayer != null) {
-                context.mMediaPlayer.setAudioDelay(val * 1000);
-            }
-            selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
+            long newDelay = adjustAudioDelay(250);
+            selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, newDelay + "ms"));
         }));
         selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_audio_delay_minus), null, NavigationIcon.NONE, R.drawable.round_minus, () -> {
-            long val = sp.getLong("setting_audio_delay", 0);
-            val -= 250;
-            editor.putLong("setting_audio_delay", val);
-            editor.commit();
-            if (context.mMediaPlayer != null) {
-                context.mMediaPlayer.setAudioDelay(val * 1000);
-            }
-            selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, sp.getLong("setting_audio_delay", 0) + "ms"));
+            long newDelay = adjustAudioDelay(-250);
+            selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, newDelay + "ms"));
         }));
         context.addOverlayFragment(selectionTVOverlay);
+    }
+
+    public long adjustAudioDelay(long delta) {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        long val = sp.getLong("setting_audio_delay", 0) + delta;
+        editor.putLong("setting_audio_delay", val);
+        editor.commit();
+        if (context.mMediaPlayer != null) {
+            context.runOnVLCThread(() -> context.mMediaPlayer.setAudioDelay(val * 1000));
+        }
+        return val;
     }
 
     public void showHWAcelerationSelection() {
@@ -263,6 +264,23 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         context.addOverlayFragment(selectionTVOverlay);
     }
 
+    public void adjustDeinterlaceMode(String deinterlaceMode) {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        if(deinterlaceMode == null) {
+            editor.remove("setting_deinterlace");
+        } else {
+            editor.putString("setting_deinterlace", deinterlaceMode);
+        }
+        editor.commit();
+        context.unloadLibVLC();
+        context.loadLibVLC();
+        context.launchPlayer(false);
+        context.popOverlayFragment();
+    }
+
     public void showDeinterlaceSelection() {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
@@ -272,94 +290,17 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         selectionTVOverlay.title = context.getString(R.string.settings_deinterlace);
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_disable), null, NavigationIcon.selected(currentSetting == null), R.drawable.round_power_off, () -> {
-            editor.remove("setting_deinterlace");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_auto), null, NavigationIcon.selected("auto".equals(currentSetting)), R.drawable.round_auto_awesome, () -> {
-            editor.putString("setting_deinterlace", "auto");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_blend), null, NavigationIcon.selected("blend".equals(currentSetting)), R.drawable.round_tv, () -> {
-            editor.putString("setting_deinterlace", "blend");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_linear), null, NavigationIcon.selected("linear".equals(currentSetting)), R.drawable.round_tv, () -> {
-            editor.putString("setting_deinterlace", "linear");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_bob), null, NavigationIcon.selected("bob".equals(currentSetting)), R.drawable.round_tv, () -> {
-            editor.putString("setting_deinterlace", "bob");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_ivtc), null, NavigationIcon.selected("ivtc".equals(currentSetting)), R.drawable.round_tv, () -> {
-            editor.putString("setting_deinterlace", "ivtc");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_discard), null, NavigationIcon.selected("discard".equals(currentSetting)), R.drawable.round_tv, () -> {
-            editor.putString("setting_deinterlace", "discard");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_yadif), null, NavigationIcon.selected("yadif".equals(currentSetting)), R.drawable.round_tv, () -> {
-            editor.putString("setting_deinterlace", "yadif");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_yadifx2), null, NavigationIcon.selected("yadif2x".equals(currentSetting)), R.drawable.round_tv, () -> {
-            editor.putString("setting_deinterlace", "yadif2x");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_phosphor), null, NavigationIcon.selected("phosphor".equals(currentSetting)), R.drawable.round_tv, () -> {
-            editor.putString("setting_deinterlace", "phosphor");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
-        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_mean), null, NavigationIcon.selected("mean".equals(currentSetting)), R.drawable.round_tv, () -> {
-            editor.putString("setting_deinterlace", "mean");
-            editor.commit();
-            context.unloadLibVLC();
-            context.loadLibVLC();
-            context.launchPlayer(false);
-            context.popOverlayFragment();
-        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_disable), null, NavigationIcon.selected(currentSetting == null), R.drawable.round_power_off, () -> adjustDeinterlaceMode(null)));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_auto), null, NavigationIcon.selected("auto".equals(currentSetting)), R.drawable.round_auto_awesome, () -> adjustDeinterlaceMode("auto")));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_blend), null, NavigationIcon.selected("blend".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("blend")));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_linear), null, NavigationIcon.selected("linear".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("linear")));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_bob), null, NavigationIcon.selected("bob".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("bob")));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_ivtc), null, NavigationIcon.selected("ivtc".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("ivtc")));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_discard), null, NavigationIcon.selected("discard".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("discard")));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_yadif), null, NavigationIcon.selected("yadif".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("yadif")));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_yadifx2), null, NavigationIcon.selected("yadif2x".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("yadif2x")));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_phosphor), null, NavigationIcon.selected("phosphor".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("phosphor")));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_mean), null, NavigationIcon.selected("mean".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("mean")));
 
         context.addOverlayFragment(selectionTVOverlay);
     }
@@ -374,7 +315,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             String aspect = aspect_ratios[i];
             String vlcAspect = i == 0 ? null : aspect;
             selectionTVOverlay.tvSettings.add(new TVSetting(aspect, null, NavigationIcon.selected(Objects.equals(player.getAspectRatio(), vlcAspect)), R.drawable.round_video_settings, () -> {
-                player.setAspectRatio(vlcAspect);
+                context.runOnVLCThread(() -> player.setAspectRatio(vlcAspect));
                 context.popOverlayFragment();
             }));
         }
@@ -404,11 +345,13 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
                     navIcon = NavigationIcon.selected(player.getSpuTrack() == description.id);
                 }
                 selectionTVOverlay.tvSettings.add(new TVSetting(description.name, null, navIcon, R.drawable.round_closed_caption, () -> {
-                    if(description.id == -1) {
-                        player.setTeletext(TVPlayerActivity.TELETEXT_IDLE_PAGE);
-                    } else {
-                        player.setSpuTrack(description.id);
-                    }
+                    context.runOnVLCThread(() -> {
+                        if(description.id == -1) {
+                            player.setTeletext(TVPlayerActivity.TELETEXT_IDLE_PAGE);
+                        } else {
+                            player.setSpuTrack(description.id);
+                        }
+                    });
                     context.popOverlayFragment();
                 }));
             }
@@ -445,7 +388,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         }
         for (final MediaPlayer.TrackDescription description : descriptions) {
             selectionTVOverlay.tvSettings.add(new TVSetting(description.name, null, NavigationIcon.selected(player.getAudioTrack() == description.id), R.drawable.round_audiotrack, () -> {
-                player.setAudioTrack(description.id);
+                context.runOnVLCThread(() -> player.setAudioTrack(description.id));
                 context.popOverlayFragment();
             }));
         }

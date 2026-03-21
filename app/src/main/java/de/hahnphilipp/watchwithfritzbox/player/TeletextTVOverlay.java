@@ -331,7 +331,7 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
                     .orElse(null);
             if (spuTrack != null && !spuTrack.name.contains("Teletext")) {
                 this.spuTrackBeforeShow = this.context.mMediaPlayer.getSpuTrack();
-                this.context.mMediaPlayer.setTeletext(TVPlayerActivity.TELETEXT_IDLE_PAGE);
+                this.context.runOnVLCThread(() -> this.context.mMediaPlayer.setTeletext(TVPlayerActivity.TELETEXT_IDLE_PAGE));
             }
         }
     }
@@ -344,7 +344,7 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
         if (this.context != null && this.context.mMediaPlayer != null) {
             if (this.spuTrackBeforeShow != null) {
-                this.context.mMediaPlayer.setSpuTrack(this.spuTrackBeforeShow);
+                this.context.runOnVLCThread(() -> this.context.mMediaPlayer.setSpuTrack(this.spuTrackBeforeShow));
             }
         }
         this.spuTrackBeforeShow = null;

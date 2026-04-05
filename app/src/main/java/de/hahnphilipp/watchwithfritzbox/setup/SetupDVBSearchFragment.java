@@ -24,7 +24,6 @@ import org.videolan.libvlc.MediaPlayer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +32,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
-import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 
 public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.EventListener {
@@ -261,8 +259,13 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                 AsyncTask.execute(() -> {
                     if (nitTransportStreams != null) return;
                     nitTransportStreams = new ArrayList<>();
+                    MediaPlayer.Nit nit = event.getNit();
+                    Log.d("DVB Search", "Received " + nit);
+
                     for(MediaPlayer.NitTransportStream nts : event.getNit().getNitTransportStreams()){
+                        Log.d("DVB Search", "Received " + nts);
                         if(nts.getCable() != null) {
+                            Log.d("DVB Search", "Received " + nts.getCable());
                             Log.d("SETUP_SEARCH", "Found ts | freq " + decodeFrequency(nts.getCable().getFrequency().intValue()) + " MHz, mod " + decodeModulation(nts.getCable().getModulation()));
                             nitServices.put(new Pair<>(nts.getOrigNetworkId(), nts.getTsId()), nts.getServices());
                             if(nts.getCable().getFrequency() != currentFrequencyBcd) {

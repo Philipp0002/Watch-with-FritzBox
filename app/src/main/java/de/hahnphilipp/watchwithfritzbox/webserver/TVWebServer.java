@@ -21,6 +21,7 @@ import de.hahnphilipp.watchwithfritzbox.player.EditChannelListTVOverlay;
 import de.hahnphilipp.watchwithfritzbox.utils.AssetUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.WLog;
 
 public class TVWebServer {
 
@@ -61,6 +62,23 @@ public class TVWebServer {
                 }
                 reorderChannelsView = reorderChannelsView.replace("%CHANNELS%", channels);
                 response.send(reorderChannelsView);
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            response.send("There was an error");
+        });
+
+        server.get("/logs", (request, response) -> {
+            try {
+                if(request.getQuery().containsKey("raw")) {
+                    response.setContentType("text/plain");
+                    response.send(WLog.getLog());
+                    return;
+                }
+                String logView = AssetUtils.getStringFromAsset(context, "logsView.html");
+                logView = logView.replace("%LOGS%", WLog.getLog());
+                response.send(logView);
                 return;
             } catch (IOException e) {
                 e.printStackTrace();

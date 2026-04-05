@@ -33,10 +33,12 @@ import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.WLog;
 
 public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.EventListener {
 
     private static final String PARAM_IP = "ip";
+    private static final String LOG_TAG = "SETUP(DVB)";
 
     // High-Probability (Quick-Scan)
     private static final int[] PRIORITY_HIGH = {
@@ -153,7 +155,9 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                     if (freqLocked) {
                         return;
                     }
+                    WLog.i(LOG_TAG, "Frequency not lockable... trying next frequency");
                 }
+                WLog.i(LOG_TAG, "No more frequencies to test, search failed.");
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(requireContext(), R.string.setup_search_dvb_error, Toast.LENGTH_LONG).show();
                     ((OnboardingActivity) requireActivity()).previousScreen();
@@ -175,7 +179,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
         int frequency = roundToGrid(freqMhz);
         this.currentFrequencyMhz = frequency;
 
-        Log.w("SETUP_SEARCH", "Tuning frequency " + frequency + " with PMT-PIDs " + pmtPids);
+        WLog.i(LOG_TAG, "Tuning frequency " + frequency + " with PMT-PIDs " + pmtPids);
         List<Integer> pids = new ArrayList<>(List.of(0, 16, 17, 18, 20));
         if (pmtPids != null) pids.addAll(pmtPids.values());
         String uri = "rtsp://" + ip + ":554/?avm=1&freq=" + frequency + "&bw=8&msys=dvbc&mtype=" + modulation + "&sr=6900&specinv=1&pids=" + pids.stream().map(i -> i + "").collect(Collectors.joining(","));
@@ -257,16 +261,19 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
             case MediaPlayer.Event.NitReceived:
                 freqLocked = true;
                 AsyncTask.execute(() -> {
-                    if (nitTransportStreams != null) return;
+                    if (nitTransportStreams != null) {
+                        WLog.i(LOG_TAG, "Received a NIT but already have one, ignoring.");
+                        return;
+                    }
                     nitTransportStreams = new ArrayList<>();
                     MediaPlayer.Nit nit = event.getNit();
-                    Log.d("DVB Search", "Received " + nit);
+                    WLog.i(LOG_TAG, "Received " + nit);
 
                     for(MediaPlayer.NitTransportStream nts : event.getNit().getNitTransportStreams()){
-                        Log.d("DVB Search", "Received " + nts);
+                        WLog.i(LOG_TAG, "NIT has " + nts);
                         if(nts.getCable() != null) {
-                            Log.d("DVB Search", "Received " + nts.getCable());
-                            Log.d("SETUP_SEARCH", "Found ts | freq " + decodeFrequency(nts.getCable().getFrequency().intValue()) + " MHz, mod " + decodeModulation(nts.getCable().getModulation()));
+                            WLog.i(LOG_TAG, "NTS is " + nts.getCable() + " >> decoded: freq " + decodeFrequency(nts.getCable().getFrequency().intValue()) + " MHz, mod " + decodeModulation(nts.getCable().getModulation()));
+                            Log.d("DVB_SEARCH", "Found ts | freq " + decodeFrequency(nts.getCable().getFrequency().intValue()) + " MHz, mod " + decodeModulation(nts.getCable().getModulation()));
                             nitServices.put(new Pair<>(nts.getOrigNetworkId(), nts.getTsId()), nts.getServices());
                             if(nts.getCable().getFrequency() != currentFrequencyBcd) {
                                 nitTransportStreams.add(nts);
@@ -284,8 +291,10 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                 AsyncTask.execute(() -> {
                     if (nitTransportStreams == null) return;
                     if (!nitTransportStreams.isEmpty()) {
+                        WLog.i(LOG_TAG, "Finished receiving all ServiceInfos for current frequency, moving to next frequency in NIT if available...");
                         tuneNext();
                     } else {
+                        WLog.i(LOG_TAG, "All ServiceInfos for current frequency received, no more frequencies in NIT, finishing search.");
                         // Finished all frequencies
                         unloadLibVLC();
 
@@ -297,6 +306,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                                             .filter(s -> s.getServiceId() == channel.serviceId)
                                             .findFirst()
                                             .ifPresent(s -> {
+                                                WLog.i(LOG_TAG, "Service " + channel.title + " has LCN " + s.getLogicalChannelNumber() + " and LCN visible " + s.isLcnVisible());
                                                 channel.lcn = s.getLogicalChannelNumber();
                                                 channel.lcnVisible = s.isLcnVisible();
                                             });
@@ -317,6 +327,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                 freqLocked = true;
                 AsyncTask.execute(() -> {
                     MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
+                    WLog.i(LOG_TAG, "Received " + serviceInfo + " with PIDs " + Arrays.toString(serviceInfo.getPids()));
                     HashSet<Integer> pids = new HashSet<>(List.of(0, 16, 17, 18, 20));
                     if(currentPids.containsKey(serviceInfo.getServiceId())) pids.add(currentPids.get(serviceInfo.getServiceId()));
                     for (int i : serviceInfo.getPids()) pids.add(i);

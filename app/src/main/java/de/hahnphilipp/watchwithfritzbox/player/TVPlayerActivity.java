@@ -32,6 +32,7 @@ import org.videolan.libvlc.MediaPlayer;
 import org.videolan.libvlc.interfaces.IVLCVout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -42,8 +43,11 @@ import de.hahnphilipp.watchwithfritzbox.epg.EPGFragment;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
+import de.hahnphilipp.watchwithfritzbox.utils.WLog;
 
 public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
+
+    private static final String LOG_TAG = "PLAYER";
 
     public static final int TELETEXT_IDLE_PAGE = 99;
     public IVLCVout ivlcVout;
@@ -433,6 +437,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         getString(R.string.preference_file_key), Context.MODE_PRIVATE);
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("PlaybackActivity", "Starting playback of " + channel.title + " - " + channel.url);
+                WLog.i(LOG_TAG, "Starting playback of " + channel.title + " - " + channel.url);
                 media = new Media(mLibVLC, Uri.parse(channel.url));
 
                 runOnVLCThread(() -> {
@@ -445,6 +450,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                         media.addOption("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
                     } catch (Exception e) {
                         Log.e("TVPlayerActivity", "Error setting HW acceleration", e);
+                        WLog.e(LOG_TAG, "Error setting HW acceleration - " + e.getMessage());
                     }
                     mMediaPlayer.play();
 
@@ -521,6 +527,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         switch (event.type) {
             case MediaPlayer.Event.TeletextPageInfoReceived:
                 MediaPlayer.TeletextPageInfo teletextPageInfo = event.getTeletextPageInfo();
+                WLog.i(LOG_TAG, "Received TeletextPageInfo: page " + teletextPageInfo.getPageNumber() + "; type " + teletextPageInfo.getType() + "; " + teletextPageInfo.getLanguage());
                 teletextPageInfos.add(teletextPageInfo);
                 break;
             case MediaPlayer.Event.CommonDescriptorsFound:
@@ -546,6 +553,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             case MediaPlayer.Event.CaInfoReceived:
                 AsyncTask.execute(() -> {
                     MediaPlayer.CaInfo caInfo = event.getCaInfo();
+                    WLog.i(LOG_TAG, "Received CA info: " + caInfo.getName() + " (" + caInfo.getCaId() + ")");
                     runOnUiThread(() -> {
                         addCaInfo(caInfo.getName());
                     });
@@ -560,6 +568,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             case MediaPlayer.Event.EpgNewServiceInfo:
                 AsyncTask.execute(() -> {
                     MediaPlayer.ServiceInfo serviceInfo = event.getServiceInfo();
+                    WLog.i(LOG_TAG, "Received " + serviceInfo + " with PIDs " + Arrays.toString(serviceInfo.getPids()));
                     ChannelUtils.processVlcServiceInfo(TVPlayerActivity.this, serviceInfo);
                 });
 

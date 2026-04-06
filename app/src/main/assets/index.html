@@ -5,38 +5,42 @@
 </head>
 
 <body>
+<div class="content">
 <h1>Watch with FritzBox</h1>
-<div id="channelCards">
-    <a href="reorder">
-        <div class="card">
-            <img src="asset?name=reorder.svg&contentType=image/svg+xml">
+    <div>
+        <h3>Channel management</h3>
+        <a href="reorder">
+            <div class="card">
+                <img src="asset?name=reorder.svg&contentType=image/svg+xml">
+                <div>
+                    Reorder channels
+                </div>
+            </div>
+        </a>
+        <a href="downloadChannelList">
+            <div class="card">
+                <img src="asset?name=download.svg&contentType=image/svg+xml">
+                <div>
+                    Download channel list from tv
+                </div>
+            </div>
+        </a>
+        <div class="card" onclick="uploadFile()">
+            <img src="asset?name=upload.svg&contentType=image/svg+xml">
             <div>
-                Reorder channels
+                Upload channel list to tv
             </div>
         </div>
-    </a>
-    <a href="downloadChannelList">
-        <div class="card">
-            <img src="asset?name=download.svg&contentType=image/svg+xml">
-            <div>
-                Download channel list from tv
+        <h3>Other options</h3>
+        <a href="logs">
+            <div class="card">
+                <img src="asset?name=logs.svg&contentType=image/svg+xml">
+                <div>
+                    View logs (current session)
+                </div>
             </div>
-        </div>
-    </a>
-    <div class="card" onclick="uploadFile()">
-        <img src="asset?name=upload.svg&contentType=image/svg+xml">
-        <div>
-            Upload channel list to tv
-        </div>
+        </a>
     </div>
-    <a href="logs">
-        <div class="card">
-            <img src="asset?name=logs.svg&contentType=image/svg+xml">
-            <div>
-                View logs (current session)
-            </div>
-        </div>
-    </a>
 </div>
 </body>
 
@@ -73,8 +77,21 @@
         box-sizing: border-box;
     }
 
+    .content {
+        display: flex;
+        flex-direction: column;
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     h1 {
         margin-top: 25px;
+        margin-left: 25px;
+    }
+
+    h3 {
+        margin-top: 15px;
         margin-left: 25px;
     }
 
@@ -89,46 +106,40 @@
     }
 
     .card {
-        display: grid;
-        grid-template-areas: "logo info info";
-        grid-template-columns: 1fr 1fr 1fr;
-        border-radius: 25px;
+        display: flex;
+        justify-content: space-between;
+        border-radius: 15px;
         background-color: #2a2939 !important;
-        width: min(calc(97% - 50px), 550px);
-        height: 160px;
-        margin-top: 25px;
-        margin-bottom: 25px;
+        width: calc(100% - 50px);
+        height: 110px;
+        margin-top: 10px;
         margin-right: 25px;
         margin-left: 25px;
         padding: 25px;
         box-sizing: border-box;
-        box-shadow: 0px 0px 35px -10px rgba(0, 0, 0, 0.75);
-        position: relative;
+        box-shadow: 0px 0px 35px -10px rgba(0, 0, 0, 0.5);
         transition: transform 100ms linear;
         overflow: hidden;
         cursor: pointer;
+        align-items: center;
     }
 
     .card:hover {
-        transform: scale(1.05) translateZ(0);
+        transform: scale(1.02) translateZ(0);
     }
 
     .card img {
-        grid-area: logo;
-        width: 100%;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
+        height: 100%;
+        min-width: 100px;
+        width: 25%;
+        max-width: 200px;
     }
 
     .card > div {
-        grid-area: info;
         width: 100%;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
         padding: 25px;
-        font-size: 20pt;
+        font-size: 16pt;
+        flex-grow: 1;
     }
 
     .channelBadge {

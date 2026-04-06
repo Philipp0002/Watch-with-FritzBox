@@ -2,6 +2,7 @@ package de.hahnphilipp.watchwithfritzbox.webserver;
 
 import android.content.Context;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.koushikdutta.async.http.server.AsyncHttpServer;
 import com.w3ma.m3u8parser.data.Playlist;
 import com.w3ma.m3u8parser.data.Track;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hahnphilipp.watchwithfritzbox.player.ChannelListTVOverlay;
 import de.hahnphilipp.watchwithfritzbox.player.EditChannelListTVOverlay;
@@ -47,20 +49,25 @@ public class TVWebServer {
             response.send("There was an error");
         });
 
+        server.get("/channels", (request, response) -> {
+            try {
+                List<ChannelItem> channels = new ArrayList<>(ChannelUtils.getAllChannels(context)).stream()
+                        .map(ChannelItem::fromChannel)
+                        .toList();
+
+                String channelsJson = new ObjectMapper().writeValueAsString(channels);
+                response.setContentType("application/json");
+                response.send(channelsJson);
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            response.send("There was an error");
+        });
+
         server.get("/reorder", (request, response) -> {
             try {
                 String reorderChannelsView = AssetUtils.getStringFromAsset(context, "reorderChannelsView.html");
-                String channelItemView = AssetUtils.getStringFromAsset(context, "channelItem.html");
-                String channels = "";
-                for (ChannelUtils.Channel channel : new ArrayList<>(ChannelUtils.getAllChannels(context))) {
-                    channels += channelItemView
-                            .replace("%CHANNELNAME%", channel.title)
-                            .replace("%CHANNELNUMBER%", Integer.toString(channel.number))
-                            .replace("%CHANNELBADGE%", channel.type.toString())
-                            .replace("%CHANNELLOCK%", channel.free ? "" : "<span class=\"channelLock\">\uD83D\uDD12</span>")
-                            .replace("%LOGOURL%", ChannelUtils.getIconURL(channel));
-                }
-                reorderChannelsView = reorderChannelsView.replace("%CHANNELS%", channels);
                 response.send(reorderChannelsView);
                 return;
             } catch (IOException e) {
@@ -148,22 +155,33 @@ public class TVWebServer {
         });
 
         server.get("/moveChannel", (request, response) -> {
-            String fromString = request.getQuery().getString("from");
-            String toString = request.getQuery().getString("to");
+            try {
+                String fromString = request.getQuery().getString("from");
+                String toString = request.getQuery().getString("to");
 
-            if (fromString == null || toString == null) {
-                response.send("{\"msg\": \"'from' or 'to' parameters not defined\"}");
-                return;
+                if (fromString == null || toString == null) {
+                    response.send("{\"msg\": \"'from' or 'to' parameters not defined\"}");
+                    return;
+                }
+
+                int from = Integer.parseInt(fromString);
+                int to = Integer.parseInt(toString);
+
+                ChannelUtils.moveChannelToPosition(context, from, to);
+
+                List<ChannelItem> channels = new ArrayList<>(ChannelUtils.getAllChannels(context)).stream()
+                        .map(ChannelItem::fromChannel)
+                        .toList();
+
+                String channelsJson = new ObjectMapper().writeValueAsString(channels);
+                response.setContentType("application/json");
+                response.send(channelsJson);
+                EditChannelListTVOverlay.notifyChannelListChanged();
+                ChannelListTVOverlay.notifyChannelListChanged();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            int from = Integer.parseInt(fromString);
-            int to = Integer.parseInt(toString);
-
-            ChannelUtils.moveChannelToPosition(context, from, to);
-
-            response.send("{\"msg\": \"success\"}");
-            EditChannelListTVOverlay.notifyChannelListChanged();
-            ChannelListTVOverlay.notifyChannelListChanged();
+            response.send("There was an error");
         });
 
         // listen on port 8080
@@ -172,6 +190,26 @@ public class TVWebServer {
 
     public void stop() {
         server.stop();
+    }
+
+    static class ChannelItem {
+        public String name;
+        public int number;
+        public ChannelUtils.ChannelType type;
+        public boolean free;
+        public String logoUrl;
+
+        public ChannelItem(String name, int number, ChannelUtils.ChannelType type, boolean free, String logoUrl) {
+            this.name = name;
+            this.number = number;
+            this.type = type;
+            this.free = free;
+            this.logoUrl = logoUrl;
+        }
+
+        public static ChannelItem fromChannel(ChannelUtils.Channel channel) {
+            return new ChannelItem(channel.title, channel.number, channel.type, channel.free, ChannelUtils.getIconURL(channel));
+        }
     }
 
 }

@@ -8,12 +8,13 @@
 </head>
 
 <body>
-<h1><a href="/"><img src="asset?name=chevron_back.svg&contentType=image/svg+xml"> Channel list</a></h1>
-<div class="disclamer">💻 PC users: Drag and drop the channels to the desired position.</div>
-<div class="disclamer">📱 Mobile users: Long-tap and move the channels to the desired position.</div>
-<div id="channelCards">
-    %CHANNELS%
-</div>
+    <div class="content">
+        <h1><a href="/"><img src="asset?name=chevron_back.svg&contentType=image/svg+xml"> Channel list</a></h1>
+        <div class="disclamer">💻 PC users: Drag and drop the channels to the desired position.</div>
+        <div class="disclamer">📱 Mobile users: Long-tap and move the channels to the desired position.</div>
+        <div id="channelCards">
+        </div>
+    </div>
 </body>
 
 <style>
@@ -22,6 +23,14 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     h1 {
@@ -47,24 +56,25 @@
     }
 
     .card {
-        display: grid;
-        grid-template-areas: "logo info edit";
-        grid-template-columns: 1fr 2fr 0.5fr;
-        border-radius: 25px;
+        display: flex;
+        justify-content: space-between;
+        border-radius: 15px;
         background-color: #2a2939 !important;
-        width: min(calc(97% - 50px), 550px);
-        height: 120px;
-        margin-top: 25px;
-        margin-bottom: 25px;
+        width: calc(100% - 50px);
+        height: 75px;
+        margin-top: 10px;
         margin-right: 25px;
         margin-left: 25px;
-        padding: 25px;
+        padding-top: 25px;
+        padding-bottom: 25px;
+        padding-left: 10px;
+        padding-right: 10px;
         box-sizing: border-box;
-        box-shadow: 0px 0px 35px -10px rgba(0, 0, 0, 0.75);
-        position: relative;
+        box-shadow: 0px 0px 35px -10px rgba(0, 0, 0, 0.5);
         transition: transform 100ms linear;
         overflow: hidden;
         cursor: grab;
+        align-items: center;
     }
 
     .card:active {
@@ -72,33 +82,32 @@
     }
 
     .card:hover {
-        transform: scale(1.05) translateZ(0);
+        transform: scale(1.02) translateZ(0);
     }
 
     .cardLogo {
-        grid-area: logo;
-        width: 100%;
+        height: 100%;
+        min-width: 100px;
+        width: 25%;
+        max-width: 200px;
         background-repeat: no-repeat;
         background-position: center;
         background-size: contain;
     }
 
     .cardInfo {
-        grid-area: info;
         width: 100%;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
         padding: 25px;
-        font-size: 20pt;
+        font-size: 16pt;
+        display: flex;
+        justify-content: space-between;
+        flex-grow: 1;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 5px;
     }
 
     .cardEdit {
-        grid-area: edit;
-        width: 100%;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
         padding: 25px;
         cursor: pointer;
     }
@@ -108,7 +117,6 @@
         padding-right: 3px;
         width: max-content;
         font-size: 10pt;
-        margin-top: 10px;
     }
 
     .channelBadge {
@@ -121,7 +129,6 @@
         color: #c4c3c8;
         font-weight: bold;
         font-size: 10pt;
-        margin-top: 10px;
     }
 
     .channelBadgeFilled {
@@ -135,14 +142,23 @@
         color: #000000;
         font-weight: bold;
         font-size: 10pt;
-        margin-top: 10px;
+    }
+
+    .badges {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        justify-content: flex-end;
     }
 
     .placeholderDrag {
-        border-radius: 25px;
+        border-radius: 15px;
         background-color: #4c4c57 !important;
-        width: min(calc(97% - 50px), 550px);
-        height: 160px;
+        width: calc(100% - 50px);
+        height: 75px;
+        margin-top: 10px;
+        margin-right: 25px;
+        margin-left: 25px;
     }
 
     a, a:hover, a:visited, a:active {
@@ -150,54 +166,110 @@
         text-decoration: none;
     }
 
+    @media only screen and (max-width: 650px) {
+      .badges {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .card, .placeholderDrag {
+        height: 100px;
+      }
+    }
+
 </style>
 
 <script>
 
-function httpGetAsync(theUrl, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
+    const channelCardTemplate = `
+    <div class="card" draggable="true">
+        <div class="cardLogo" style="background-image: url('%LOGOURL%')"></div>
+        <div class="cardInfo">
+            <div>%CHANNELNAME%</div>
+            <div class="badges">
+                <span id="channelNumber" class="channelBadge">CH %CHANNELNUMBER%</span>
+                <span class="channelBadgeFilled">%CHANNELBADGE%</span>
+                %CHANNELLOCK%
+            </div>
+        </div>
+        <div class="cardEdit" onclick="move(%CHANNELNUMBER%)"><img src="asset?name=edit.svg&contentType=image/svg+xml"></div>
+    </div>`;
+
+    const channelCards = document.getElementById("channelCards");
+    updateChannels();
+
+    function updateChannels(){
+        fetch('/channels')
+            .then(res => res.json())
+            .then(j => {
+                replaceDisplayedChannels(j);
+                console.log("Channels fetched", j);
+            }).catch(() => {
+                alert('An error occurred while getting the channels. Please try again later.');
+            });
     }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-    xmlHttp.send(null);
-}
 
-sortable('#channelCards', {
-  placeholderClass: 'placeholderDrag'
-});
-
-sortable('#channelCards')[0].addEventListener('sortupdate', function(e) {
-
-    const channelMovedItem = e.detail.item;
-    var channelNumberFrom = channelMovedItem.querySelector("#channelNumber").innerText.replace("CH ", "");
-
-    var i = 1;
-    for(const item of e.detail.destination.items){
-        const channelNumberElem = item.querySelector("#channelNumber");
-        channelNumberElem.innerText = "CH "+i;
-        i++;
+    function moveChannel(channelNumberFrom, channelNumberTo){
+        fetch('/moveChannel?from='+channelNumberFrom+'&to='+channelNumberTo)
+            .then(res => res.json())
+            .then(j => {
+                replaceDisplayedChannels(j);
+                console.log("Channel moved", j);
+            }).catch(() => {
+                alert('An error occurred while moving the channel. Please try again later.');
+            });
     }
 
-    var channelNumberTo = channelMovedItem.querySelector("#channelNumber").innerText.replace("CH ", "");
-
-    httpGetAsync("/moveChannel?from="+channelNumberFrom+"&to="+channelNumberTo, function(callback){
-        console.log(callback);
-    })
-
-});
-
-function move(channelNumber) {
-    const input = window.prompt("Move channel "+channelNumber+" to position:", channelNumber);
-    if(input != null && input >>> 0 === parseFloat(input)){
-        httpGetAsync("/moveChannel?from="+channelNumber+"&to="+input, function(callback){
-            console.log(callback);
-            location.reload();
-        })
+    function replaceDisplayedChannels(channels) {
+        var newInnerHTML = "";
+        for(const channel of channels){
+            const channelCard = channelCardTemplate.replaceAll("%LOGOURL%", channel.logoUrl)
+                .replaceAll("%CHANNELNAME%", channel.name)
+                .replaceAll("%CHANNELNUMBER%", channel.number)
+                .replaceAll("%CHANNELBADGE%", channel.type)
+                .replaceAll("%CHANNELLOCK%", channel.isLocked ? "<span class='channelLock'>🔒</span>" : "");
+            newInnerHTML += channelCard;
+        }
+        channelCards.innerHTML = newInnerHTML;
     }
-}
+
+    function httpGetAsync(theUrl, callback)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                callback(xmlHttp.responseText);
+        }
+        xmlHttp.open("GET", theUrl, true); // true for asynchronous
+        xmlHttp.send(null);
+    }
+
+    sortable('#channelCards', {
+      placeholderClass: 'placeholderDrag'
+    });
+
+    sortable('#channelCards')[0].addEventListener('sortupdate', function(e) {
+
+        const channelMovedItem = e.detail.item;
+        var channelNumberFrom = channelMovedItem.querySelector("#channelNumber").innerText.replace("CH ", "");
+
+        var i = 1;
+        for(const item of e.detail.destination.items){
+            const channelNumberElem = item.querySelector("#channelNumber");
+            channelNumberElem.innerText = "CH "+i;
+            i++;
+        }
+
+        var channelNumberTo = channelMovedItem.querySelector("#channelNumber").innerText.replace("CH ", "");
+
+        moveChannel(channelNumberFrom, channelNumberTo);
+    });
+
+    function move(channelNumber) {
+        const input = window.prompt("Move channel "+channelNumber+" to position:", channelNumber);
+        if(input != null && input >>> 0 === parseFloat(input)){
+            moveChannel(channelNumber, input);
+        }
+    }
 
 
 

@@ -18,6 +18,7 @@ package com.egeniq.androidtvprogramguide.row
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,14 +26,16 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.egeniq.androidtvprogramguide.ProgramGuideHolder
 import com.egeniq.androidtvprogramguide.ProgramGuideListAdapter
 import com.egeniq.androidtvprogramguide.ProgramGuideManager
-import de.hahnphilipp.watchwithfritzbox.R
-import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule
 import com.egeniq.androidtvprogramguide.timeline.ProgramGuideTimelineRow
+import de.hahnphilipp.watchwithfritzbox.R
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils
+import de.hahnphilipp.watchwithfritzbox.utils.GlideUtils
+import de.hahnphilipp.watchwithfritzbox.utils.GlideUtils.RequestBuilderCustomizer
 import java.util.*
 
 /**
@@ -148,15 +151,19 @@ internal class ProgramGuideRowAdapter(
                 channelLogoView.visibility = View.GONE
                 return
             }
-            val imageUrl = ChannelUtils.getIconURL(channel)
-            if (imageUrl == null) {
-                channelLogoView.visibility = View.GONE
-            } else {
-                Glide.with(channelLogoView)
-                    .load(imageUrl)
-                    .fitCenter()
+            val urls = ChannelUtils.getIconURLs(channelLogoView.context, channel)
+            val drawableRequestBuilder =
+                GlideUtils.multiRequestBuilder(channelLogoView.context, urls
+                ) { c: RequestBuilder<Drawable?>? ->
+                    c!!.fitCenter() // centerInside???
+                }
+            if (drawableRequestBuilder != null) {
+                drawableRequestBuilder
+                    //.fitCenter() //centerInside???
                     .into(channelLogoView)
                 channelLogoView.visibility = View.VISIBLE
+            } else {
+                channelLogoView.visibility = View.GONE
             }
             channelNameView.text = channel.title
             channelNameView.visibility = View.VISIBLE

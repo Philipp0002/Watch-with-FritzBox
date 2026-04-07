@@ -219,4 +219,7 @@
     <string name="setup_variant_fritzbox">FritzBox Suche</string>
     <string name="setup_variant_fritzbox_description">Übernimmt die Kanalliste deiner FritzBox</string>
     <string name="setup_variant_title">Kanalquelle</string>
+
+    <string name="settings_iconpack">Senderlogos</string>
+    <string name="iconpack_custom">Eigene URL</string>
 </resources>

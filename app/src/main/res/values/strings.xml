@@ -225,4 +225,11 @@
 
     <string name="test_lorem_ipsum" translatable="false">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</string>
 
+    <string name="settings_iconpack">Channel logos</string>
+    <string name="iconpack_avm" translatable="false">AVM</string>
+    <string name="iconpack_picons_white" translatable="false">Picons White</string>
+    <string name="iconpack_picons_light" translatable="false">Picons Light</string>
+    <string name="iconpack_picons_default" translatable="false">Picons Default</string>
+    <string name="iconpack_svg_channellogos" translatable="false">SVG Channellogos</string>
+    <string name="iconpack_custom">Custom URL</string>
 </resources>

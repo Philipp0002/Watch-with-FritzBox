@@ -3,6 +3,8 @@ package de.hahnphilipp.watchwithfritzbox.player;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.net.Uri;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -22,15 +24,21 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.AnimationUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.GlideApp;
+import de.hahnphilipp.watchwithfritzbox.utils.GlideUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.SvgDrawableTranscoder;
 
 
 public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelListRecyclerAdapter.ChannelInfoViewHolder> {
@@ -90,10 +98,16 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
 
         holder.channelLockedIcon.setVisibility(item.free ? View.GONE : View.VISIBLE);
 
-        Glide.with(context)
-                .load(Uri.parse(ChannelUtils.getIconURL(item)))
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(holder.channelIcon);
+        List<String> urls = ChannelUtils.getIconURLs(holder.channelIcon.getContext(), item);
+        RequestBuilder<Drawable> drawableRequestBuilder =
+                GlideUtils.multiRequestBuilder(holder.channelIcon.getContext(), urls,
+                        c -> c.fitCenter().diskCacheStrategy(DiskCacheStrategy.RESOURCE));
+        if(drawableRequestBuilder != null) {
+            drawableRequestBuilder
+                    /*.centerInside()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)*/
+                    .into(holder.channelIcon);
+        }
 
         if (editMode) {
             holder.channelProgramNow.setVisibility(View.GONE);

@@ -48,6 +48,7 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
     implementation 'androidx.leanback:leanback:1.0.0' // dont update this
     implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor "com.github.bumptech.glide:compiler:4.16.0"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.14.0-alpha08'
@@ -62,5 +63,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation "androidx.webkit:webkit:1.10.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.10"
+    implementation("com.caverock:androidsvg:1.4")
 
 }

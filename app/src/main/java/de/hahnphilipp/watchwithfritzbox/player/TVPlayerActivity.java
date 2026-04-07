@@ -34,6 +34,7 @@ import org.videolan.libvlc.interfaces.IVLCVout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
@@ -42,6 +43,7 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.epg.EPGFragment;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.GlideApp;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.WLog;
 
@@ -106,8 +108,11 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         AsyncTask.execute(() -> {
             ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(this, 1);
             if (channel != null) {
-                Glide.with(this)
-                        .load(ChannelUtils.getIconURL(channel))
+                List<String> channelIcons = ChannelUtils.getIconURLs(this, channel);
+                String channelIcon = channelIcons.isEmpty() ? "" : channelIcons.get(0);
+
+                GlideApp.with(this)
+                        .load(channelIcon)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .preload();
             } else {

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.annotation.StringRes;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
@@ -193,6 +196,44 @@ public class ChannelUtils {
         editor.commit();
     }
 
+    public static void updateChannelIconSetting(Context context, int channelIconPack, List<String> customIconUrls) {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sp.edit();
+        ChannelIconSetting setting = getChannelIconSetting(context);
+        boolean packExists = Arrays.stream(ChannelIconPacks.values())
+                .anyMatch(p -> p.id == channelIconPack);
+        if(packExists) {
+            setting.iconPack = channelIconPack;
+        }
+        if(setting.customIconUrls != null) {
+            setting.customIconUrls = customIconUrls;
+        }
+        try {
+            String json = objectMapper.writeValueAsString(setting);
+            editor.putString("channelIconSetting", json);
+            editor.commit();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ChannelIconSetting getChannelIconSetting(Context context) {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+
+        ChannelIconSetting channelIconSetting;
+        try {
+            channelIconSetting = objectMapper.readValue(sp.getString("channelIconSetting", null), ChannelIconSetting.class);
+        } catch (JsonProcessingException | IllegalArgumentException e) {
+            channelIconSetting = new ChannelIconSetting();
+        }
+
+        return channelIconSetting;
+    }
+
+
     public static Channel getChannelByNumber(Context context, int number) {
         for (Channel ch : new ArrayList<>(getAllChannels(context))) {
             if (ch.number == number) {
@@ -256,16 +297,22 @@ public class ChannelUtils {
         return m3u.toString();
     }
 
-    public static String getIconURL(Channel channel) {
-        try {
-            return "https://tv.avm.de/tvapp/logos/" +
-                    (channel.type == ChannelType.HD ? "hd/" : (channel.type == ChannelType.RADIO ? "radio/" : "")) +
-                    URLEncoder.encode(channel.title.toLowerCase().replace("ü", "ue").replace("ä", "ae").replace("ö", "oe").replace(" ", "_").replace("+", ""), "UTF-8") +
-                    ".png";
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+    public static List<String> getIconURLs(Context context, Channel channel) {
+        List<String> urls = new ArrayList<>();
+        Map<String, String> values = new HashMap<>();
+        values.put("CHANNELTYPE_AVM", channel.type == ChannelType.HD ? "hd/" : (channel.type == ChannelType.RADIO ? "radio/" : ""));
+        values.put("CHANNELNAME", channel.title);
+
+        ChannelUtils.ChannelIconSetting cis = getChannelIconSetting(context);
+        Optional<ChannelIconPacks> pack = Arrays.stream(ChannelIconPacks.values())
+                .filter(p -> p.id == cis.iconPack)
+                .findFirst();
+        if(pack.isPresent() && pack.get().urls != null) {
+            for(String url : pack.get().urls) {
+                urls.add(TemplateEngine.replacePlaceholders(url, values));
+            }
         }
-        return "";
+        return urls;
     }
 
     public static void saveChannelIDMappingForRichTv(Context context, Map<Long, Integer> channelIdToNumber){
@@ -433,6 +480,74 @@ public class ChannelUtils {
 
     public enum ChannelType {
         SD, HD, RADIO, OTHER;
+    }
+
+    public static class ChannelIconSetting {
+        public int iconPack = 0;
+        public List<String> customIconUrls;
+    }
+
+    public static enum ChannelIconPacks {
+
+        /*
+        "https://tv.avm.de/tvapp/logos/" +
+                    (channel.type == ChannelType.HD ? "hd/" : (channel.type == ChannelType.RADIO ? "radio/" : "")) +
+                    URLEncoder.encode(channel.title.toLowerCase().replace("ü", "ue").replace("ä", "ae").replace("ö", "oe").replace(" ", "_").replace("+", ""), "UTF-8") +
+                    ".png";
+         */
+        AVM_STANDARD(
+                R.string.iconpack_avm, 0,
+                List.of(
+                        "https://tv.avm.de/tvapp/logos/{CHANNELTYPE_AVM}/{CHANNELNAME;LOWERCASE;ü=ue;ä=ae;ö=oe; =_;+=;URLENCODED}.png"
+                )
+        ),
+        PICONS_WHITE(
+                R.string.iconpack_picons_white, 1,
+                List.of(
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.white.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.white.png?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.white.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.white.png?raw=true"
+                )
+        ),
+        PICONS_LIGHT(
+                R.string.iconpack_picons_light, 2,
+                List.of(
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.light.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.light.png?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.light.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.light.png?raw=true"
+                )
+        ),
+        PICONS_DEFAULT(
+                R.string.iconpack_picons_default, 3,
+                List.of(
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.default.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.default.png?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.default.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.default.png?raw=true"
+                )
+        ),
+        SVG_CHANNELLOGOS_LIGHT(
+                R.string.iconpack_svg_channellogos, 4,
+                List.of(
+                        "https://github.com/lapicidae/svg-channellogos/blob/master/light/{CHANNELNAME;LOWERCASE;URLENCODE}.svg?raw=true",
+                        "https://github.com/lapicidae/svg-channellogos/blob/master/light/{CHANNELNAME;LOWERCASE;hd=;TRIM;URLENCODE}.svg?raw=true"
+                )
+        ),
+        CUSTOM(R.string.iconpack_custom, 999, null);
+
+        @StringRes
+        public final int name;
+        public final int id;
+        public final List<String> urls;
+
+        ChannelIconPacks(@StringRes int name, int id, List<String> urls) {
+            this.name = name;
+            this.id = id;
+            this.urls = urls;
+        }
+
     }
 
 }

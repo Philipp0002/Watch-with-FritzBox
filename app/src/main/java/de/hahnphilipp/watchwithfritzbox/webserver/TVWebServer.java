@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.player.ChannelListTVOverlay;
 import de.hahnphilipp.watchwithfritzbox.player.EditChannelListTVOverlay;
@@ -52,7 +53,7 @@ public class TVWebServer {
         server.get("/channels", (request, response) -> {
             try {
                 List<ChannelItem> channels = new ArrayList<>(ChannelUtils.getAllChannels(context)).stream()
-                        .map(ChannelItem::fromChannel)
+                        .map(ch -> ChannelItem.fromChannel(context, ch))
                         .toList();
 
                 String channelsJson = new ObjectMapper().writeValueAsString(channels);
@@ -170,7 +171,7 @@ public class TVWebServer {
                 ChannelUtils.moveChannelToPosition(context, from, to);
 
                 List<ChannelItem> channels = new ArrayList<>(ChannelUtils.getAllChannels(context)).stream()
-                        .map(ChannelItem::fromChannel)
+                        .map(ch -> ChannelItem.fromChannel(context, ch))
                         .toList();
 
                 String channelsJson = new ObjectMapper().writeValueAsString(channels);
@@ -207,8 +208,15 @@ public class TVWebServer {
             this.logoUrl = logoUrl;
         }
 
-        public static ChannelItem fromChannel(ChannelUtils.Channel channel) {
-            return new ChannelItem(channel.title, channel.number, channel.type, channel.free, ChannelUtils.getIconURL(channel));
+        public static ChannelItem fromChannel(Context context, ChannelUtils.Channel channel) {
+            return new ChannelItem(
+                    channel.title,
+                    channel.number,
+                    channel.type,
+                    channel.free,
+                    ChannelUtils.getIconURLs(context, channel).stream()
+                            .collect(Collectors.joining(" "))
+            );
         }
     }
 

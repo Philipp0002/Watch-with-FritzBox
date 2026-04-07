@@ -143,6 +143,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         tvSettings.add(new TVSetting(context.getString(R.string.settings_open_hbbtv), null, NavigationIcon.CHEVRON, R.drawable.interactive_space, this::showHbbTV));
 
         tvSettings.add(new TVSetting(context.getString(R.string.settings_reorder_channels), null, NavigationIcon.CHEVRON, R.drawable.round_reorder, this::showChannelEditor));
+        tvSettings.add(new TVSetting(context.getString(R.string.settings_iconpack), null, NavigationIcon.CHEVRON, R.drawable.round_channel_logo, this::showChannelIconSelection));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_reset_app), null, NavigationIcon.CHEVRON, R.drawable.round_reset_settings, this::showAppResetSelection));
 
         if (tvOverlayRecyclerAdapter != null) {
@@ -306,6 +307,21 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         context.loadLibVLC();
         context.launchPlayer(false);
         context.popOverlayFragment();
+    }
+
+    public void showChannelIconSelection() {
+        ChannelUtils.ChannelIconSetting cis = ChannelUtils.getChannelIconSetting(context);
+
+        SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
+        selectionTVOverlay.title = context.getString(R.string.settings_iconpack);
+        for(ChannelUtils.ChannelIconPacks pack : ChannelUtils.ChannelIconPacks.values()) {
+            selectionTVOverlay.tvSettings.add(new TVSetting(getString(pack.name), null, NavigationIcon.selected(cis.iconPack == pack.id), R.drawable.round_tv, () -> {
+                ChannelUtils.updateChannelIconSetting(context, pack.id, null);
+                context.popOverlayFragment();
+            }));
+        }
+
+        context.addOverlayFragment(selectionTVOverlay);
     }
 
     public void showDeinterlaceSelection() {

@@ -33,12 +33,9 @@
             <ImageView
                 android:id="@+id/tvoverlaysetting_logo"
                 android:layout_width="70dp"
-                android:layout_height="0dp"
+                android:layout_height="48dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="8dp"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
                 android:duplicateParentState="true"
                 android:scaleType="fitCenter"
                 android:tint="@color/item_card_icon_color"

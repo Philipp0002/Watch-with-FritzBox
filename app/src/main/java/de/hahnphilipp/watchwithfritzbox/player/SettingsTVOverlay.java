@@ -6,6 +6,7 @@ import android.app.PictureInPictureParams;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Rational;
@@ -13,6 +14,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,6 +23,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.widget.BrowseFrameLayout;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import org.videolan.libvlc.MediaPlayer;
 
@@ -32,6 +39,7 @@ import de.hahnphilipp.watchwithfritzbox.utils.CenterScrollLayoutManager;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.CustomTVSetting;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting.NavigationIcon;
@@ -314,8 +322,16 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
         SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
         selectionTVOverlay.title = context.getString(R.string.settings_iconpack);
+
+        String rawIP = IPUtils.getIPAddress(true);
+        String ip = "";
+        if (!rawIP.isEmpty()) {
+            ip = "http://" + rawIP + ":8080";
+        }
+
         for(ChannelUtils.ChannelIconPacks pack : ChannelUtils.ChannelIconPacks.values()) {
-            selectionTVOverlay.tvSettings.add(new TVSetting(getString(pack.name), null, NavigationIcon.selected(cis.iconPack == pack.id), R.drawable.round_tv, () -> {
+            String subtitle = pack.id == Integer.MAX_VALUE ? context.getString(R.string.settings_custom_subtitle, ip) : null;
+            selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(pack.name), subtitle, NavigationIcon.selected(cis.iconPack == pack.id), R.drawable.round_channel_logo, () -> {
                 ChannelUtils.updateChannelIconSetting(context, pack.id, null);
                 context.popOverlayFragment();
             }));
@@ -327,7 +343,6 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     public void showDeinterlaceSelection() {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
 
         String currentSetting = sp.getString("setting_deinterlace", null);
 

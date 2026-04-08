@@ -535,7 +535,7 @@ public class ChannelUtils {
                         "https://github.com/lapicidae/svg-channellogos/blob/master/light/{CHANNELNAME;LOWERCASE;hd=;TRIM;URLENCODE}.svg?raw=true"
                 )
         ),
-        CUSTOM(R.string.iconpack_custom, 999, null);
+        CUSTOM(R.string.iconpack_custom, Integer.MAX_VALUE, null);
 
         @StringRes
         public final int name;

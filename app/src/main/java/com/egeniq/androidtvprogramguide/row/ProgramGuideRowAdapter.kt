@@ -18,6 +18,7 @@ package com.egeniq.androidtvprogramguide.row
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
@@ -154,12 +155,12 @@ internal class ProgramGuideRowAdapter(
             val urls = ChannelUtils.getIconURLs(channelLogoView.context, channel)
             val drawableRequestBuilder =
                 GlideUtils.multiRequestBuilder(channelLogoView.context, urls
-                ) { c: RequestBuilder<Drawable?>? ->
+                ) { c: RequestBuilder<Bitmap?>? ->
                     c!!.fitCenter() // centerInside???
                 }
             if (drawableRequestBuilder != null) {
                 drawableRequestBuilder
-                    //.fitCenter() //centerInside???
+                    .fitCenter() //centerInside???
                     .into(channelLogoView)
                 channelLogoView.visibility = View.VISIBLE
             } else {

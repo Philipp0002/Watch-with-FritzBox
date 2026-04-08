@@ -23,12 +23,12 @@ public class SvgDecoder implements ResourceDecoder<InputStream, SVG> {
             throws IOException {
         try {
             SVG svg = SVG.getFromInputStream(source);
-            if (width != SIZE_ORIGINAL) {
+            /*if (width != SIZE_ORIGINAL) {
                 svg.setDocumentWidth(width);
             }
             if (height != SIZE_ORIGINAL) {
                 svg.setDocumentHeight(height);
-            }
+            }*/
             return new SimpleResource<>(svg);
         } catch (SVGParseException ex) {
             throw new IOException("Cannot load SVG from stream", ex);

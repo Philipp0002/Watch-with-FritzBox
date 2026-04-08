@@ -1,6 +1,7 @@
 package de.hahnphilipp.watchwithfritzbox.utils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.ImageView;
@@ -13,15 +14,17 @@ import java.util.List;
 
 public class GlideUtils {
 
-    public static RequestBuilder<Drawable> multiRequestBuilder(Context context, List<String> urls, RequestBuilderCustomizer customizer) {
-        RequestBuilder<Drawable> drawableRequestBuilder = null;
+    public static RequestBuilder<Bitmap> multiRequestBuilder(Context context, List<String> urls, RequestBuilderCustomizer<Bitmap> customizer) {
+        RequestBuilder<Bitmap> drawableRequestBuilder = null;
         for(int i = urls.size() - 1; i >= 0; i--) {
             String url = urls.get(i);
             if(drawableRequestBuilder == null) {
                 drawableRequestBuilder = Glide.with(context)
+                        .as(Bitmap.class)
                         .load(Uri.parse(url));
             } else {
                 drawableRequestBuilder = Glide.with(context)
+                        .as(Bitmap.class)
                         .load(Uri.parse(url))
                         .error(drawableRequestBuilder);
             }
@@ -33,7 +36,7 @@ public class GlideUtils {
         return drawableRequestBuilder;
     }
 
-    public interface RequestBuilderCustomizer {
-        RequestBuilder<Drawable> customize(RequestBuilder<Drawable> requestBuilder);
+    public interface RequestBuilderCustomizer<T> {
+        RequestBuilder<T> customize(RequestBuilder<T> requestBuilder);
     }
 }

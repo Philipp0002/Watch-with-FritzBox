@@ -1,6 +1,7 @@
 package de.hahnphilipp.watchwithfritzbox.utils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.PictureDrawable;
 
 import androidx.annotation.NonNull;
@@ -19,7 +20,7 @@ public class SvgModule extends AppGlideModule {
     public void registerComponents(
             @NonNull Context context, @NonNull Glide glide, @NonNull Registry registry) {
         registry
-                .register(SVG.class, PictureDrawable.class, new SvgDrawableTranscoder())
+                .register(SVG.class, Bitmap.class, new SvgBitmapTranscoder(glide.getBitmapPool()))
                 .append(SVG.class, new SvgEncoder(glide.getArrayPool(), glide.getBitmapPool()))
                 .append(InputStream.class, SVG.class, new SvgDecoder());
     }

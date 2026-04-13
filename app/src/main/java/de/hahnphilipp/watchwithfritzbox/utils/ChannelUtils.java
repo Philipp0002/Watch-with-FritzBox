@@ -513,28 +513,28 @@ public class ChannelUtils {
         PICONS_WHITE(
                 R.string.iconpack_picons_white, 1,
                 List.of(
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.white.svg?raw=true",
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.white.png?raw=true",
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.white.svg?raw=true",
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.white.png?raw=true"
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=;TRIM}.white.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=;TRIM}.white.png?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=;TRIM}.white.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=;TRIM}.white.png?raw=true"
                 )
         ),
         PICONS_LIGHT(
                 R.string.iconpack_picons_light, 2,
                 List.of(
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.light.svg?raw=true",
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.light.png?raw=true",
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.light.svg?raw=true",
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.light.png?raw=true"
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=;TRIM}.light.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=;TRIM}.light.png?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=;TRIM}.light.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=;TRIM}.light.png?raw=true"
                 )
         ),
         PICONS_DEFAULT(
                 R.string.iconpack_picons_default, 3,
                 List.of(
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.default.svg?raw=true",
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=}.default.png?raw=true",
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.default.svg?raw=true",
-                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=}.default.png?raw=true"
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=;TRIM}.default.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;.=;-=;TRIM}.default.png?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=;TRIM}.default.svg?raw=true",
+                        "https://github.com/picons/picons/blob/master/build-source/logos/{CHANNELNAME;LOWERCASE; =;hd=;.=;-=;TRIM}.default.png?raw=true"
                 )
         ),
         SVG_CHANNELLOGOS_LIGHT(

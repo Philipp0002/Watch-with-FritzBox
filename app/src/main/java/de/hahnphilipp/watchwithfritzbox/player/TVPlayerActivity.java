@@ -82,6 +82,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         initializeOverlay();
 
         initGlide();
+        Log.d("LIFECYCLEE", "onCreate");
     }
 
     public void runOnVLCThread(Runnable runnable) {
@@ -153,16 +154,19 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mMediaPlayer.setEventListener(this);
         mMediaPlayer.setAudioDelay(sp.getLong("setting_audio_delay", 0) * 1000);
-        ivlcVout = mMediaPlayer.getVLCVout();
-        ivlcVout.setVideoView(surfaceView);
-        ivlcVout.setSubtitlesView(subtitlesView);
-        ivlcVout.attachViews();
-
+        initSurfaces();
         final ViewTreeObserver observer = surfaceView.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(() -> {
             // Set rendering size
             ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
         });
+    }
+
+    public void initSurfaces() {
+        ivlcVout = mMediaPlayer.getVLCVout();
+        ivlcVout.setVideoView(surfaceView);
+        ivlcVout.setSubtitlesView(subtitlesView);
+        ivlcVout.attachViews();
     }
 
     private void initializeOverlay() {
@@ -375,13 +379,18 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     @Override
     protected void onPause() {
         super.onPause();
+        if(ivlcVout != null && ivlcVout.areViewsAttached()) {
+            ivlcVout.detachViews();
+        }
     }
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        //mMediaPlayer.attachViews(mVideoLayout, null, false, false);
+        if(ivlcVout != null && !ivlcVout.areViewsAttached()) {
+            initSurfaces();
+        }
         launchPlayer(false);
     }
 

@@ -2,6 +2,7 @@ package de.hahnphilipp.watchwithfritzbox.webserver;
 
 import android.content.Context;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.koushikdutta.async.http.server.AsyncHttpServer;
 import com.w3ma.m3u8parser.data.Playlist;
@@ -10,12 +11,17 @@ import com.w3ma.m3u8parser.exception.PlaylistParseException;
 import com.w3ma.m3u8parser.parser.M3U8Parser;
 import com.w3ma.m3u8parser.scanner.M3U8ItemScanner;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,6 +65,59 @@ public class TVWebServer {
                 String channelsJson = new ObjectMapper().writeValueAsString(channels);
                 response.setContentType("application/json");
                 response.send(channelsJson);
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            response.send("There was an error");
+        });
+
+        server.get("/setChannelIconPack", (request, response) -> {
+            try {
+                String channelIconsView = AssetUtils.getStringFromAsset(context, "channelIconsView.html");
+                response.send(channelIconsView);
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            response.send("There was an error");
+        });
+
+        server.post("/selectIconPack", (request, response) -> {
+            try {
+                JSONObject requestBody = (JSONObject) request.getBody().get();
+                int selectedId = requestBody.getInt("selectedId");
+                List<String> customIconUrls = null;
+                if(requestBody.has("customIconUrls")
+                        && !requestBody.isNull("customIconUrls")) {
+                    customIconUrls = new ArrayList<>();
+                    JSONArray jsonArray = requestBody.getJSONArray("customIconUrls");
+                    for(int i = 0; i < jsonArray.length(); i++) {
+                        String url = jsonArray.getString(i);
+                        customIconUrls.add(url);
+                    }
+                }
+                ChannelUtils.updateChannelIconSetting(context, selectedId, customIconUrls);
+
+                List<ChannelIconPack> iconPacks = getChannelIconPacks();
+
+                String iconPacksJson = new ObjectMapper().writeValueAsString(iconPacks);
+                response.setContentType("application/json");
+                response.send(iconPacksJson);
+                return;
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+            response.send("There was an error");
+        });
+
+        server.get("/channelIconPacks", (request, response) -> {
+            try {
+                List<ChannelIconPack> iconPacks = getChannelIconPacks();
+
+                String iconPacksJson = new ObjectMapper().writeValueAsString(iconPacks);
+                response.setContentType("application/json");
+                response.send(iconPacksJson);
                 return;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -191,6 +250,50 @@ public class TVWebServer {
 
     public void stop() {
         server.stop();
+    }
+
+    private List<ChannelIconPack> getChannelIconPacks() {
+        return Arrays.stream(ChannelUtils.ChannelIconPacks.values())
+                .map(pack -> ChannelIconPack.fromChannelIconPack(context, pack))
+                .map(pack -> {
+                    ChannelUtils.ChannelIconSetting setting = ChannelUtils.getChannelIconSetting(context);
+                    if(setting.iconPack == pack.id) {
+                        pack.selected = true;
+                    }
+
+                    if(pack.id == Integer.MAX_VALUE){
+                        // custom pack, add custom urls
+                        pack.iconUrls = setting.customIconUrls;
+                    }
+
+                    if(pack.iconUrls == null) {
+                        pack.iconUrls = new ArrayList<>();
+                    }
+
+                    return pack;
+                })
+                .collect(Collectors.toList());
+    }
+
+    static class ChannelIconPack {
+        public int id;
+        public String name;
+        public List<String> iconUrls;
+        public boolean selected;
+
+        public ChannelIconPack(int id, String name, List<String> iconUrls) {
+            this.id = id;
+            this.name = name;
+            this.iconUrls = iconUrls;
+        }
+
+        public static ChannelIconPack fromChannelIconPack(Context context, ChannelUtils.ChannelIconPacks pack) {
+            return new ChannelIconPack(
+                    pack.id,
+                    context.getString(pack.name),
+                    pack.urls
+            );
+        }
     }
 
     static class ChannelItem {

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<head>
+    <title>Reorder channels | Watch with FritzBox</title>
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch-polyfill@1.0.0/DragDropTouch.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5sortable/0.13.3/html5sortable.min.js" integrity="sha512-3btxfhQfasdVcv1dKYZph5P7jFeeLRcF1gDVzFA+k9AiwwhB1MNI7O58zCK0uVItuMHNDR5pMoF2nqlCGzUwZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div class="content">
+        <h1><a href="/"><img src="asset?name=chevron_back.svg&contentType=image/svg+xml"> Channel icons</a></h1>
+        <div class="disclamer">Select the channel icon source you prefer or add a custom one.</div>
+        <div id="iconCards">
+        </div>
+    </div>
+</body>
+
+<script>
+
+    const iconPackCardTemplate = `
+    <label for="%ID%">
+                <input type="radio" name="icon-source" id="%ID%" value="super-happy" onchange="selectionChange(this)" %CHECKED%/>
+                <div class="card">
+                    <img src="asset?name=icon.svg&contentType=image/svg+xml">
+                    <div>
+                        <div>%NAME%</div>
+                        %DISCLAIMER%
+                        <textarea id="area%ID%" placeholder="e.g. http://example.com" %DISABLED%>%URLS%</textarea>
+                        %SAVEBUTTON%
+                    </div>
+                </div>
+            </label>`;
+
+    const disclaimerTemplate = `
+    <div class="disclamer">
+                            Enter one URL per line. If the first URL fails to load, the second one
+                            will be tried (...and so on). Supported image formats are PNG, JPEG and SVG.
+                            The following placeholders are supported in the URLs:
+                            <ul>
+                                <li><code>{CHANNELNAME}</code> - channel name</li>
+                                <li><code>{CHANNELNO}</code> - channel number</li>
+                                <li><code>{CHANNELTYPE}</code> - channel type (SD, HD, RADIO, OTHER)</li>
+                            </ul>
+                            You can also use the templating engine to manipulate placeholders.
+                            For example you can use <code>{CHANNELNAME;LOWERCASE;HD=SD}</code>
+                            to get the channel name in lowercase and replace "HD" with "SD".
+                            The following manipulations are supported:
+                            <ul>
+                                <li><code>LOWERCASE</code> - make lowercase</li>
+                                <li><code>UPPERCASE</code> - make lowercase</li>
+                                <li><code>TRIM</code> - remove whitespaces from begin and end</li>
+                                <li><code>x=y</code> - replace x with y</li>
+                                <li><code>URLENCODE</code> - encode special characters for use in URLs</li>
+                            </ul>
+                        </div>`;
+
+    const saveButtonTemplate = `<button onclick="updateCustomIconPack()">Submit</button>`;
+
+    const iconPackCards = document.getElementById("iconCards");
+    updateIconPacks();
+
+    function updateIconPacks(){
+        fetch('/channelIconPacks')
+            .then(res => res.json())
+            .then(j => {
+                replaceDisplayedIconPacks(j);
+                console.log("IconPacks fetched", j);
+            }).catch((error) => {
+                console.error('Error fetching icon packs:', error);
+                alert('An error occurred while getting the icon packs. Please try again later.');
+            });
+    }
+
+    function submitIconPack(id, customURLs, showAlert) {
+        fetch('/selectIconPack', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({selectedId: id, customIconUrls: customURLs})
+        }).then(res => res.json())
+        .then(j => {
+            replaceDisplayedIconPacks(j);
+            if(showAlert) {
+                alert('Custom icon pack updated successfully');
+            }
+        }).catch(() => {
+            alert('An error occurred while updating the custom icon pack');
+        });
+    }
+
+    function updateCustomIconPack() {
+        const textarea = document.getElementById("area2147483647");
+        const urls = textarea.value.split("\n").map(s => s.trim()).filter(s => s.length > 0);
+        submitIconPack(2147483647, urls, true);
+    }
+
+    function selectionChange(inputCheckbox) {
+        if(inputCheckbox.checked) {
+            const id = parseInt(inputCheckbox.id);
+            submitIconPack(id, null, false);
+        }
+    }
+
+    function replaceDisplayedIconPacks(iconPacks) {
+        var newInnerHTML = "";
+        for(const pack of iconPacks){
+            var urls = "";
+            for(const url of pack.iconUrls){
+                urls += url + "\n";
+            }
+            if(urls.endsWith("\n")){
+                urls = urls.substring(0, urls.length - 1);
+            }
+
+            const iconPackCard = iconPackCardTemplate.replaceAll("%ID%", pack.id)
+                .replaceAll("%NAME%", pack.name)
+                .replaceAll("%URLS%", urls)
+                .replaceAll("%CHECKED%", pack.selected ? "checked" : "")
+                .replaceAll("%DISABLED%", pack.id == 2147483647 ? "" : "disabled")
+                .replaceAll("%DISCLAIMER%", pack.id == 2147483647 ? disclaimerTemplate : "")
+                .replaceAll("%SAVEBUTTON%", pack.id == 2147483647 ? saveButtonTemplate : "");
+
+            newInnerHTML += iconPackCard;
+        }
+        iconPackCards.innerHTML = newInnerHTML;
+    }
+
+</script>
+
+<style>
+
+    *:not(ul) {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    input[type="radio"]:checked + .card {
+        border: 2px solid #ffffff !important;
+    }
+
+    textarea {
+        margin-top: 10px;
+        width: 100%;
+        background-color: #1e1c2f;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+        color: #ffffff;
+        font-family: Tahoma;
+        font-size: 12pt;
+        white-space: nowrap;
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    textarea:disabled {
+        color: #c0c0c0;
+    }
+
+    button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        background-color: #424279;
+        border: none;
+        border-radius: 10px;
+        color: #ffffff;
+        font-family: Tahoma;
+        font-size: 12pt;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #353564;
+    }
+
+
+    .card > div {
+        width: 100%;
+        padding-left: 25px;
+        padding-right: 25px;
+        font-size: 16pt;
+        flex-grow: 1;
+    }
+
+    .card {
+        display: flex;
+        justify-content: space-between;
+        border-radius: 15px;
+        background-color: #2a2939 !important;
+        width: calc(100% - 50px);
+        min-height: 110px;
+        margin-top: 10px;
+        margin-right: 25px;
+        margin-left: 25px;
+        padding: 25px;
+        box-sizing: border-box;
+        box-shadow: 0px 0px 35px -10px rgba(0, 0, 0, 0.5);
+        transition: transform 100ms linear;
+        overflow: hidden;
+        cursor: pointer;
+        align-items: center;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    h1 {
+        margin-top: 25px;
+        margin-left: 25px;
+    }
+
+    body {
+        background-color: #181725;
+        color: #ffffff;
+        font-family: Tahoma;
+        height: 100%;
+        width: 100%;
+        overscroll-behavior: none;
+    }
+
+    a, a:hover, a:visited, a:active {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .disclamer:first-of-type {
+        margin-left: 25px;
+    }
+
+    .disclamer {
+        margin-top: 10px;
+        font-size: 12pt;
+    }
+
+</style>
+
+
+</html>

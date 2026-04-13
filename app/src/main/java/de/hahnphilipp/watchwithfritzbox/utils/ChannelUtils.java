@@ -207,7 +207,7 @@ public class ChannelUtils {
         if(packExists) {
             setting.iconPack = channelIconPack;
         }
-        if(setting.customIconUrls != null) {
+        if(customIconUrls != null) {
             setting.customIconUrls = customIconUrls;
         }
         try {
@@ -302,14 +302,23 @@ public class ChannelUtils {
         Map<String, String> values = new HashMap<>();
         values.put("CHANNELTYPE_AVM", channel.type == ChannelType.HD ? "hd/" : (channel.type == ChannelType.RADIO ? "radio/" : ""));
         values.put("CHANNELNAME", channel.title);
+        values.put("CHANNELNO", channel.number + "");
+        values.put("CHANNELTYPE", channel.type.toString());
 
         ChannelUtils.ChannelIconSetting cis = getChannelIconSetting(context);
         Optional<ChannelIconPacks> pack = Arrays.stream(ChannelIconPacks.values())
                 .filter(p -> p.id == cis.iconPack)
                 .findFirst();
-        if(pack.isPresent() && pack.get().urls != null) {
-            for(String url : pack.get().urls) {
-                urls.add(TemplateEngine.replacePlaceholders(url, values));
+        if(pack.isPresent()) {
+            ChannelIconPacks cip = pack.get();
+            if(cip.id == Integer.MAX_VALUE && cis.customIconUrls != null) {
+                for (String url : cis.customIconUrls) {
+                    urls.add(TemplateEngine.replacePlaceholders(url, values));
+                }
+            } else {
+                for(String url : cip.urls) {
+                    urls.add(TemplateEngine.replacePlaceholders(url, values));
+                }
             }
         }
         return urls;

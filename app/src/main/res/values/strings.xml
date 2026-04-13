@@ -231,6 +231,6 @@
     <string name="iconpack_picons_light" translatable="false">Picons Light</string>
     <string name="iconpack_picons_default" translatable="false">Picons Default</string>
     <string name="iconpack_svg_channellogos" translatable="false">SVG Channellogos</string>
-    <string name="iconpack_custom">Custom URL</string>
+    <string name="iconpack_custom">Custom URLs</string>
     <string name="settings_custom_subtitle">Set custom URLs via Webinterface:\n%s</string>
 </resources>

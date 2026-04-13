@@ -221,6 +221,6 @@
     <string name="setup_variant_title">Kanalquelle</string>
 
     <string name="settings_iconpack">Senderlogos</string>
-    <string name="iconpack_custom">Eigene URL</string>
+    <string name="iconpack_custom">Eigene URLs</string>
     <string name="settings_custom_subtitle">Gib die URLs übers Webinterface ein:\n%s</string>
 </resources>

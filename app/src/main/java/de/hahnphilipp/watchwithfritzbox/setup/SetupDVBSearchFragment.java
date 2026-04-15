@@ -176,7 +176,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
         this.currentFrequencyBcd = frequencyBcd;
         this.currentModulation = modulation;
         double freqMhz = decodeFrequency(frequencyBcd);
-        int frequency = roundToGrid(freqMhz);
+        int frequency = (int) freqMhz;
         this.currentFrequencyMhz = frequency;
 
         WLog.i(LOG_TAG, "Tuning frequency " + frequency + " with PMT-PIDs " + pmtPids);
@@ -452,41 +452,6 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
         int high = (b >> 4) & 0x0F;
         int low = b & 0x0F;
         return high * 10 + low;
-    }
-
-    /**
-     * Rundet Frequenz auf typisches Vodafone DVB-C Raster
-     *
-     * @param freqMhz Frequenz in MHz
-     * @return Gerundete Frequenz auf Raster
-     */
-    public static int roundToGrid(double freqMhz) {
-        // S21-S41: 346-610 MHz, 8 MHz Raster
-        if (freqMhz >= 346 && freqMhz <= 610) {
-            int base = 346;
-            int offset = (int) Math.round((freqMhz - base) / 8.0) * 8;
-            return base + offset;
-        }
-
-        // S10-S20: 210-330 MHz, 10 MHz Raster
-        else if (freqMhz >= 210 && freqMhz <= 330) {
-            return (int) Math.round(freqMhz / 10.0) * 10;
-        }
-
-        // S02-S09: 121-177 MHz, 8 MHz Raster
-        else if (freqMhz >= 121 && freqMhz <= 177) {
-            int base = 121;
-            int offset = (int) Math.round((freqMhz - base) / 8.0) * 8;
-            return base + offset;
-        }
-
-        // Sonderkanal
-        else if (freqMhz >= 110 && freqMhz <= 120) {
-            return 113;
-        }
-
-        // Außerhalb bekannter Bereiche
-        return (int) Math.round(freqMhz);
     }
 
     /**

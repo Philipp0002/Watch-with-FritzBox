@@ -27,6 +27,7 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
 import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 
 public class OnboardingActivity extends FragmentActivity {
 
@@ -69,7 +70,7 @@ public class OnboardingActivity extends FragmentActivity {
 
     public void enableNextButton(boolean enable) {
         MaterialButton button = findViewById(R.id.onboarding_continue_button);
-        runOnUiThread(() -> {
+        UIThread.run(() -> {
             button.setEnabled(enable);
             if (enable) {
                 button.requestFocus();
@@ -81,27 +82,31 @@ public class OnboardingActivity extends FragmentActivity {
         if (bottomBarShown != show) {
             bottomBarShown = show;
             View bottomBar = findViewById(R.id.linearLayout);
-            runOnUiThread(() -> {
+
+            Animation animation = AnimationUtils.loadAnimation(
+                    this,
+                    show ? R.anim.slide_up_from_down : R.anim.slide_down
+            );
+            animation.setFillAfter(true);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    if (!show) {
+                        bottomBar.setVisibility(INVISIBLE);
+                    }
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+
+            UIThread.run(() -> {
                 bottomBar.setVisibility(VISIBLE);
-                Animation animation = AnimationUtils.loadAnimation(OnboardingActivity.this,
-                        show ? R.anim.slide_up_from_down : R.anim.slide_down);
-                animation.setFillAfter(true);
-                animation.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        if (!show) {
-                            bottomBar.setVisibility(INVISIBLE);
-                        }
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                    }
-                });
                 bottomBar.startAnimation(animation);
             });
         }

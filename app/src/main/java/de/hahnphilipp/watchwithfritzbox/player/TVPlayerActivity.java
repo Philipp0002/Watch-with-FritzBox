@@ -45,6 +45,7 @@ import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.GlideApp;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 import de.hahnphilipp.watchwithfritzbox.utils.WLog;
 
 public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
@@ -82,7 +83,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         initializeOverlay();
 
         initGlide();
-        Log.d("LIFECYCLEE", "onCreate");
     }
 
     public void runOnVLCThread(Runnable runnable) {
@@ -90,6 +90,9 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     public void unloadLibVLC() {
+        if (media != null && !media.isReleased()) {
+            media.release();
+        }
         if (mMediaPlayer != null) {
             mMediaPlayer.stop();
             mMediaPlayer.release();
@@ -443,7 +446,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         switchChannelTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                runOnUiThread(() -> {
+                UIThread.run(() -> {
                     ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress(0);
                     findViewById(R.id.player_skip_timer).setVisibility(View.VISIBLE);
                 });
@@ -452,6 +455,9 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("PlaybackActivity", "Starting playback of " + channel.title + " - " + channel.url);
                 WLog.i(LOG_TAG, "Starting playback of " + channel.title + " - " + channel.url);
+                if(media != null && !media.isReleased()) {
+                    media.release();
+                }
                 media = new Media(mLibVLC, Uri.parse(channel.url));
 
                 runOnVLCThread(() -> {
@@ -469,7 +475,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                     mMediaPlayer.play();
 
                     teletextPageInfos.clear();
-                    runOnUiThread(() -> {
+                    UIThread.run(() -> {
                         clearCaInfo();
                         if (clearHbbTv) stopHbbTV();
                     });
@@ -512,7 +518,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
                 if (selection != null)
                     ChannelUtils.updateLastSelectedChannel(TVPlayerActivity.this, selection.number);
-                runOnUiThread(() -> {
+                UIThread.run(() -> {
                     if (selection != null)
                         launchPlayer(true);
                     findViewById(R.id.player_enter_number_overlay).setVisibility(View.GONE);
@@ -568,7 +574,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 AsyncTask.execute(() -> {
                     MediaPlayer.CaInfo caInfo = event.getCaInfo();
                     WLog.i(LOG_TAG, "Received CA info: " + caInfo.getName() + " (" + caInfo.getCaId() + ")");
-                    runOnUiThread(() -> {
+                    UIThread.run(() -> {
                         addCaInfo(caInfo.getName());
                     });
                 });
@@ -588,7 +594,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
                 break;
             case MediaPlayer.Event.Buffering:
-                runOnUiThread(() -> {
+                UIThread.run(() -> {
                     ((LinearProgressIndicator) findViewById(R.id.player_skip_timer)).setProgress((int) event.getBuffering());
 
                     if (event.getBuffering() == 100F) {

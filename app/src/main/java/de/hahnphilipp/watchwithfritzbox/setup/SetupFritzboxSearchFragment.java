@@ -19,6 +19,7 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.async.GetFritzInfo;
 import de.hahnphilipp.watchwithfritzbox.async.GetPlaylists;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 
 public class SetupFritzboxSearchFragment extends Fragment {
 
@@ -47,7 +48,7 @@ public class SetupFritzboxSearchFragment extends Fragment {
         getPlaylists.callback = new GetPlaylists.GetPlaylistResult() {
             @Override
             public void onTypeLoaded(ChannelUtils.ChannelType type, int channelAmount) {
-                requireActivity().runOnUiThread(() -> {
+                UIThread.run(() -> {
                     switch (type) {
                         case SD ->
                                 sdSearchText.setText(getString(R.string.setup_search_sd_result, channelAmount));
@@ -63,7 +64,7 @@ public class SetupFritzboxSearchFragment extends Fragment {
             public void onAllLoaded(boolean error, List<ChannelUtils.Channel> channelList) {
                 AsyncTask.execute(() -> {
                     if(!error) ChannelUtils.setChannels(requireContext(), channelList, true);
-                    requireActivity().runOnUiThread(() -> {
+                    UIThread.run(() -> {
                         if (error) {
                             Toast.makeText(requireContext(), R.string.setup_search_error, Toast.LENGTH_LONG).show();
                             ((OnboardingActivity)requireActivity()).previousScreen();
@@ -82,7 +83,7 @@ public class SetupFritzboxSearchFragment extends Fragment {
         final GetFritzInfo getFritzInfo = new GetFritzInfo(ip);
         getFritzInfo.callback = (error, friendlyNames) -> {
             if (error) {
-                requireActivity().runOnUiThread(() -> {
+                UIThread.run(() -> {
                     Toast.makeText(requireContext(), R.string.setup_search_error_connect, Toast.LENGTH_LONG).show();
                     ((OnboardingActivity)requireActivity()).previousScreen();
                 });
@@ -94,7 +95,7 @@ public class SetupFritzboxSearchFragment extends Fragment {
                 if (supportedFritzBox) {
                     getPlaylists.execute();
                 } else {
-                    requireActivity().runOnUiThread(() -> {
+                    UIThread.run(() -> {
                         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                                 .setTitle(R.string.setup_search_error_not_supported_title)
                                 .setMessage(R.string.setup_search_error_not_supported_msg)

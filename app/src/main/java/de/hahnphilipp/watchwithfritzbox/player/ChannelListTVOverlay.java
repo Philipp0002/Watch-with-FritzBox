@@ -25,6 +25,7 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 
 public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, EpgUtils.EpgUpdateListener {
 
@@ -42,7 +43,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
 
     public void updateChannelList() {
         tvOverlayRecyclerAdapter.objects = ChannelUtils.getAllChannels(requireContext());
-        requireActivity().runOnUiThread(() -> {
+        UIThread.run(() -> {
             tvOverlayRecyclerAdapter.notifyDataSetChanged();
             tvOverlayRecyclerAdapter.selectChannel(ChannelUtils.getLastSelectedChannel(requireContext()));
         });
@@ -180,7 +181,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
         final String time = dftime.format(new Date());
 
         if (getActivity() != null)
-            requireActivity().runOnUiThread(() -> {
+            UIThread.run(() -> {
                 if(getView() != null) {
                     TextView dateView = getView().findViewById(R.id.tvoverlaydate);
                     TextView timeView = getView().findViewById(R.id.tvoverlaytime);
@@ -199,6 +200,6 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
         if(getActivity() == null || tvOverlayRecyclerAdapter == null) {
             return;
         }
-        requireActivity().runOnUiThread(() -> tvOverlayRecyclerAdapter.notifyItemChanged(channel.number-1));
+        UIThread.run(() -> tvOverlayRecyclerAdapter.notifyItemChanged(channel.number-1));
     }
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 
 public class RichTvInputSetupActivity extends Activity /*implements SyncStatusBroadcastReceiver.SyncListener */{
 
@@ -20,7 +21,7 @@ public class RichTvInputSetupActivity extends Activity /*implements SyncStatusBr
             RichTvUtils.reinsertChannels(getApplicationContext());
             RichTvUtils.reinsertAllEpgEvents(getApplicationContext(), EpgUtils.getAllEvents(getApplicationContext()));
 
-            runOnUiThread(this::finish);
+            UIThread.run(this::finish);
         });
 
     }

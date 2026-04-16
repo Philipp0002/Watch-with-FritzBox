@@ -69,13 +69,11 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
-
 
         ArrayList<Object> tvSettings = new ArrayList<Object>();
 
-        tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettings, recyclerView);
+        tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(context, tvSettings, recyclerView);
         final CenterScrollLayoutManager llm = new CenterScrollLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
@@ -83,15 +81,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
 
 
         BrowseFrameLayout browseFrameLayout = view.findViewById(R.id.tvoverlayrecyclerBrowse);
-        browseFrameLayout.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
-            @Override
-            public View onFocusSearch(View focused, int direction) {
-                if (recyclerView.hasFocus())
-                    return focused; // keep focus on recyclerview! DO NOT return recyclerview, but focused, which is a child of the recyclerview
-                else
-                    return null; // someone else will find the next focus
-            }
-        });
+        browseFrameLayout.setOnFocusSearchListener((focused, direction) -> recyclerView.hasFocus() ? focused : null);
     }
 
 

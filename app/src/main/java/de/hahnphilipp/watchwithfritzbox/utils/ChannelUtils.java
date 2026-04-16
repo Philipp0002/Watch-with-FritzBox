@@ -281,6 +281,10 @@ public class ChannelUtils {
         return channels;
     }
 
+    public static ArrayList<Channel> getAllChannelsCopy(Context context) {
+        return new ArrayList<>(getAllChannels(context));
+    }
+
     public static String getAllChannelsM3U(Context context) {
         ArrayList<Channel> channels = getAllChannels(context);
 

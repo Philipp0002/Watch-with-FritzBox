@@ -1,5 +1,6 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -37,7 +38,7 @@ public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        Context context = view.getContext();
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
         ArrayList<Object> tvSettingsWithTitle = new ArrayList<>();
@@ -47,21 +48,13 @@ public class SelectionTVOverlay extends Fragment implements KeyDownReceiver {
         tvSettingsWithTitle.addAll(tvSettings);
 
 
-        tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(getContext(), tvSettingsWithTitle, recyclerView);
-        final CenterScrollLayoutManager llm = new CenterScrollLayoutManager(getContext());
+        tvOverlayRecyclerAdapter = new TVSettingsOverlayRecyclerAdapter(context, tvSettingsWithTitle, recyclerView);
+        final CenterScrollLayoutManager llm = new CenterScrollLayoutManager(context);
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
 
         BrowseFrameLayout browseFrameLayout = view.findViewById(R.id.tvoverlayrecyclerBrowse);
-        browseFrameLayout.setOnFocusSearchListener((focused, direction) -> {
-            if (recyclerView.hasFocus()) {
-                // keep focus on recyclerview! DO NOT return recyclerview, but focused, which is a child of the recyclerview
-                return focused;
-            } else {
-                // someone else will find the next focus
-                return null;
-            }
-        });
+        browseFrameLayout.setOnFocusSearchListener((focused, direction) -> recyclerView.hasFocus() ? focused : null);
     }
 
     public void updateTitle(String title) {

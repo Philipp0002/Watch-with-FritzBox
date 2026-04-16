@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 import de.hahnphilipp.watchwithfritzbox.utils.WLog;
 
 public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.EventListener {
@@ -158,7 +159,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                     WLog.i(LOG_TAG, "Frequency not lockable... trying next frequency");
                 }
                 WLog.i(LOG_TAG, "No more frequencies to test, search failed.");
-                requireActivity().runOnUiThread(() -> {
+                UIThread.run(() -> {
                     Toast.makeText(requireContext(), R.string.setup_search_dvb_error, Toast.LENGTH_LONG).show();
                     ((OnboardingActivity) requireActivity()).previousScreen();
                 });
@@ -198,6 +199,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
             media = new Media(mLibVLC, Uri.parse(uri));
             mMediaPlayer.setMedia(media);
             mMediaPlayer.play();
+            media.release();
         });
     }
 
@@ -318,7 +320,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                                 Comparator.comparing(o -> o.lcn, Comparator.nullsLast(Integer::compareTo))
                         );
                         ChannelUtils.setChannels(requireContext(), channelList, true);
-                        requireActivity().runOnUiThread(() -> requireView().findViewById(R.id.setup_search_progressBar).setVisibility(GONE));
+                        UIThread.run(() -> requireView().findViewById(R.id.setup_search_progressBar).setVisibility(GONE));
                         ((OnboardingActivity)requireActivity()).enableNextButton(true);
                     }
                 });
@@ -368,7 +370,7 @@ public class SetupDVBSearchFragment extends Fragment implements MediaPlayer.Even
                         case OTHER -> otherChannelsFound++;
                     }
 
-                    requireActivity().runOnUiThread(() -> {
+                    UIThread.run(() -> {
                         channelsText.append("\n" + channel.title + " (" + (channel.free ? "free" : "paytv") + ")");
                         channelTextScroll.post(() -> channelTextScroll.fullScroll(View.FOCUS_DOWN));
 

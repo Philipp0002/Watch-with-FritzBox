@@ -27,6 +27,7 @@ import java.util.Objects;
 import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.TeletextView;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 
 public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
@@ -148,9 +149,8 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         if (teletextData != null) {
             AsyncTask.execute(() -> {
                 setTeletextViewPage(teletextData);
-                if(getActivity() == null) return;
 
-                requireActivity().runOnUiThread(() -> {
+                UIThread.run(() -> {
                     if (teletextViewAnimator.getDisplayedChild() != 1)
                         teletextViewAnimator.setDisplayedChild(1);
                 });
@@ -167,8 +167,7 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         extraKeyBlue.setOnClickListener(null);
         extraKeyYellow.setOnClickListener(null);
         extraKeyRed.setOnClickListener(null);
-        if(getActivity() == null) return;
-        requireActivity().runOnUiThread(() -> {
+        UIThread.run(() -> {
             View[] visibleButtons = new View[4];
             View[] invisibleButtons = new View[]{extraKeyRed, extraKeyGreen, extraKeyYellow, extraKeyBlue};
             pageRed = null;
@@ -243,18 +242,13 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
         MediaPlayer.Teletext teletext = new Gson().fromJson(teletextData, MediaPlayer.Teletext.class);
         setTeletextColorButtons(teletext.getNavigation());
-        if(getActivity() == null) return;
-        requireActivity().runOnUiThread(() -> teletextView.setTeletext(teletext));
+        UIThread.run(() -> teletextView.setTeletext(teletext));
         enteredNumber = teletext.getPageNumber() + "";
-        requireActivity().runOnUiThread(() -> pageNumberView.setText(enteredNumber));
+        UIThread.run(() -> pageNumberView.setText(enteredNumber));
     }
 
 
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        /*if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-            context.popOverlayFragment();
-            return true;
-        }*/
         if(!isShown) {
             return false;
         }

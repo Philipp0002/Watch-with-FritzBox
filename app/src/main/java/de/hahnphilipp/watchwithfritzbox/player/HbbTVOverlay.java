@@ -47,6 +47,7 @@ import de.hahnphilipp.watchwithfritzbox.hbbtv.HbbTVChannel;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 
 public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
 
@@ -109,7 +110,7 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(currentHbbTvApplication == null) {
+        if (currentHbbTvApplication == null) {
             return false;
         }
         if (event.getAction() == KeyEvent.ACTION_UP) {
@@ -118,12 +119,12 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
                 return true;
             }
 
-            if(overlayExtraKeys.getVisibility() == View.VISIBLE) {
+            if (overlayExtraKeys.getVisibility() == View.VISIBLE) {
                 return true;
             }
 
             HbbTVKeyTypes type = HbbTVKeycodeMappings.getHbbTvKeyTypeByKeyCode(keyCode);
-            if(type == null) {
+            if (type == null) {
                 return false;
             }
             char c = (char) event.getUnicodeChar();
@@ -147,7 +148,7 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
 
     @Override
     public boolean onKeyDownLong(int keyCode, KeyEvent event) {
-        if(currentHbbTvApplication != null) {
+        if (currentHbbTvApplication != null) {
             overlayExtraKeys.setVisibility(View.VISIBLE);
             extraKeyRed.requestFocus();
         }
@@ -155,7 +156,7 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
     }
 
     public void launchHbbTVApp(HbbTVApplication app, Integer serviceId, Integer networkId, Integer originalNetworkId, Integer tsId) {
-        if(networkId == null || originalNetworkId == null || serviceId == null || tsId == null) {
+        if (networkId == null || originalNetworkId == null || serviceId == null || tsId == null) {
             Log.w("HBBTV", "Cannot launch HbbTV app due to missing identifiers: serviceId=" + serviceId + ", networkId=" + networkId + ", originalNetworkId=" + originalNetworkId + ", tsId=" + tsId);
             return;
         }
@@ -186,14 +187,11 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
             List<AitApplication> aitApplications = AitApplication.parseAitApplicationsFromHex(bytes);
             hbbTvApplications = aitApplications.stream().map(HbbTVApplication::fromAitApplication).toList();
             if (currentHbbTvApplication == null && allowHbbTV) {
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        hbbTvApplications.stream().filter(app -> app.controlCode == 1).findFirst().ifPresent(app -> {
-                            Log.d("HBBTV", "Launching HbbTV app: " + app + " for serviceId " + commonDescriptors.getServiceId() + ", networkId " + commonDescriptors.getNetworkId() + ", originalNetworkId " + commonDescriptors.getOriginalNetworkId() + ", tsId " + commonDescriptors.getTransportStreamId());
-                            launchHbbTVApp(app, commonDescriptors.getServiceId(), commonDescriptors.getNetworkId(), commonDescriptors.getOriginalNetworkId(), commonDescriptors.getTransportStreamId());
-                        });
-                    }
+                UIThread.run(() -> {
+                    hbbTvApplications.stream().filter(app -> app.controlCode == 1).findFirst().ifPresent(app -> {
+                        Log.d("HBBTV", "Launching HbbTV app: " + app + " for serviceId " + commonDescriptors.getServiceId() + ", networkId " + commonDescriptors.getNetworkId() + ", originalNetworkId " + commonDescriptors.getOriginalNetworkId() + ", tsId " + commonDescriptors.getTransportStreamId());
+                        launchHbbTVApp(app, commonDescriptors.getServiceId(), commonDescriptors.getNetworkId(), commonDescriptors.getOriginalNetworkId(), commonDescriptors.getTransportStreamId());
+                    });
                 });
             }
         } catch (Exception e) {
@@ -270,7 +268,7 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
                 String urlStringWithoutQuery = request.getUrl().getPath();
                 if (urlString.contains("androidplatform.net")) {
                     WebResourceResponse response = assetLoader.shouldInterceptRequest(request.getUrl());
-                    if(response!= null)
+                    if (response != null)
                         response.setResponseHeaders(Map.of("Access-Control-Allow-Origin", "*"));
                     return response;
                 }
@@ -347,8 +345,8 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
 
             @JavascriptInterface
             public void notifyPlayback(boolean playing) {
-                context.runOnUiThread(() -> {
-                    if(!playing) {
+                UIThread.run(() -> {
+                    if (!playing) {
                         context.launchPlayer(false, false, false);
                     } else {
                         context.pausePlayer();
@@ -375,13 +373,13 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
                 keyTypesFocusable.put(HbbTVKeyTypes.ALPHA, (keyset & 0x200) != 0);
                 keyTypesFocusable.put(HbbTVKeyTypes.OTHER, (keyset & 0x400) != 0);
 
-                requireActivity().runOnUiThread(() -> {
+                UIThread.run(() -> {
                     extraKeyRed.setVisibility(keyTypesFocusable.get(HbbTVKeyTypes.RED) ? View.VISIBLE : View.GONE);
                     extraKeyYellow.setVisibility(keyTypesFocusable.get(HbbTVKeyTypes.YELLOW) ? View.VISIBLE : View.GONE);
                     extraKeyGreen.setVisibility(keyTypesFocusable.get(HbbTVKeyTypes.GREEN) ? View.VISIBLE : View.GONE);
                     extraKeyBlue.setVisibility(keyTypesFocusable.get(HbbTVKeyTypes.BLUE) ? View.VISIBLE : View.GONE);
 
-                    View[] buttons = new View[] {extraKeyRed, extraKeyGreen, extraKeyYellow, extraKeyBlue};
+                    View[] buttons = new View[]{extraKeyRed, extraKeyGreen, extraKeyYellow, extraKeyBlue};
                     List<View> buttonList = Arrays.stream(buttons).filter(v -> v.getVisibility() == View.VISIBLE).toList();
                     for (View v : buttonList) {
                         v.setBackgroundResource(R.drawable.button_center_wrapper);
@@ -389,7 +387,7 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
                     if (buttonList.size() == 1) {
                         buttonList.get(0).setBackgroundResource(R.drawable.button_single_wrapper);
                     } else {
-                        if(!buttonList.isEmpty()) {
+                        if (!buttonList.isEmpty()) {
                             buttonList.get(0).setBackgroundResource(R.drawable.button_left_wrapper);
                             buttonList.get(buttonList.size() - 1).setBackgroundResource(R.drawable.button_right_wrapper);
                         }

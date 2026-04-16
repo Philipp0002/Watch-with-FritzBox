@@ -26,6 +26,7 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.IPUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 
 public class EditChannelListTVOverlay extends Fragment implements KeyDownReceiver {
 
@@ -71,7 +72,7 @@ public class EditChannelListTVOverlay extends Fragment implements KeyDownReceive
         }
 
         tvOverlayRecyclerAdapter.objects = newChannels;
-        context.runOnUiThread(() -> changedPositions.stream().forEach(pos -> tvOverlayRecyclerAdapter.notifyItemChanged(pos)));
+        UIThread.run(() -> changedPositions.stream().forEach(pos -> tvOverlayRecyclerAdapter.notifyItemChanged(pos)));
     }
 
     @Override

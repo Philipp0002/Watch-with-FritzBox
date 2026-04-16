@@ -26,6 +26,7 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.player.TVSettingsOverlayRecyclerAdapter;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.TVSetting;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -107,7 +108,7 @@ public class SetupSortChannelsFragment extends Fragment {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                requireActivity().runOnUiThread(() -> {
+                UIThread.run(() -> {
                     Toast.makeText(requireContext(), R.string.setup_order_error, Toast.LENGTH_LONG).show();
 
                     requireView().findViewById(R.id.recyclerView).setVisibility(View.VISIBLE);

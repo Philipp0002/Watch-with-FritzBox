@@ -3,6 +3,7 @@ package de.hahnphilipp.watchwithfritzbox.epg;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -14,6 +15,7 @@ import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
@@ -33,19 +35,21 @@ import de.hahnphilipp.watchwithfritzbox.R;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
+import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 
 public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
 
-    public TVPlayerActivity context;
-    public boolean wasClosed = true;
-    private boolean isScrollingDown = true;
+    /// ms between scroll steps
+    private static final long SCROLL_DELAY = 50;
+    /// pixels moved per step (smaller = slower)
+    private static final int SCROLL_STEP = 2;
+    /// ms pause after scroll to end
+    private static final long PAUSE_AT_END = 2000;
 
+    private boolean wasClosed = true;
+    private boolean isScrollingDown = true;
     private Runnable scrollRunnable;
     private Handler handler = new Handler(Looper.getMainLooper());
-    // Konfiguration
-    private static final long SCROLL_DELAY = 50; // Millisekunden zwischen Scroll-Schritten
-    private static final int SCROLL_STEP = 2; // Pixel pro Schritt (kleiner = langsamer)
-    private static final long PAUSE_AT_END = 2000; // Pause am Ende/Anfang in Millisekunden
 
     @Override
     public boolean isTopMenuVisible() {
@@ -64,17 +68,19 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
 
     @Override
     public void requestingProgramGuideFor(@NotNull LocalDate localDate) {
+        View view = getView();
+        if (view == null) return;
+        Context context = view.getContext();
+
         setState(State.Loading.INSTANCE);
-        TextView loadingTextView = getView().findViewById(R.id.loading_text);
-        CircularProgressIndicator loadingProgressIndicator = getView().findViewById(R.id.loading_indicator);
+        TextView loadingTextView = view.findViewById(R.id.loading_text);
+        CircularProgressIndicator loadingProgressIndicator = view.findViewById(R.id.loading_indicator);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            if(context == null) context = (TVPlayerActivity) getActivity();
-            if(context == null || isDetached()) return;
-            ArrayList<ChannelUtils.Channel> channels = new ArrayList<>(ChannelUtils.getAllChannels(context));
+            List<ChannelUtils.Channel> channels = ChannelUtils.getAllChannelsCopy(context);
             HashMap<Integer, List<ProgramGuideSchedule>> channelEpgMap = new HashMap<>();
             for (ChannelUtils.Channel channel : channels) {
-                context.runOnUiThread(() -> {
+                UIThread.run(() -> {
                     loadingTextView.setText(context.getString(R.string.epg_loading_channels, channel.number, channels.size()));
                     loadingProgressIndicator.setIndeterminate(false);
                     loadingProgressIndicator.setMax(channels.size());
@@ -90,17 +96,15 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
                         ))
                         .collect(Collectors.toList());
                 channelEpgMap.put(channel.number, schedules);
-                if(context == null || isDetached()) return;
+                if(isDetached()) return;
             }
-            context.runOnUiThread(() -> {
+            UIThread.run(() -> {
                 loadingTextView.setText(context.getString(R.string.epg_loading_channels_wait));
                 setData(channels, channelEpgMap, localDate);
-                if(getView() != null) {
-                    getView().post(() -> {
-                        setState(State.Content.INSTANCE);
-                        scrollToChannelWithId(ChannelUtils.getLastSelectedChannel(context));
-                    });
-                }
+                view.post(() -> {
+                    setState(State.Content.INSTANCE);
+                    scrollToChannelWithId(ChannelUtils.getLastSelectedChannel(context));
+                });
             });
         });
     }
@@ -113,17 +117,19 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
         }
     }
 
-    private void updateDetailView
-            (ProgramGuideSchedule programGuideSchedule) {
-        if (getView() == null) return;
-        View detailView = getView().findViewById(R.id.epgdetails);
-        TextView channelNameView = getView().findViewById(R.id.epgchanneltitle);
-        TextView titleView = getView().findViewById(R.id.epgtitle);
-        TextView subtitleView = getView().findViewById(R.id.epgsubtitle);
-        TextView descriptionView = getView().findViewById(R.id.epgdescription);
-        ScrollView descriptionScrollView = getView().findViewById(R.id.epgdescriptionscroll);
-        TextView timeView = getView().findViewById(R.id.epgtime);
-        View timeWrapperView = getView().findViewById(R.id.epgtimewrapper);
+    private void updateDetailView(ProgramGuideSchedule programGuideSchedule) {
+        View view = getView();
+        if (view == null) return;
+        Context context = view.getContext();
+
+        View detailView = view.findViewById(R.id.epgdetails);
+        TextView channelNameView = view.findViewById(R.id.epgchanneltitle);
+        TextView titleView = view.findViewById(R.id.epgtitle);
+        TextView subtitleView = view.findViewById(R.id.epgsubtitle);
+        TextView descriptionView = view.findViewById(R.id.epgdescription);
+        ScrollView descriptionScrollView = view.findViewById(R.id.epgdescriptionscroll);
+        TextView timeView = view.findViewById(R.id.epgtime);
+        View timeWrapperView = view.findViewById(R.id.epgtimewrapper);
 
         if (programGuideSchedule == null) {
             detailView.setVisibility(GONE);
@@ -201,14 +207,12 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
     }
 
     @Override
-    public void onScheduleSelected
-            (@org.jetbrains.annotations.Nullable ProgramGuideSchedule programGuideSchedule) {
+    public void onScheduleSelected(@Nullable ProgramGuideSchedule programGuideSchedule) {
         updateDetailView(programGuideSchedule);
     }
 
     @Override
-    public void onScheduleClicked
-            (@NotNull ProgramGuideSchedule programGuideSchedule) {
+    public void onScheduleClicked(@NotNull ProgramGuideSchedule programGuideSchedule) {
 
     }
 

@@ -95,10 +95,12 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
             context.runOnUiThread(() -> {
                 loadingTextView.setText(context.getString(R.string.epg_loading_channels_wait));
                 setData(channels, channelEpgMap, localDate);
-                getView().post(() -> {
-                    setState(State.Content.INSTANCE);
-                    scrollToChannelWithId(ChannelUtils.getLastSelectedChannel(context));
-                });
+                if(getView() != null) {
+                    getView().post(() -> {
+                        setState(State.Content.INSTANCE);
+                        scrollToChannelWithId(ChannelUtils.getLastSelectedChannel(context));
+                    });
+                }
             });
         });
     }

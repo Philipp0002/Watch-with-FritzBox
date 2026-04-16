@@ -41,7 +41,7 @@ public class ChannelUtils {
         if (serviceInfo.getPids() != null && serviceInfo.getPids().length > 0) {
             originalChannel = ChannelUtils.getChannelByPids(context, serviceInfo.getPids());
         }
-        if(originalChannel == null) {
+        if (originalChannel == null) {
             originalChannel = ChannelUtils.getChannelByDvb(context, serviceInfo.getNetworkId(), serviceInfo.getTransportStreamId(), serviceInfo.getServiceId());
         }
         if (originalChannel != null) {
@@ -77,7 +77,7 @@ public class ChannelUtils {
     }
 
     public static void setChannels(Context context, List<Channel> channels, boolean presort) {
-        if(presort) {
+        if (presort) {
             Collections.sort(channels, new Comparator<>() {
                 @Override
                 public int compare(Channel c1, Channel c2) {
@@ -99,7 +99,7 @@ public class ChannelUtils {
                 }
             });
             int chNumber = 0;
-            for(Channel channel : channels) {
+            for (Channel channel : channels) {
                 channel.number = ++chNumber;
             }
         }
@@ -120,7 +120,7 @@ public class ChannelUtils {
         editor.apply();
     }
 
-    public static void updateChannel(Context context, Channel oldChannel, Channel newChannel){
+    public static void updateChannel(Context context, Channel oldChannel, Channel newChannel) {
         ArrayList<Channel> channels = getAllChannels(context);
         channels.remove(oldChannel);
         channels.add(newChannel);
@@ -204,10 +204,10 @@ public class ChannelUtils {
         ChannelIconSetting setting = getChannelIconSetting(context);
         boolean packExists = Arrays.stream(ChannelIconPacks.values())
                 .anyMatch(p -> p.id == channelIconPack);
-        if(packExists) {
+        if (packExists) {
             setting.iconPack = channelIconPack;
         }
-        if(customIconUrls != null) {
+        if (customIconUrls != null) {
             setting.customIconUrls = customIconUrls;
         }
         try {
@@ -261,13 +261,14 @@ public class ChannelUtils {
     }
 
     public static ArrayList<Channel> getAllChannels(Context context) {
-        if(channelsCache != null) {
+        if (channelsCache != null) {
             return channelsCache;
         }
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        TypeReference<ArrayList<Channel>> channelListType = new TypeReference<>() {};
+        TypeReference<ArrayList<Channel>> channelListType = new TypeReference<>() {
+        };
 
         ArrayList<Channel> channels;
         try {
@@ -309,22 +310,24 @@ public class ChannelUtils {
         Optional<ChannelIconPacks> pack = Arrays.stream(ChannelIconPacks.values())
                 .filter(p -> p.id == cis.iconPack)
                 .findFirst();
-        if(pack.isPresent()) {
+        if (pack.isPresent()) {
             ChannelIconPacks cip = pack.get();
-            if(cip.id == Integer.MAX_VALUE && cis.customIconUrls != null) {
+            if (cip.id == Integer.MAX_VALUE && cis.customIconUrls != null) {
                 for (String url : cis.customIconUrls) {
                     urls.add(TemplateEngine.replacePlaceholders(url, values));
                 }
             } else {
-                for(String url : cip.urls) {
-                    urls.add(TemplateEngine.replacePlaceholders(url, values));
+                if (cip.urls != null) {
+                    for (String url : cip.urls) {
+                        urls.add(TemplateEngine.replacePlaceholders(url, values));
+                    }
                 }
             }
         }
         return urls;
     }
 
-    public static void saveChannelIDMappingForRichTv(Context context, Map<Long, Integer> channelIdToNumber){
+    public static void saveChannelIDMappingForRichTv(Context context, Map<Long, Integer> channelIdToNumber) {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
@@ -347,18 +350,18 @@ public class ChannelUtils {
         return sp.contains("channelMappingRichTv");
     }
 
-    public static void moveChannelIDMappingForRichTv(Context context, int appChannelNumberFrom, int appChannelNumberTo){
-        if(!ChannelUtils.richTvEnabled(context)) {
+    public static void moveChannelIDMappingForRichTv(Context context, int appChannelNumberFrom, int appChannelNumberTo) {
+        if (!ChannelUtils.richTvEnabled(context)) {
             return;
         }
         Map<Long, Integer> channelMappingEdit = getChannelIDMappingForRichTv(context);
         Map<Long, Integer> channelMapping = new HashMap<>(channelMappingEdit);
 
-        for(Map.Entry<Long, Integer> entry : channelMapping.entrySet()) {
-            if(entry.getValue() == appChannelNumberFrom) {
+        for (Map.Entry<Long, Integer> entry : channelMapping.entrySet()) {
+            if (entry.getValue() == appChannelNumberFrom) {
                 channelMappingEdit.put(entry.getKey(), appChannelNumberTo);
             }
-            if(appChannelNumberFrom > appChannelNumberTo) {
+            if (appChannelNumberFrom > appChannelNumberTo) {
                 if (entry.getValue() >= appChannelNumberTo && entry.getValue() < appChannelNumberFrom) {
                     channelMappingEdit.put(entry.getKey(), entry.getValue() + 1);
                 }
@@ -374,7 +377,7 @@ public class ChannelUtils {
 
     public static Long getRichChannelID(Context context, int appChannelNumber) {
         Map<Long, Integer> channelMapping = getChannelIDMappingForRichTv(context);
-        if(channelMapping == null) return null;
+        if (channelMapping == null) return null;
         return channelMapping.entrySet().stream().filter(e -> e.getValue() == appChannelNumber).map(Map.Entry::getKey).findFirst().orElse(null);
     }
 
@@ -382,7 +385,8 @@ public class ChannelUtils {
         SharedPreferences sp = context.getSharedPreferences(
                 context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
 
-        TypeReference<Map<Long, Integer>> channelListType = new TypeReference<>() {};
+        TypeReference<Map<Long, Integer>> channelListType = new TypeReference<>() {
+        };
 
         Map<Long, Integer> channels = null;
         try {
@@ -394,9 +398,10 @@ public class ChannelUtils {
     }
 
     public static Channel getChannelByPids(Context context, int[] pids) {
-        main: for (Channel ch : new ArrayList<>(getAllChannels(context))) {
+        main:
+        for (Channel ch : new ArrayList<>(getAllChannels(context))) {
             List<Integer> channelPids = ch.getPids();
-            for(int pid : pids) {
+            for (int pid : pids) {
                 if (!channelPids.contains(pid)) {
                     continue main;
                 }
@@ -408,7 +413,7 @@ public class ChannelUtils {
 
     public static Channel getChannelByDvb(Context context, int onid, int tsid, int sid) {
         for (Channel ch : new ArrayList<>(getAllChannels(context))) {
-            if(ch.onId == onid && ch.tsId == tsid && ch.serviceId == sid) {
+            if (ch.onId == onid && ch.tsId == tsid && ch.serviceId == sid) {
                 return ch;
             }
         }

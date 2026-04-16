@@ -83,6 +83,8 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         initializeOverlay();
 
         initGlide();
+
+        launchPlayer(false);
     }
 
     public void runOnVLCThread(Runnable runnable) {
@@ -380,17 +382,17 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
+        pausePlayer();
         if(ivlcVout != null && ivlcVout.areViewsAttached()) {
             ivlcVout.detachViews();
         }
     }
 
-
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onRestart() {
+        super.onRestart();
         if(ivlcVout != null && !ivlcVout.areViewsAttached()) {
             initSurfaces();
         }

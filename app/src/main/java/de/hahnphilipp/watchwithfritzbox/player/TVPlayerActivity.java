@@ -91,6 +91,23 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mPlayerHandler.post(runnable);
     }
 
+    public void initGlide() {
+        AsyncTask.execute(() -> {
+            ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(this, 1);
+            if (channel != null) {
+                List<String> channelIcons = ChannelUtils.getIconURLs(this, channel);
+                String channelIcon = channelIcons.isEmpty() ? "" : channelIcons.get(0);
+
+                GlideApp.with(this)
+                        .load(channelIcon)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .preload();
+            } else {
+                Glide.get(this);
+            }
+        });
+    }
+
     public void unloadLibVLC() {
         if (media != null && !media.isReleased()) {
             media.release();
@@ -110,22 +127,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         }
     }
 
-    public void initGlide() {
-        AsyncTask.execute(() -> {
-            ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(this, 1);
-            if (channel != null) {
-                List<String> channelIcons = ChannelUtils.getIconURLs(this, channel);
-                String channelIcon = channelIcons.isEmpty() ? "" : channelIcons.get(0);
 
-                GlideApp.with(this)
-                        .load(channelIcon)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .preload();
-            } else {
-                Glide.get(this);
-            }
-        });
-    }
 
     public void loadLibVLC() {
         SharedPreferences sp = getSharedPreferences(

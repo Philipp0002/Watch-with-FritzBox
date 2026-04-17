@@ -54,70 +54,86 @@
     </ViewAnimator>
 
     <LinearLayout
+        android:id="@+id/teletext_keypad_wrapper"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintStart_toEndOf="@id/teletext_view_animator"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        app:layout_constraintStart_toEndOf="@id/teletext_view_animator"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.cardview.widget.CardView
+        <LinearLayout
+            android:id="@+id/teletext_page_number_wrapper_shown"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:cardBackgroundColor="#2a2939"
-            app:cardCornerRadius="8dp"
-            android:layout_marginBottom="16px">
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/teletext_page_number"
+            <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="monospace"
-                android:paddingVertical="16dp"
-                android:paddingHorizontal="32dp"
-                android:textSize="24sp"
-                tools:text="000" />
-        </androidx.cardview.widget.CardView>
+                app:cardBackgroundColor="#2a2939"
+                app:cardCornerRadius="8dp">
+
+                <TextView
+                    android:id="@+id/teletext_page_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:paddingHorizontal="32dp"
+                    android:paddingVertical="16dp"
+                    android:textSize="24sp"
+                    tools:text="000" />
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
         <TableLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginTop="16dp">
 
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_top_left_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="1"
                     android:textColor="?colorOnPrimary"
-                    android:text="1"/>
+                    app:cornerRadius="8dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_center_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="2"
                     android:textColor="?colorOnPrimary"
-                    android:text="2"/>
+                    app:cornerRadius="8dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_top_right_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="3"
                     android:textColor="?colorOnPrimary"
-                    android:text="3"/>
+                    app:cornerRadius="8dp" />
 
             </TableRow>
 
@@ -125,58 +141,82 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_center_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="4"
                     android:textColor="?colorOnPrimary"
-                    android:text="4"/>
+                    app:cornerRadius="8dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_center_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="5"
                     android:textColor="?colorOnPrimary"
-                    android:text="5"/>
+                    app:cornerRadius="8dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_6"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_center_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="6"
                     android:textColor="?colorOnPrimary"
-                    android:text="6"/>
+                    app:cornerRadius="8dp" />
             </TableRow>
 
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_7"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_center_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="7"
                     android:textColor="?colorOnPrimary"
-                    android:text="7"/>
+                    app:cornerRadius="8dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_8"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_center_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="8"
                     android:textColor="?colorOnPrimary"
-                    android:text="8"/>
+                    app:cornerRadius="8dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_9"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_center_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="9"
                     android:textColor="?colorOnPrimary"
-                    android:text="9"/>
+                    app:cornerRadius="8dp" />
             </TableRow>
 
             <TableRow
@@ -187,83 +227,123 @@
                     android:id="@+id/teletext_key_page_down"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_single_wrapper"
                     app:icon="@drawable/round_arrow_back"
-                    app:iconGravity="textStart"/>
+                    app:iconGravity="textStart"
+                    style="?attr/materialIconButtonFilledStyle"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_0"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_center_wrapper"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    android:text="0"
                     android:textColor="?colorOnPrimary"
-                    android:text="0"/>
+                    app:cornerRadius="8dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/teletext_key_page_up"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:icon="@drawable/round_arrow_forward"
-                    android:background="@drawable/button_single_wrapper"
-                    app:iconGravity="textEnd"/>
+                    style="?attr/materialIconButtonFilledStyle"
+                    android:insetLeft="4dp"
+                    android:insetTop="4dp"
+                    android:insetRight="4dp"
+                    android:insetBottom="4dp"
+                    app:iconGravity="textEnd" />
             </TableRow>
         </TableLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:gravity="center">
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:padding="4dp">
 
             <Button
-                android:theme="@style/RedButton"
                 android:id="@+id/extra_key_red"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/button_left_wrapper"
+                android:focusable="true"
+                android:nextFocusRight="@string/extra_key_green"
+                android:nextFocusDown="@id/teletext_keys_hide"
                 android:text="@string/extra_key_red"
                 android:textColor="#fff"
-                android:focusable="true"
-                android:background="@drawable/button_left_wrapper"
-                android:nextFocusRight="@string/extra_key_green"/>
+                android:theme="@style/RedButton" />
 
             <Button
-                android:theme="@style/GreenButton"
                 android:id="@+id/extra_key_green"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/button_center_wrapper"
+                android:focusable="true"
+                android:nextFocusLeft="@string/extra_key_red"
+                android:nextFocusRight="@string/extra_key_yellow"
+                android:nextFocusDown="@id/teletext_keys_hide"
                 android:text="@string/extra_key_green"
                 android:textColor="#000"
-                android:focusable="true"
-                android:background="@drawable/button_center_wrapper"
-                android:nextFocusRight="@string/extra_key_yellow"
-                android:nextFocusLeft="@string/extra_key_red"/>
+                android:theme="@style/GreenButton" />
 
             <Button
-                android:theme="@style/YellowButton"
                 android:id="@+id/extra_key_yellow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/button_center_wrapper"
+                android:focusable="true"
+                android:nextFocusLeft="@string/extra_key_green"
+                android:nextFocusRight="@string/extra_key_blue"
+                android:nextFocusDown="@id/teletext_keys_hide"
                 android:text="@string/extra_key_yellow"
                 android:textColor="#000"
-                android:focusable="true"
-                android:background="@drawable/button_center_wrapper"
-                android:nextFocusRight="@string/extra_key_blue"
-                android:nextFocusLeft="@string/extra_key_green"/>
+                android:theme="@style/YellowButton" />
 
             <Button
-                android:theme="@style/BlueButton"
                 android:id="@+id/extra_key_blue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/button_right_wrapper"
+                android:focusable="true"
+                android:nextFocusLeft="@string/extra_key_yellow"
+                android:nextFocusDown="@id/teletext_keys_hide"
                 android:text="@string/extra_key_blue"
                 android:textColor="#fff"
-                android:focusable="true"
-                android:background="@drawable/button_right_wrapper"
-                android:nextFocusLeft="@string/extra_key_yellow"/>
+                android:theme="@style/BlueButton" />
 
 
         </LinearLayout>
 
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/teletext_page_number_wrapper_hidden"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp">
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        style="?attr/materialIconButtonOutlinedStyle"
+        android:id="@+id/teletext_keys_hide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:icon="@drawable/round_grid_off"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:materialSizeOverlay="@style/SizeOverlay.Material3Expressive.Button.IconButton.Small.Square"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

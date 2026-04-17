@@ -7,6 +7,7 @@
         <item name="wwfbColorSelection">?colorOnPrimary</item>
         <item name="android:fontFamily">@font/inter</item>
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="materialIconButtonOutlinedStyle">@style/Widget.App.IconButton.Outlined</item>
     </style>
 
 
@@ -18,29 +19,35 @@
     <style name="Widget.App.Button" parent="Widget.Material3Expressive.Button">
         <item name="strokeColor">@color/btn_stroke_color</item>
         <item name="strokeWidth">3dp</item>
-        <item name="android:padding">3dp</item>
+        <item name="containerPaddingStart">10dp</item>
+    </style>
+
+    <style name="Widget.App.IconButton.Outlined" parent="Widget.Material3Expressive.Button.IconButton.Outlined">
+        <item name="strokeColor">@color/btn_stroke_color</item>
+        <item name="strokeWidth">3dp</item>
+        <item name="containerPaddingStart">10dp</item>
     </style>
 
 
 
     <style name="BlueButton" parent="AppTheme">
         <item name="wwfbColorButton">#05668D</item>
-        <item name="wwfbColorSelection">#023346</item>
+        <item name="wwfbColorSelection">#fff</item>
     </style>
 
     <style name="YellowButton" parent="AppTheme">
         <item name="wwfbColorButton">#f7e339</item>
-        <item name="wwfbColorSelection">#928306</item>
+        <item name="wwfbColorSelection">#fff</item>
     </style>
 
     <style name="GreenButton" parent="AppTheme">
         <item name="wwfbColorButton">#acf756</item>
-        <item name="wwfbColorSelection">#589f08</item>
+        <item name="wwfbColorSelection">#fff</item>
     </style>
 
     <style name="RedButton" parent="AppTheme">
         <item name="wwfbColorButton">#f71641</item>
-        <item name="wwfbColorSelection">#82041c</item>
+        <item name="wwfbColorSelection">#fff</item>
     </style>
 
 

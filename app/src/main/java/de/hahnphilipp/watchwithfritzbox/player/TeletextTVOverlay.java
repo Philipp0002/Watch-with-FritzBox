@@ -1,6 +1,7 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,13 +9,16 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.gson.Gson;
 
 import org.videolan.libvlc.MediaPlayer;
@@ -31,19 +35,27 @@ import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 
 public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
+    private static final String SP_KEYPAD_HIDDEN = "setting_teletext_keypad_hidden";
     public TVPlayerActivity context;
+
+    private SharedPreferences sp;
+    private SharedPreferences.Editor spEditor;
 
     private final HashMap<Integer, String> teletextPages = new HashMap<>();
     private int currentPage = 100;
     private boolean isShown = false;
     private Integer spuTrackBeforeShow = null;
+    private boolean keypadHidden = false;
 
 
     private TeletextView teletextView;
     private View extraKeyRed, extraKeyBlue, extraKeyYellow, extraKeyGreen;
     private View key0, key1, key2, key3, key4, key5, key6, key7, key8, key9;
     private View keyUp, keyDown;
+    private MaterialButton keypadHideButton;
 
+    private View teletextKeypadWrapper;
+    private LinearLayout pageNumberWrapperShown, pageNumberWrapperHidden;
     private TextView pageNumberView;
     private ViewAnimator teletextViewAnimator;
     private TextView teletextLoadingView, teletextReceivingView;
@@ -64,9 +76,16 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        spEditor = sp.edit();
+
         teletextView = view.findViewById(R.id.teletextview);
 
         pageNumberView = view.findViewById(R.id.teletext_page_number);
+        pageNumberWrapperHidden = view.findViewById(R.id.teletext_page_number_wrapper_hidden);
+        pageNumberWrapperShown = view.findViewById(R.id.teletext_page_number_wrapper_shown);
+        teletextKeypadWrapper = view.findViewById(R.id.teletext_keypad_wrapper);
 
         teletextViewAnimator = view.findViewById(R.id.teletext_view_animator);
         teletextLoadingView = view.findViewById(R.id.teletext_loading_text);
@@ -76,6 +95,8 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         extraKeyBlue = view.findViewById(R.id.extra_key_blue);
         extraKeyYellow = view.findViewById(R.id.extra_key_yellow);
         extraKeyGreen = view.findViewById(R.id.extra_key_green);
+
+        keypadHideButton = view.findViewById(R.id.teletext_keys_hide);
 
         keyUp = view.findViewById(R.id.teletext_key_page_up);
         keyUp.setOnClickListener(view1 -> changePage(1));
@@ -103,6 +124,10 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
         key9 = view.findViewById(R.id.teletext_key_9);
         key9.setOnClickListener(view1 -> enterNumber(9));
 
+        keypadHideButton.setOnClickListener(view1 -> hideKeypad(!keypadHidden, true));
+
+        hideKeypad(sp.getBoolean(SP_KEYPAD_HIDDEN, false), false);
+
         pageNumberView.setText(enteredNumber);
         setTeletextPage(currentPage);
     }
@@ -120,9 +145,12 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
         pageNumberView.setText(enteredNumber);
 
+        pageNumberWrapperHidden.setVisibility(View.VISIBLE);
+
         if (enteredNumber.matches("\\d+")) {
             int page = Integer.parseInt(enteredNumber);
             if (page >= 100 && page <= 999) {
+                pageNumberWrapperHidden.setVisibility(View.GONE);
                 setTeletextPage(page);
             }
         }
@@ -312,6 +340,40 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
     public boolean isShown() {
         return isShown;
+    }
+
+    public void hideKeypad(boolean hide, boolean checkState) {
+        if(keypadHidden == hide && checkState) return;
+        if(hide) {
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) teletextViewAnimator.getLayoutParams();
+            params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+            teletextViewAnimator.setLayoutParams(params);
+
+            View child = pageNumberWrapperShown.getChildAt(0);
+            pageNumberWrapperShown.removeView(child);
+            pageNumberWrapperHidden.addView(child);
+            teletextKeypadWrapper.setVisibility(View.GONE);
+
+            keypadHideButton.setIconResource(R.drawable.round_grid_on);
+        } else {
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) teletextViewAnimator.getLayoutParams();
+            params.endToEnd = ConstraintLayout.LayoutParams.UNSET;
+            teletextViewAnimator.setLayoutParams(params);
+
+            View child = pageNumberWrapperHidden.getChildAt(0);
+            pageNumberWrapperHidden.removeView(child);
+            pageNumberWrapperShown.addView(child);
+            teletextKeypadWrapper.setVisibility(View.VISIBLE);
+
+            keypadHideButton.setIconResource(R.drawable.round_grid_off);
+        }
+
+        if(!enteredNumber.contains("-")) {
+            pageNumberWrapperHidden.setVisibility(View.GONE);
+        }
+
+        spEditor.putBoolean(SP_KEYPAD_HIDDEN, hide).apply();
+        this.keypadHidden = hide;
     }
 
     @Override

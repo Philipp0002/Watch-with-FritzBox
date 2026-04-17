@@ -138,7 +138,6 @@ public class TeletextView extends View {
         // G3 Graphics (Smooth Mosaic) 0xEF00-0xEFFF
         if (rawUnicode >= 0xEF00 && rawUnicode < 0xF000) {
             int offset = rawUnicode - 0xEF20;
-            Log.d("tttxxx", "smooth");
             return 0xEE20 + 128 + offset; // Nach G1 Graphics
         }
 

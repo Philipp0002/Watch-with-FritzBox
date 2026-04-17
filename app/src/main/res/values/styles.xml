@@ -6,12 +6,19 @@
         <item name="wwfbColorButton">?colorPrimary</item>
         <item name="wwfbColorSelection">?colorOnPrimary</item>
         <item name="android:fontFamily">@font/inter</item>
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
     </style>
 
 
     <style name="Button.LightGray" parent="ThemeOverlay.AppCompat">
         <item name="colorAccent">#c4c3c8</item>
         <item name="colorControlHighlight">#7C7B7E</item>
+    </style>
+
+    <style name="Widget.App.Button" parent="Widget.Material3Expressive.Button">
+        <item name="strokeColor">@color/btn_stroke_color</item>
+        <item name="strokeWidth">3dp</item>
+        <item name="android:padding">3dp</item>
     </style>
 
 

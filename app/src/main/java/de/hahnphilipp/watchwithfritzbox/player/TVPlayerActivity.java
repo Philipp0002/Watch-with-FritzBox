@@ -400,7 +400,11 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     public void pausePlayer() {
-        runOnVLCThread(() -> mMediaPlayer.pause());
+        runOnVLCThread(() -> {
+            if(mMediaPlayer != null) {
+                mMediaPlayer.pause();
+            }
+        });
     }
 
     Timer switchChannelTimer = null;

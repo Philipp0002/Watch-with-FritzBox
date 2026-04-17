@@ -202,11 +202,11 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         View container = findViewById(R.id.ca_info_card);
         TextView textView = findViewById(R.id.ca_info_text);
 
-        currentCaSystems.add(caInfo);
-
-        String caSystems = currentCaSystems.stream().map(s -> "- " + s).collect(Collectors.joining("\n"));
-        textView.setText(getString(R.string.ca_description, caSystems));
-        container.setVisibility(View.VISIBLE);
+        if(currentCaSystems.add(caInfo)) {
+            String caSystems = currentCaSystems.stream().map(s -> "- " + s).collect(Collectors.joining("\n"));
+            textView.setText(getString(R.string.ca_description, caSystems));
+            container.setVisibility(View.VISIBLE);
+        }
     }
 
     private void clearCaInfo() {

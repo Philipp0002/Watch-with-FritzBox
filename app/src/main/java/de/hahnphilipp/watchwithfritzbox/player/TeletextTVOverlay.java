@@ -349,9 +349,11 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
             params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
             teletextViewAnimator.setLayoutParams(params);
 
-            View child = pageNumberWrapperShown.getChildAt(0);
-            pageNumberWrapperShown.removeView(child);
-            pageNumberWrapperHidden.addView(child);
+            if(pageNumberWrapperShown.getChildCount() > 0) {
+                View child = pageNumberWrapperShown.getChildAt(0);
+                pageNumberWrapperShown.removeView(child);
+                pageNumberWrapperHidden.addView(child);
+            }
             teletextKeypadWrapper.setVisibility(View.GONE);
 
             keypadHideButton.setIconResource(R.drawable.round_grid_on);
@@ -360,9 +362,11 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
             params.endToEnd = ConstraintLayout.LayoutParams.UNSET;
             teletextViewAnimator.setLayoutParams(params);
 
-            View child = pageNumberWrapperHidden.getChildAt(0);
-            pageNumberWrapperHidden.removeView(child);
-            pageNumberWrapperShown.addView(child);
+            if(pageNumberWrapperHidden.getChildCount() > 0) {
+                View child = pageNumberWrapperHidden.getChildAt(0);
+                pageNumberWrapperHidden.removeView(child);
+                pageNumberWrapperShown.addView(child);
+            }
             teletextKeypadWrapper.setVisibility(View.VISIBLE);
 
             keypadHideButton.setIconResource(R.drawable.round_grid_off);

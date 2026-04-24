@@ -286,11 +286,13 @@ public class ChannelUtils {
     }
 
     public static String getAllChannelsM3U(Context context) {
-        ArrayList<Channel> channels = getAllChannels(context);
+        ArrayList<Channel> channels = getAllChannelsCopy(context);
 
         StringBuilder m3u = new StringBuilder("#EXTM3U\n");
         for (Channel channel : channels) {
             m3u.append("#EXTINF:0 ")
+                    .append("tvg-name=\"").append(channel.title.replaceAll("\"", "\\\"")).append("\" ")
+                    .append("tvg-chno=\"").append(channel.number).append("\" ")
                     .append("wwfb-type=\"").append(channel.type).append("\" ")
                     .append("wwfb-free=\"").append(channel.free).append("\",")
                     .append(channel.title)

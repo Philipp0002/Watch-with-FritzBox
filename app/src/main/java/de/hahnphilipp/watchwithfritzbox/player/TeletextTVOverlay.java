@@ -312,6 +312,14 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
                 case KeyEvent.KEYCODE_9:
                     enterNumber(9);
                     return true;
+                case KeyEvent.KEYCODE_PAGE_UP:
+                case KeyEvent.KEYCODE_CHANNEL_UP:
+                    changePage(1);
+                    return true;
+                case KeyEvent.KEYCODE_PAGE_DOWN:
+                case KeyEvent.KEYCODE_CHANNEL_DOWN:
+                    changePage(-1);
+                    return true;
                 case KeyEvent.KEYCODE_PROG_RED:
                     if(pageRed != null)
                         setTeletextPage(pageRed);

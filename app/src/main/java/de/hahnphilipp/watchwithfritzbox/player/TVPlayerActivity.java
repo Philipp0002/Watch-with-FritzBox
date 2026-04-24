@@ -130,8 +130,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         }
     }
 
-
-
     public void loadLibVLC() {
         SharedPreferences sp = getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
@@ -181,7 +179,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             @Override
             public void onSurfacesCreated(IVLCVout ivlcVout) {
                 ivlcVout.removeCallback(this);
-                Log.d("SURFACEE", "attach callback");
                 runOnVLCThread(() -> {
                     if(callbackOnVlcThread != null)
                         callbackOnVlcThread.run();
@@ -192,7 +189,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             public void onSurfacesDestroyed(IVLCVout ivlcVout) {
                 UIThread.run(() -> {
                     if(surfaceView == null) return;
-                    Log.d("SURFACEE", "invis vis");
                     surfaceView.setVisibility(View.INVISIBLE);
                     surfaceView.setVisibility(View.VISIBLE);
 
@@ -206,7 +202,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     public void attachSurfaces() {
-        Log.d("SURFACEE", "attaching surfaces");
         if(ivlcVout == null || !ivlcVout.areViewsAttached()) {
             ivlcVout = mMediaPlayer.getVLCVout();
             ivlcVout.setVideoView(surfaceView);
@@ -223,7 +218,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public void detachSurfaces() {
         if(ivlcVout != null && ivlcVout.areViewsAttached()) {
-            Log.d("SURFACEE", "detaching surfaces");
             ivlcVout.detachViews();
         }
     }

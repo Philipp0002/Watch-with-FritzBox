@@ -2,6 +2,8 @@ package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,6 +28,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import org.videolan.libvlc.AWindow;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
@@ -161,19 +164,68 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mMediaPlayer.setEventListener(this);
         mMediaPlayer.setAudioDelay(sp.getLong("setting_audio_delay", 0) * 1000);
-        initSurfaces();
-        final ViewTreeObserver observer = surfaceView.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(() -> {
-            // Set rendering size
-            ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
-        });
+        //attachSurfaces();
     }
 
-    public void initSurfaces() {
-        ivlcVout = mMediaPlayer.getVLCVout();
-        ivlcVout.setVideoView(surfaceView);
-        ivlcVout.setSubtitlesView(subtitlesView);
-        ivlcVout.attachViews();
+    public void reattachSurface(Runnable callbackOnVlcThread) {
+        if(ivlcVout == null || !ivlcVout.areViewsAttached()) {
+            runOnVLCThread(() -> {
+                attachSurfaces();
+                if(callbackOnVlcThread != null)
+                    callbackOnVlcThread.run();
+            });
+            return;
+        }
+
+        ivlcVout.addCallback(new IVLCVout.Callback() {
+            @Override
+            public void onSurfacesCreated(IVLCVout ivlcVout) {
+                ivlcVout.removeCallback(this);
+                Log.d("SURFACEE", "attach callback");
+                runOnVLCThread(() -> {
+                    if(callbackOnVlcThread != null)
+                        callbackOnVlcThread.run();
+                });
+            }
+
+            @Override
+            public void onSurfacesDestroyed(IVLCVout ivlcVout) {
+                UIThread.run(() -> {
+                    if(surfaceView == null) return;
+                    Log.d("SURFACEE", "invis vis");
+                    surfaceView.setVisibility(View.INVISIBLE);
+                    surfaceView.setVisibility(View.VISIBLE);
+
+                    runOnVLCThread(() -> {
+                        attachSurfaces();
+                    });
+                });
+            }
+        });
+        detachSurfaces();
+    }
+
+    public void attachSurfaces() {
+        Log.d("SURFACEE", "attaching surfaces");
+        if(ivlcVout == null || !ivlcVout.areViewsAttached()) {
+            ivlcVout = mMediaPlayer.getVLCVout();
+            ivlcVout.setVideoView(surfaceView);
+            ivlcVout.setSubtitlesView(subtitlesView);
+            ivlcVout.attachViews();
+
+            final ViewTreeObserver observer = surfaceView.getViewTreeObserver();
+            observer.addOnGlobalLayoutListener(() -> {
+                // Set rendering size
+                ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
+            });
+        }
+    }
+
+    public void detachSurfaces() {
+        if(ivlcVout != null && ivlcVout.areViewsAttached()) {
+            Log.d("SURFACEE", "detaching surfaces");
+            ivlcVout.detachViews();
+        }
     }
 
     private void initializeOverlay() {
@@ -212,13 +264,16 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     private void clearCaInfo() {
-        View container = findViewById(R.id.ca_info_card);
-        TextView textView = findViewById(R.id.ca_info_text);
-
         currentCaSystems.clear();
 
-        textView.setText(getString(R.string.ca_description, ""));
-        container.setVisibility(View.GONE);
+        View container = findViewById(R.id.ca_info_card);
+        TextView textView = findViewById(R.id.ca_info_text);
+        UIThread.run(() -> {
+            if(currentCaSystems.isEmpty()) {
+                textView.setText(getString(R.string.ca_description, ""));
+                container.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override
@@ -395,9 +450,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     @Override
     protected void onRestart() {
         super.onRestart();
-        if(ivlcVout != null && !ivlcVout.areViewsAttached()) {
-            initSurfaces();
-        }
+        attachSurfaces();
         launchPlayer(false);
     }
 
@@ -469,24 +522,27 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 media = new Media(mLibVLC, Uri.parse(channel.url));
 
                 runOnVLCThread(() -> {
-                    mMediaPlayer.setMedia(media);
-                    try {
-                        media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
+                    reattachSurface(() -> {
+                        mMediaPlayer.setMedia(media);
+                        try {
+                            media.setHWDecoderEnabled(hwAccel != 0, hwAccel == 2);
 
-                        media.addOption("--video-filter=deinterlace");
-                        media.addOption("--deinterlace=1");
-                        media.addOption("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
-                    } catch (Exception e) {
-                        Log.e("TVPlayerActivity", "Error setting HW acceleration", e);
-                        WLog.e(LOG_TAG, "Error setting HW acceleration - " + e.getMessage());
-                    }
-                    mMediaPlayer.play();
+                            media.addOption("--video-filter=deinterlace");
+                            media.addOption("--deinterlace=1");
+                            media.addOption("--deinterlace-mode=" + sp.getString("setting_deinterlace", "x"));
+                        } catch (Exception e) {
+                            Log.e("TVPlayerActivity", "Error setting HW acceleration", e);
+                            WLog.e(LOG_TAG, "Error setting HW acceleration - " + e.getMessage());
+                        }
+                        mMediaPlayer.play();
 
-                    teletextPageInfos.clear();
-                    UIThread.run(() -> {
+                        teletextPageInfos.clear();
                         clearCaInfo();
-                        if (clearHbbTv) stopHbbTV();
+                        UIThread.run(() -> {
+                            if (clearHbbTv) stopHbbTV();
+                        });
                     });
+
                 });
 
             }

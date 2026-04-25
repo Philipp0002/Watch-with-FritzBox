@@ -435,7 +435,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     @Override
     protected void onStop() {
         super.onStop();
-        pausePlayer();
+        stopPlayer();
         if(ivlcVout != null && ivlcVout.areViewsAttached()) {
             ivlcVout.detachViews();
         }
@@ -456,6 +456,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         });
     }
 
+    public void stopPlayer() {
+        runOnVLCThread(() -> {
+            if(mMediaPlayer != null) {
+                mMediaPlayer.stop();
+            }
+        });
+    }
+
     Timer switchChannelTimer = null;
 
     public void launchPlayer(boolean withWaitInterval) {
@@ -463,7 +471,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     public void launchPlayer(boolean withWaitInterval, boolean withLoadingScreen, boolean clearHbbTv) {
-        pausePlayer();
+        stopPlayer();
         if (withLoadingScreen) {
             findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
         }

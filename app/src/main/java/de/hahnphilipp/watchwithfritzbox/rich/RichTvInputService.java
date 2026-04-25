@@ -65,6 +65,7 @@ public class RichTvInputService extends TvInputService {
             args.add("--freetype-background-opacity=128");
             args.add("--network-caching=1500");
             args.add("--live-caching=1500");
+            args.add("--satip-buffer=1500");
             args.add("--sout-mux-caching=1500");
             args.add("--avcodec-hurry-up");
             args.add("1");

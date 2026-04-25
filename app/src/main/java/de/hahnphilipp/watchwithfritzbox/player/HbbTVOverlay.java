@@ -48,6 +48,7 @@ import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
+import de.hahnphilipp.watchwithfritzbox.utils.WLog;
 
 public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
 
@@ -175,6 +176,7 @@ public class HbbTVOverlay extends Fragment implements KeyDownReceiver {
             hbbTvChannelInfo.tsid = tsId;
             currentHbbTvApplication = app;
             webView.loadUrl(url);
+            WLog.i("HBBTV", "Launching HbbTV url: " + url);
         }
     }
 

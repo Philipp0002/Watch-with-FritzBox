@@ -2,6 +2,8 @@ package de.hahnphilipp.watchwithfritzbox.utils;
 
 import androidx.annotation.DrawableRes;
 
+import java.util.Objects;
+
 public class TVSetting {
 
     public String name;
@@ -16,6 +18,18 @@ public class TVSetting {
         this.drawableId = drawableId;
         this.onClick = onClick;
         this.navigationIcon = navigationIcon;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        TVSetting tvSetting = (TVSetting) o;
+        return Objects.equals(name, tvSetting.name) && Objects.equals(subtitle, tvSetting.subtitle) && navigationIcon == tvSetting.navigationIcon && Objects.equals(drawableId, tvSetting.drawableId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, subtitle, navigationIcon, drawableId);
     }
 
     public enum NavigationIcon {

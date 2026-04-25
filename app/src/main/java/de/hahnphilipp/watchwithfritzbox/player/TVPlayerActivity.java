@@ -2,8 +2,6 @@ package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,7 +26,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
-import org.videolan.libvlc.AWindow;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
@@ -68,7 +65,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public EPGFragment mEPGOverlayFragment;
     public TeletextTVOverlay mTeletextOverlayFragment;
     public ArrayList<MediaPlayer.TeletextPageInfo> teletextPageInfos = new ArrayList<>();
-    private HashSet<String> currentCaSystems = new HashSet<>();
+    private final HashSet<String> currentCaSystems = new HashSet<>();
     private final Handler mPlayerHandler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -162,7 +159,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         mMediaPlayer = new MediaPlayer(mLibVLC);
         mMediaPlayer.setEventListener(this);
         mMediaPlayer.setAudioDelay(sp.getLong("setting_audio_delay", 0) * 1000);
-        //attachSurfaces();
     }
 
     public void reattachSurface(Runnable callbackOnVlcThread) {

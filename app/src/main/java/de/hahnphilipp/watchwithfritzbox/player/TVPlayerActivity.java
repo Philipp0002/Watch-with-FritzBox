@@ -207,6 +207,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             final ViewTreeObserver observer = surfaceView.getViewTreeObserver();
             observer.addOnGlobalLayoutListener(() -> {
                 // Set rendering size
+                if(ivlcVout == null) return;
                 ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
             });
         }

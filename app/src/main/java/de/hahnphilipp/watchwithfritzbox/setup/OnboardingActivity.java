@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.transition.MaterialSharedAxis;
 
 import java.util.List;
 
@@ -198,6 +199,9 @@ public class OnboardingActivity extends FragmentActivity {
 
     private void showFragment(Fragment fragment) {
         this.currentFragment = fragment;
+        fragment.setEnterTransition(new MaterialSharedAxis(MaterialSharedAxis.X, true));
+        fragment.setReturnTransition(new MaterialSharedAxis(MaterialSharedAxis.X, false));
+
         getSupportFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
                 .replace(R.id.fragment_container_view, fragment, null)

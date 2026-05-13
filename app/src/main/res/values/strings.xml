@@ -233,4 +233,8 @@
     <string name="iconpack_svg_channellogos" translatable="false">SVG Channellogos</string>
     <string name="iconpack_custom">Custom URLs</string>
     <string name="settings_custom_subtitle">Set custom URLs via Webinterface:\n%s</string>
+
+    <string name="ad_break_banner">Ad break</string>
+    <string name="ad_break_detection">Ad break detection</string>
+    <string name="ad_break_detection_info">An ad is detected as soon as no channel logo is visible on screen. This feature is experimental and probably won\'t work on all channels (e.g. if channel logo is slightly translucent or moves). If enabled, mutes ad breaks.</string>
 </resources>

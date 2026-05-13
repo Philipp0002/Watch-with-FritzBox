@@ -139,6 +139,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration), null, NavigationIcon.CHEVRON, R.drawable.round_speed, this::showHWAcelerationSelection));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace), null, NavigationIcon.CHEVRON, R.drawable.round_gradient, this::showDeinterlaceSelection));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_open_hbbtv), null, NavigationIcon.CHEVRON, R.drawable.interactive_space, this::showHbbTV));
+        tvSettings.add(new TVSetting(context.getString(R.string.ad_break_detection), null, NavigationIcon.CHEVRON, R.drawable.round_ad, this::showAdDetection));
 
         tvSettings.add(new TVSetting(context.getString(R.string.settings_reorder_channels), null, NavigationIcon.CHEVRON, R.drawable.round_reorder, this::showChannelEditor));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_iconpack), null, NavigationIcon.CHEVRON, R.drawable.round_channel_logo, this::showChannelIconSelection));
@@ -204,6 +205,31 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             context.popOverlayFragment();
         }));
         selectionTVOverlay.tvSettings.add(new CustomTVSetting(R.layout.hbbtv_info_block, null));
+        context.addOverlayFragment(selectionTVOverlay);
+    }
+
+    public void showAdDetection() {
+        SharedPreferences sp = context.getSharedPreferences(
+                context.getString(R.string.preference_file_key), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        boolean enabled = sp.getBoolean("setting_enable_ad_detection", false);
+
+        SelectionTVOverlay selectionTVOverlay = new SelectionTVOverlay();
+        selectionTVOverlay.title = context.getString(R.string.ad_break_detection);
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hbbtv_enable), null, NavigationIcon.selected(enabled), R.drawable.round_power, () -> {
+            editor.putBoolean("setting_enable_ad_detection", true);
+            editor.commit();
+            context.popOverlayFragment();
+            context.setupAdDetection();
+        }));
+        selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_hbbtv_disable), null, NavigationIcon.selected(!enabled), R.drawable.round_power_off, () -> {
+            editor.putBoolean("setting_enable_ad_detection", false);
+            editor.commit();
+            context.popOverlayFragment();
+            context.setupAdDetection();
+        }));
+        selectionTVOverlay.tvSettings.add(new CustomTVSetting(R.layout.ad_detection_info_block, null));
         context.addOverlayFragment(selectionTVOverlay);
     }
 

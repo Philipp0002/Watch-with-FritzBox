@@ -151,6 +151,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         args.add("--sout-mux-caching=1500");
         args.add("--avcodec-hurry-up");
         args.add("1");
+        args.add("--rtsp-tcp");
 
         if (sp.contains("setting_deinterlace")) {
             args.add("--video-filter=deinterlace");

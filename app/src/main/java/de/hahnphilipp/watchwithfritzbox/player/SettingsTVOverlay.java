@@ -139,7 +139,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         tvSettings.add(new TVSetting(context.getString(R.string.settings_hardware_acceleration), null, NavigationIcon.CHEVRON, R.drawable.round_speed, this::showHWAcelerationSelection));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace), null, NavigationIcon.CHEVRON, R.drawable.round_gradient, this::showDeinterlaceSelection));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_open_hbbtv), null, NavigationIcon.CHEVRON, R.drawable.interactive_space, this::showHbbTV));
-        tvSettings.add(new TVSetting(context.getString(R.string.ad_break_detection), null, NavigationIcon.CHEVRON, R.drawable.round_ad, this::showAdDetection));
+        // tvSettings.add(new TVSetting(context.getString(R.string.ad_break_detection), null, NavigationIcon.CHEVRON, R.drawable.round_ad, this::showAdDetection));
 
         tvSettings.add(new TVSetting(context.getString(R.string.settings_reorder_channels), null, NavigationIcon.CHEVRON, R.drawable.round_reorder, this::showChannelEditor));
         tvSettings.add(new TVSetting(context.getString(R.string.settings_iconpack), null, NavigationIcon.CHEVRON, R.drawable.round_channel_logo, this::showChannelIconSelection));

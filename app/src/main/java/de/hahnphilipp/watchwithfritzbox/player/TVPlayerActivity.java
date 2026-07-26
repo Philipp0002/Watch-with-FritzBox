@@ -45,11 +45,10 @@ import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.GlideApp;
 import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
-import de.hahnphilipp.watchwithfritzbox.utils.LogoDetector;
 import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 import de.hahnphilipp.watchwithfritzbox.utils.WLog;
 
-public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener, LogoDetector.Listener {
+public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
 
     private static final String LOG_TAG = "PLAYER";
 
@@ -69,8 +68,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     private final HashSet<String> currentCaSystems = new HashSet<>();
     private final Handler mPlayerHandler = new Handler(Looper.getMainLooper());
 
-    private LogoDetector mLogoDetector;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,8 +83,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         initializeOverlay();
 
         initGlide();
-
-        mLogoDetector = new LogoDetector(surfaceView, mPlayerHandler, this);
 
         launchPlayer(false);
     }
@@ -277,11 +272,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     protected void onDestroy() {
         super.onDestroy();
 
-        if (mLogoDetector != null) {
-            mLogoDetector.stop();
-            mLogoDetector = null;
-        }
-
         unloadLibVLC();
     }
 
@@ -444,7 +434,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         SharedPreferences sp = getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         boolean enabled = sp.getBoolean("setting_enable_ad_detection", false);
-        if(mLogoDetector == null) return;
 
         findViewById(R.id.player_advertisement_card).setVisibility(View.GONE);
 
@@ -454,22 +443,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             }
         });
 
-        if (enabled) {
-            mLogoDetector.start();
-        } else {
-            mLogoDetector.stop();
-            mLogoDetector.resetWindow();
-        }
+        // Init ad detection
+
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         stopPlayer();
-
-        if (mLogoDetector != null) {
-            mLogoDetector.stop();
-        }
 
         if(ivlcVout != null && ivlcVout.areViewsAttached()) {
             ivlcVout.detachViews();
@@ -507,9 +488,6 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public void launchPlayer(boolean withWaitInterval, boolean withLoadingScreen, boolean clearHbbTv) {
         stopPlayer();
-        if (mLogoDetector != null) {
-            mLogoDetector.resetWindow();
-        }
         findViewById(R.id.player_advertisement_card).setVisibility(View.GONE);
         if (withLoadingScreen) {
             findViewById(R.id.player_skip_overlay).setVisibility(View.VISIBLE);
@@ -725,14 +703,12 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
 
-    @Override
+    // Currently unused
     public void onAdvertisementStateChanged(boolean isAdvertisement) {
         if (isAdvertisement) {
-            Log.d("LogoDetector", ">> AD DETECTED");
-             findViewById(R.id.player_advertisement_card).setVisibility(View.VISIBLE);
+            findViewById(R.id.player_advertisement_card).setVisibility(View.VISIBLE);
         } else {
-            Log.d("LogoDetector", "→ PROGRAMME DETECTED");
-             findViewById(R.id.player_advertisement_card).setVisibility(View.GONE);
+            findViewById(R.id.player_advertisement_card).setVisibility(View.GONE);
         }
 
         runOnVLCThread(() -> {

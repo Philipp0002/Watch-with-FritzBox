@@ -16,21 +16,43 @@
         android:textColor="#fff"
         android:textSize="40sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/player_epg_event"
+        app:layout_constraintBottom_toTopOf="@+id/player_running_info"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/player_epg_event"
+
+    <LinearLayout
+        android:id="@+id/player_running_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="bottom"
-        tools:text="EPG event"
-        android:textColor="#c4c3c8"
-        android:textSize="24sp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/player_number_layout"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/player_epg_event"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            tools:text="EPG event"
+            android:textColor="#c4c3c8"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/player_radiotext"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/player_radiotext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            tools:text="Radiotext"
+            android:textColor="#c4c3c8"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/player_number_layout"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/player_number_layout"

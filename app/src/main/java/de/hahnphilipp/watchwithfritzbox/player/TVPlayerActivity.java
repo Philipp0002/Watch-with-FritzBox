@@ -48,7 +48,7 @@ import de.hahnphilipp.watchwithfritzbox.utils.KeyDownReceiver;
 import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
 import de.hahnphilipp.watchwithfritzbox.utils.WLog;
 
-public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener {
+public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.EventListener, EpgUtils.EpgUpdateListener {
 
     private static final String LOG_TAG = "PLAYER";
 
@@ -83,6 +83,8 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         initializeOverlay();
 
         initGlide();
+
+        EpgUtils.addEpgUpdateListener(this);
 
         launchPlayer(false);
     }
@@ -271,6 +273,8 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        EpgUtils.removeEpgUpdateListener(this);
 
         unloadLibVLC();
     }
@@ -497,6 +501,11 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
         ((TextView) findViewById(R.id.player_number)).setText("CH " + channel.number);
         ((TextView) findViewById(R.id.player_channel)).setText(channel.title);
+
+        TextView radioTextView = findViewById(R.id.player_radiotext);
+        radioTextView.setText("");
+        radioTextView.setVisibility(View.GONE);
+
         TextView epgEventView = findViewById(R.id.player_epg_event);
         EpgUtils.EpgEvent epgEventNow = EpgUtils.getEventNowFromCache(channel.number);
         if(epgEventNow != null) {
@@ -630,6 +639,17 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
          * NEVER use runOnUiThread or similar methods when handling event objects!
          */
         switch (event.type) {
+            case MediaPlayer.Event.RadiotextContent:
+                String radiotextContent = event.getRadiotextContent();
+                if(radiotextContent != null) {
+                    Log.i(LOG_TAG, "Received Radiotext: " + radiotextContent);
+                    TextView radioTextView = findViewById(R.id.player_radiotext);
+                    UIThread.run(() -> {
+                        radioTextView.setText(radiotextContent.trim());
+                        radioTextView.setVisibility(View.VISIBLE);
+                    });
+                }
+                break;
             case MediaPlayer.Event.TeletextPageInfoReceived:
                 MediaPlayer.TeletextPageInfo teletextPageInfo = event.getTeletextPageInfo();
                 WLog.i(LOG_TAG, "Received TeletextPageInfo: page " + teletextPageInfo.getPageNumber() + "; type " + teletextPageInfo.getType() + "; " + teletextPageInfo.getLanguage());
@@ -717,5 +737,18 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             }
         });
 
+    }
+
+    @Override
+    public void onEpgNowChanged(ChannelUtils.Channel channel, EpgUtils.EpgEvent newEpgEvent) {
+        if(channel == null || newEpgEvent == null) return;
+        int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
+        if(channel.number != lastChannelNumber) return;
+
+        TextView epgEventView = findViewById(R.id.player_epg_event);
+        UIThread.run(() -> {
+            epgEventView.setText(newEpgEvent.title);
+            epgEventView.setVisibility(View.VISIBLE);
+        });
     }
 }

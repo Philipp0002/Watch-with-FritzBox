@@ -9,8 +9,8 @@ android {
         applicationId "de.hahnphilipp.watchwithfritzbox"
         minSdkVersion 22
         targetSdkVersion 36
-        versionCode 18
-        versionName "1.17"
+        versionCode 19
+        versionName "1.18"
         vectorDrawables.useSupportLibrary = true
 
         javaCompileOptions {

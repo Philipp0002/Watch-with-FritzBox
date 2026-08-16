@@ -214,7 +214,7 @@
     <string name="setup_welcome_epg_teaser">Sieh, was jetzt und später läuft</string>
     <string name="setup_welcome_hbbtv_teaser">Rufe die Mediatheken der Sender auf</string>
     <string name="setup_welcome_tv_title">TV</string>
-    <string name="setup_variant_dvbc">DVB-C Suche (beta)</string>
+    <string name="setup_variant_dvbc">DVB-C Suche</string>
     <string name="setup_variant_dvbc_description">Sucht nach allen Fernsehsendern. Dies findet auch Sender, die auf andere Weise nicht gefunden werden (auch Pay TV).</string>
     <string name="setup_variant_fritzbox">FritzBox Suche</string>
     <string name="setup_variant_fritzbox_description">Übernimmt die Kanalliste deiner FritzBox</string>

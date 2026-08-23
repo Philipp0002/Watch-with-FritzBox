@@ -518,7 +518,7 @@ public class ChannelUtils {
         AVM_STANDARD(
                 R.string.iconpack_avm, 0,
                 List.of(
-                        "https://tv.avm.de/tvapp/logos/{CHANNELTYPE_AVM}/{CHANNELNAME;LOWERCASE;ü=ue;ä=ae;ö=oe; =_;+=;URLENCODED}.png"
+                        "https://tv.avm.de/tvapp/logos/{CHANNELTYPE_AVM}/{CHANNELNAME;LOWERCASE;ü=ue;ä=ae;ö=oe; =_;+=;.=;URLENCODED}.png"
                 )
         ),
         PICONS_WHITE(

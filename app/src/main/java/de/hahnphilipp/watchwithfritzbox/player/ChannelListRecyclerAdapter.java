@@ -66,6 +66,7 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
             Glide.with(context).clear(holder.glideTarget);
         }
         holder.channelIcon.setImageDrawable(null);
+        holder.channelGlow.setBackground(null);
     }
 
     @Override

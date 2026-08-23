@@ -529,6 +529,13 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             channelTypeView.setImageResource(R.drawable.round_feed);
         }
 
+        ImageView channelLockedView = findViewById(R.id.player_locked);
+        if (channel.free) {
+            channelLockedView.setVisibility(View.GONE);
+        } else {
+            channelLockedView.setVisibility(View.VISIBLE);
+        }
+
         int timeWait = withWaitInterval ? 500 : 0;
         if (switchChannelTimer != null) {
             switchChannelTimer.cancel();

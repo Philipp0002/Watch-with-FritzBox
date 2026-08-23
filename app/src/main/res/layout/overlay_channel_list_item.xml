@@ -97,10 +97,6 @@
                             android:textSize="12sp"
                             android:textColor="@color/item_card_channel_number_text"
                             android:textStyle="bold"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
                             android:duplicateParentState="true" />
 
                         <ImageView

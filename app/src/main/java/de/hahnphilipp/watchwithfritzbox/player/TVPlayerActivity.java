@@ -202,6 +202,9 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public void attachSurfaces() {
         if(ivlcVout == null || !ivlcVout.areViewsAttached()) {
+            if(mMediaPlayer == null) {
+                loadLibVLC();
+            }
             ivlcVout = mMediaPlayer.getVLCVout();
             ivlcVout.setVideoView(surfaceView);
             ivlcVout.setSubtitlesView(subtitlesView);

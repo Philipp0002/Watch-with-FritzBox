@@ -26,7 +26,7 @@
         android:gravity="end"
         android:paddingVertical="8dp"
         android:paddingHorizontal="32dp"
-        android:background="@drawable/setup_gradient">
+        android:background="#0F1112">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/onboarding_continue_button"

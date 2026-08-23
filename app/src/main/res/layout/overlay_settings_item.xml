@@ -17,6 +17,8 @@
         android:layout_marginEnd="32dp"
         android:focusable="true"
         app:cardBackgroundColor="@color/item_card_background"
+        app:strokeColor="@color/item_card_stroke"
+        app:strokeWidth="3dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -65,7 +67,8 @@
                     android:singleLine="true"
                     android:ellipsize="marquee"
                     android:textColor="@color/item_card_text_color"
-                    android:textSize="24sp" />
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvoverlaysetting_description"
@@ -73,7 +76,9 @@
                     android:layout_height="wrap_content"
                     tools:text="Beschreibung"
                     android:textColor="@color/item_card_channel_number_text"
-                    android:duplicateParentState="true"/>
+                    android:duplicateParentState="true"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/ibmplexsans"/>
             </LinearLayout>
 
             <LinearLayout

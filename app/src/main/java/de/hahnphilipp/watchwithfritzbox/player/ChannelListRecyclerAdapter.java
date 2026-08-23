@@ -1,6 +1,9 @@
 package de.hahnphilipp.watchwithfritzbox.player;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,14 +12,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
+import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +62,9 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
 
     @Override
     public void onViewRecycled(@NonNull final ChannelInfoViewHolder holder) {
-        Glide.with(context).clear(holder.channelIcon);
+        if(holder.glideTarget != null) {
+            Glide.with(context).clear(holder.glideTarget);
+        }
         holder.channelIcon.setImageDrawable(null);
     }
 
@@ -73,6 +84,7 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
         final ChannelUtils.Channel item = objects.get(indexPos);
         holder.channelName.setText(item.title);
         holder.channelNumber.setText("CH " + item.number);
+        holder.channelGlow.setVisibility(View.GONE);
 
         if (item.type == ChannelUtils.ChannelType.HD) {
             holder.channelTypeIcon.setImageResource(R.drawable.high_definition);
@@ -91,10 +103,23 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
                 GlideUtils.multiRequestBuilder(holder.channelIcon.getContext(), urls,
                         c -> c.centerInside().diskCacheStrategy(DiskCacheStrategy.RESOURCE));
         if(drawableRequestBuilder != null) {
+            holder.glideTarget = new CustomTarget<>() {
+                @Override
+                public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
+                    holder.channelIcon.setImageBitmap(resource);
+                    Palette.from(resource).generate(palette -> {
+                        int color = palette.getVibrantColor(Color.TRANSPARENT);
+                        holder.channelGlow.setBackground(createGlowDrawable(color, GradientDrawable.Orientation.LEFT_RIGHT));
+                    });
+                }
+
+                @Override
+                public void onLoadCleared(@Nullable Drawable placeholder) {
+                }
+            };
+
             drawableRequestBuilder
-                    /*.centerInside()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)*/
-                    .into(holder.channelIcon);
+                    .into(holder.glideTarget);
         }
 
         if (editMode) {
@@ -158,10 +183,12 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
                     holder.cardView.setElevation(12);
                     AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
                     holder.channelProgramNow.setSelected(true);
+                    holder.channelGlow.setVisibility(View.VISIBLE);
                 } else {
                     AnimationUtils.scaleView(holder.cardView, 1.025F, 1F, 1.025F, 1F, 20L);
                     holder.cardView.setElevation(0);
                     holder.channelProgramNow.setSelected(false);
+                    holder.channelGlow.setVisibility(View.GONE);
                 }
             });
 
@@ -179,6 +206,19 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
             holder.itemView.requestFocus();
             selectedChannel = -1;
         }
+    }
+
+    public static GradientDrawable createGlowDrawable(int baseColor, GradientDrawable.Orientation orientation) {
+        int startColor = ColorUtils.setAlphaComponent(baseColor, 100);
+        int endColor = ColorUtils.setAlphaComponent(baseColor, 0x00);
+
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setShape(GradientDrawable.RECTANGLE);
+        drawable.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+        drawable.setOrientation(orientation);
+        drawable.setColors(new int[] { startColor, endColor });
+
+        return drawable;
     }
 
     public void swapItems(int fromIndexPosition, int toIndexPosition) {
@@ -203,10 +243,12 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
         public ImageView channelLockedIcon;
         public TextView channelName;
         public TextView channelNumber;
-        public ConstraintLayout channelNumberLayout;
+        public View channelGlow;
         public View mainView;
         public CardView cardView;
         public TextView channelProgramNow;
+
+        public CustomTarget<Bitmap> glideTarget;
 
         public ChannelInfoViewHolder(View itemView) {
             super(itemView);
@@ -214,7 +256,7 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
             channelName = itemView.findViewById(R.id.tvoverlaychannel_name);
             channelProgramNow = itemView.findViewById(R.id.tvoverlaychannel_event_now);
             channelNumber = itemView.findViewById(R.id.tvoverlaychannel_number);
-            channelNumberLayout = itemView.findViewById(R.id.tvoverlaychannel_number_layout);
+            channelGlow = itemView.findViewById(R.id.tvoverlaychannel_glow);
             channelIcon = itemView.findViewById(R.id.tvoverlaychannel_logo);
             channelTypeIcon = itemView.findViewById(R.id.tvoverlaychannel_type);
             channelLockedIcon = itemView.findViewById(R.id.tvoverlaychannel_locked);

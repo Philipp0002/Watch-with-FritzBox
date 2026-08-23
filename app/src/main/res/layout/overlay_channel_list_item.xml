@@ -18,94 +18,80 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         app:cardBackgroundColor="@color/item_card_background"
+        app:strokeColor="@color/item_card_stroke"
+        app:strokeWidth="3dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:duplicateParentState="true"
-        android:clipToPadding="false"
-        >
+        android:clipToPadding="false">
 
-
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:duplicateParentState="true"
-            android:minHeight="110dp"
-            android:paddingVertical="8dp">
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/tvoverlaychannel_logo"
-                android:layout_width="114dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_marginVertical="16dp"
-                android:layout_marginHorizontal="8dp"
-                android:scaleType="fitCenter"
+            <View
+                android:id="@+id/tvoverlaychannel_glow"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_width="170dp"
+                android:layout_height="0dp" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tvoverlaychannel_logo"
                 app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="16dp"
-                android:duplicateParentState="true">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:duplicateParentState="true"
+                android:minHeight="110dp"
+                android:padding="4dp">
 
-                <TextView
-                    android:id="@+id/tvoverlaychannel_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    tools:text="KANAL"
-                    android:textColor="@color/item_card_text_color"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:duplicateParentState="true"/>
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="114dp"
+                    android:layout_height="match_parent"
+                    app:cardBackgroundColor="#33373A">
 
-                <TextView
-                    android:id="@+id/tvoverlaychannel_event_now"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    tools:text="EVENT1"
-                    android:textColor="@color/item_card_channel_number_text"
-                    android:textSize="16sp"
-                    android:layout_marginTop="4dp"
-                    android:duplicateParentState="true" />
+
+                    <ImageView
+                        android:id="@+id/tvoverlaychannel_logo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_marginVertical="18dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:scaleType="fitCenter"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:orientation="vertical"
+                    android:layout_gravity="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tvoverlaychannel_logo"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginStart="16dp"
                     android:duplicateParentState="true">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/tvoverlaychannel_number_layout"
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/channel_number_outline"
+                        android:layout_height="wrap_content"
                         android:duplicateParentState="true">
+
 
                         <TextView
                             android:id="@+id/tvoverlaychannel_number"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
                             android:layout_marginTop="2dp"
-                            android:layout_marginEnd="6dp"
                             android:layout_marginBottom="2dp"
                             tools:text="CH 1"
                             android:textSize="12sp"
@@ -116,34 +102,65 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             android:duplicateParentState="true" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/tvoverlaychannel_type"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/channel_quality_bg"
-                        android:tint="@color/item_card_channel_quality_text"
-                        android:layout_gravity="center"
-                        android:src="@drawable/high_definition"
-                        app:tint="@color/item_card_channel_quality_text"
+                        <ImageView
+                            android:id="@+id/tvoverlaychannel_type"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginStart="8dp"
+                            android:tint="@color/item_card_channel_number_text"
+                            android:layout_gravity="center"
+                            android:src="@drawable/high_definition"
+                            android:duplicateParentState="true" />
+
+                        <ImageView
+                            android:id="@+id/tvoverlaychannel_locked"
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:layout_marginStart="8dp"
+                            android:tint="@color/item_card_channel_number_text"
+                            android:layout_gravity="center"
+                            android:src="@drawable/round_lock"
+                            app:tint="@color/item_card_channel_number_text"
+                            android:duplicateParentState="true" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvoverlaychannel_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        tools:text="KANAL"
+                        android:includeFontPadding="false"
+                        android:textColor="@color/item_card_text_color"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:duplicateParentState="true"/>
+
+                    <TextView
+                        android:id="@+id/tvoverlaychannel_event_now"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        tools:text="EVENT1"
+                        android:textColor="@color/item_card_channel_number_text"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/ibmplexsans"
+                        android:layout_marginTop="4dp"
                         android:duplicateParentState="true" />
 
-                    <ImageView
-                        android:id="@+id/tvoverlaychannel_locked"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginStart="8dp"
-                        android:tint="@color/item_card_channel_number_text"
-                        android:layout_gravity="center"
-                        android:src="@drawable/round_lock"
-                        app:tint="@color/item_card_channel_number_text"
-                        android:duplicateParentState="true" />
+
                 </LinearLayout>
+
             </LinearLayout>
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 
     </com.google.android.material.card.MaterialCardView>

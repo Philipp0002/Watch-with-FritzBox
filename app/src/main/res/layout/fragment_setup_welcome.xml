@@ -33,14 +33,16 @@
             android:text="@string/setup_welcome_title"
             android:textColor="#fff"
             android:textSize="30sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:includeFontPadding="false"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/setup_welcome_subtitle"
-            android:textColor="#fff" />
+            android:textColor="#fff"
+            android:fontFamily="@font/ibmplexsans"/>
 
         <TableLayout
             android:layout_width="wrap_content"
@@ -73,7 +75,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="@string/setup_welcome_tv_teaser" />
+                        android:text="@string/setup_welcome_tv_teaser"
+                        android:fontFamily="@font/ibmplexsans" />
                 </LinearLayout>
             </TableRow>
 
@@ -103,7 +106,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="@string/setup_welcome_epg_teaser" />
+                        android:text="@string/setup_welcome_epg_teaser"
+                        android:fontFamily="@font/ibmplexsans" />
                 </LinearLayout>
             </TableRow>
 
@@ -133,7 +137,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="@string/setup_welcome_hbbtv_teaser" />
+                        android:text="@string/setup_welcome_hbbtv_teaser"
+                        android:fontFamily="@font/ibmplexsans" />
                 </LinearLayout>
             </TableRow>
 

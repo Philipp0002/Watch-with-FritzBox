@@ -16,6 +16,7 @@
         android:textColor="#fff"
         android:textSize="40sp"
         android:textStyle="bold"
+        android:includeFontPadding="false"
         app:layout_constraintBottom_toTopOf="@+id/player_running_info"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -38,6 +39,7 @@
             tools:text="EPG event"
             android:textColor="#c4c3c8"
             android:textSize="24sp"
+            android:fontFamily="@font/ibmplexsans"
             app:layout_constraintBottom_toTopOf="@+id/player_radiotext"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -49,6 +51,7 @@
             tools:text="Radiotext"
             android:textColor="#c4c3c8"
             android:textSize="24sp"
+            android:fontFamily="@font/ibmplexsans"
             app:layout_constraintBottom_toTopOf="@+id/player_number_layout"
             app:layout_constraintStart_toStartOf="parent" />
 

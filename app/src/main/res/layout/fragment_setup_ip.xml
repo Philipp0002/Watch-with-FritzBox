@@ -29,7 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/setup_ip_address_text"
-            android:textColor="#fff" />
+            android:textColor="#fff"
+            android:fontFamily="@font/ibmplexsans" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/setup_ip_address_input"

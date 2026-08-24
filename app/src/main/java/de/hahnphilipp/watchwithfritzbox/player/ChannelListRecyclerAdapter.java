@@ -157,7 +157,9 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
                 holder.itemView.setOnClickListener(v -> {
                     EditChannelListTVOverlay overlay = (EditChannelListTVOverlay) context;
                     if (selectedChannel == -1) {
-                        selectedChannel = item.number;
+                        int pos = holder.getBindingAdapterPosition();
+                        ChannelUtils.Channel channelClicked = objects.get(pos);
+                        selectedChannel = channelClicked.number;
                         overlay.showSidepanel(1);
                         holder.cardView.setElevation(12);
                         AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
@@ -200,11 +202,14 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
                 });
 
                 holder.itemView.setOnClickListener(v -> {
+                    int pos = holder.getBindingAdapterPosition();
+                    ChannelUtils.Channel channelClicked = objects.get(pos);
+
                     ChannelListTVOverlay overlay = (ChannelListTVOverlay) context;
                     TVPlayerActivity activity = overlay.getTVPlayerActivity();
                     if (activity == null) return;
                     activity.popOverlayFragment();
-                    ChannelUtils.updateLastSelectedChannel(activity, item.number);
+                    ChannelUtils.updateLastSelectedChannel(activity, channelClicked.number);
                     activity.launchPlayer(false);
                 });
                 holder.listenersSetUp = true;

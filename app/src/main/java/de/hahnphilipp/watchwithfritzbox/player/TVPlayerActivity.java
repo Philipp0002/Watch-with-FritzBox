@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -165,10 +166,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     public void reattachSurface(Runnable callbackOnVlcThread) {
-        if(ivlcVout == null || !ivlcVout.areViewsAttached()) {
+        if (ivlcVout == null || !ivlcVout.areViewsAttached()) {
             runOnVLCThread(() -> {
                 attachSurfaces();
-                if(callbackOnVlcThread != null)
+                if (callbackOnVlcThread != null)
                     callbackOnVlcThread.run();
             });
             return;
@@ -179,7 +180,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             public void onSurfacesCreated(IVLCVout ivlcVout) {
                 ivlcVout.removeCallback(this);
                 runOnVLCThread(() -> {
-                    if(callbackOnVlcThread != null)
+                    if (callbackOnVlcThread != null)
                         callbackOnVlcThread.run();
                 });
             }
@@ -187,7 +188,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             @Override
             public void onSurfacesDestroyed(IVLCVout ivlcVout) {
                 UIThread.run(() -> {
-                    if(surfaceView == null) return;
+                    if (surfaceView == null) return;
                     surfaceView.setVisibility(View.INVISIBLE);
                     surfaceView.setVisibility(View.VISIBLE);
 
@@ -201,8 +202,8 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     }
 
     public void attachSurfaces() {
-        if(ivlcVout == null || !ivlcVout.areViewsAttached()) {
-            if(mMediaPlayer == null) {
+        if (ivlcVout == null || !ivlcVout.areViewsAttached()) {
+            if (mMediaPlayer == null) {
                 loadLibVLC();
             }
             ivlcVout = mMediaPlayer.getVLCVout();
@@ -213,14 +214,14 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
             final ViewTreeObserver observer = surfaceView.getViewTreeObserver();
             observer.addOnGlobalLayoutListener(() -> {
                 // Set rendering size
-                if(ivlcVout == null) return;
+                if (ivlcVout == null) return;
                 ivlcVout.setWindowSize(surfaceView.getWidth(), surfaceView.getHeight());
             });
         }
     }
 
     public void detachSurfaces() {
-        if(ivlcVout != null && ivlcVout.areViewsAttached()) {
+        if (ivlcVout != null && ivlcVout.areViewsAttached()) {
             ivlcVout.detachViews();
         }
     }
@@ -253,7 +254,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         View container = findViewById(R.id.ca_info_card);
         TextView textView = findViewById(R.id.ca_info_text);
 
-        if(currentCaSystems.add(caInfo)) {
+        if (currentCaSystems.add(caInfo)) {
             String caSystems = currentCaSystems.stream().map(s -> "- " + s).collect(Collectors.joining("\n"));
             textView.setText(getString(R.string.ca_description, caSystems));
             container.setVisibility(View.VISIBLE);
@@ -266,7 +267,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         View container = findViewById(R.id.ca_info_card);
         TextView textView = findViewById(R.id.ca_info_text);
         UIThread.run(() -> {
-            if(currentCaSystems.isEmpty()) {
+            if (currentCaSystems.isEmpty()) {
                 textView.setText(getString(R.string.ca_description, ""));
                 container.setVisibility(View.GONE);
             }
@@ -288,9 +289,21 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         super.onResume();
     }
 
-    public void addOverlayFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.overlayMenu, fragment)
+    /**
+     * @param fragment  Fragment to be added
+     * @param animation Animation type (0 = no animation, 1 = slide in from right, 2 = slide in from left)
+     */
+    public void addOverlayFragment(Fragment fragment, int animation) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if (animation > 0) {
+            ft.setCustomAnimations(
+                    animation == 1 ? R.anim.fragment_slide_in_right : R.anim.fragment_slide_in_left,  // Das neue Fragment fährt von rechts rein
+                    0,            // Das alte Fragment bleibt einfach stehen
+                    0,            // Das alte Fragment bleibt beim Pop stehen
+                    animation == 1 ? R.anim.fragment_slide_out_right : R.anim.fragment_slide_out_left // Das neue Fragment fährt beim Pop nach rechts raus
+            );
+        }
+        ft.add(R.id.overlayMenu, fragment)
                 .addToBackStack(null)
                 .commit();
     }
@@ -397,10 +410,10 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 zapChannel(false);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                addOverlayFragment(mChannelOverlayFragment);
+                addOverlayFragment(mChannelOverlayFragment, 2);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-                addOverlayFragment(mSettingsOverlayFragment);
+                addOverlayFragment(mSettingsOverlayFragment, 1);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_0) {
                 enterNumber(0);
@@ -445,7 +458,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         findViewById(R.id.player_advertisement_card).setVisibility(View.GONE);
 
         runOnVLCThread(() -> {
-            if(mMediaPlayer != null) {
+            if (mMediaPlayer != null) {
                 mMediaPlayer.setVolume(100);
             }
         });
@@ -459,7 +472,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         super.onStop();
         stopPlayer();
 
-        if(ivlcVout != null && ivlcVout.areViewsAttached()) {
+        if (ivlcVout != null && ivlcVout.areViewsAttached()) {
             ivlcVout.detachViews();
         }
     }
@@ -473,7 +486,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public void pausePlayer() {
         runOnVLCThread(() -> {
-            if(mMediaPlayer != null) {
+            if (mMediaPlayer != null) {
                 mMediaPlayer.pause();
             }
         });
@@ -481,7 +494,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     public void stopPlayer() {
         runOnVLCThread(() -> {
-            if(mMediaPlayer != null) {
+            if (mMediaPlayer != null) {
                 mMediaPlayer.stop();
             }
         });
@@ -511,7 +524,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
         TextView epgEventView = findViewById(R.id.player_epg_event);
         EpgUtils.EpgEvent epgEventNow = EpgUtils.getEventNowFromCache(channel.number);
-        if(epgEventNow != null) {
+        if (epgEventNow != null) {
             epgEventView.setText(epgEventNow.title);
             epgEventView.setVisibility(View.VISIBLE);
         } else {
@@ -554,7 +567,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 int hwAccel = sp.getInt("setting_hwaccel", 1);
                 Log.d("PlaybackActivity", "Starting playback of " + channel.title + " - " + channel.url);
                 WLog.i(LOG_TAG, "Starting playback of " + channel.title + " - " + channel.url);
-                if(media != null && !media.isReleased()) {
+                if (media != null && !media.isReleased()) {
                     media.release();
                 }
                 media = new Media(mLibVLC, Uri.parse(channel.url));
@@ -651,7 +664,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         switch (event.type) {
             case MediaPlayer.Event.RadiotextContent:
                 String radiotextContent = event.getRadiotextContent();
-                if(radiotextContent != null) {
+                if (radiotextContent != null) {
                     Log.i(LOG_TAG, "Received Radiotext: " + radiotextContent);
                     TextView radioTextView = findViewById(R.id.player_radiotext);
                     UIThread.run(() -> {
@@ -676,7 +689,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
                 break;
             case MediaPlayer.Event.TeletextPageLoaded:
                 // Don't use async task here to avoid memleaks
-                if(mTeletextOverlayFragment == null || !mTeletextOverlayFragment.isShown()) {
+                if (mTeletextOverlayFragment == null || !mTeletextOverlayFragment.isShown()) {
                     break;
                 }
                 Integer pageNumber = event.getTeletextPageNumber();
@@ -742,7 +755,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         }
 
         runOnVLCThread(() -> {
-            if(mMediaPlayer != null) {
+            if (mMediaPlayer != null) {
                 mMediaPlayer.setVolume(isAdvertisement ? 0 : 100);
             }
         });
@@ -751,9 +764,9 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
 
     @Override
     public void onEpgNowChanged(ChannelUtils.Channel channel, EpgUtils.EpgEvent newEpgEvent) {
-        if(channel == null || newEpgEvent == null) return;
+        if (channel == null || newEpgEvent == null) return;
         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
-        if(channel.number != lastChannelNumber) return;
+        if (channel.number != lastChannelNumber) return;
 
         TextView epgEventView = findViewById(R.id.player_epg_event);
         UIThread.run(() -> {

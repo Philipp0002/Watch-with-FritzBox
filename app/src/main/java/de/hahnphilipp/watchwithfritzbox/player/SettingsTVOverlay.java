@@ -173,15 +173,15 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         EditChannelListTVOverlay editChannelListTVOverlay = new EditChannelListTVOverlay();
         editChannelListTVOverlay.context = context;
 
-        context.addOverlayFragment(editChannelListTVOverlay);
+        context.addOverlayFragment(editChannelListTVOverlay, 0);
     }
 
     public void showEpg() {
-        context.addOverlayFragment(context.mEPGOverlayFragment);
+        context.addOverlayFragment(context.mEPGOverlayFragment, 0);
     }
 
     public void showTeletext() {
-        context.addOverlayFragment(context.mTeletextOverlayFragment);
+        context.addOverlayFragment(context.mTeletextOverlayFragment, 0);
     }
 
     public void showHbbTV() {
@@ -205,7 +205,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             context.popOverlayFragment();
         }));
         selectionTVOverlay.tvSettings.add(new CustomTVSetting(R.layout.hbbtv_info_block, null));
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     public void showAdDetection() {
@@ -230,7 +230,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             context.setupAdDetection();
         }));
         selectionTVOverlay.tvSettings.add(new CustomTVSetting(R.layout.ad_detection_info_block, null));
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     public void showAppResetSelection() {
@@ -252,7 +252,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             context.finish();
             context.overridePendingTransition(0, 0);
         }));
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     public void showAudioDelaySelection() {
@@ -269,7 +269,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             long newDelay = adjustAudioDelay(-250);
             selectionTVOverlay.updateTitle(context.getString(R.string.settings_audio_delay_value, newDelay + "ms"));
         }));
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     public long adjustAudioDelay(long delta) {
@@ -313,7 +313,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             context.launchPlayer(false);
             context.popOverlayFragment();
         }));
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     public void adjustDeinterlaceMode(String deinterlaceMode) {
@@ -353,7 +353,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             }));
         }
 
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     public void showDeinterlaceSelection() {
@@ -376,7 +376,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_phosphor), null, NavigationIcon.selected("phosphor".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("phosphor")));
         selectionTVOverlay.tvSettings.add(new TVSetting(context.getString(R.string.settings_deinterlace_mode_mean), null, NavigationIcon.selected("mean".equals(currentSetting)), R.drawable.round_tv, () -> adjustDeinterlaceMode("mean")));
 
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     public void showVideoFormatSelection() {
@@ -394,7 +394,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             }));
         }
 
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     public void showSubtitleTrackSelection() {
@@ -447,7 +447,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
         }
 
 
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     public void showAudioTrackSelection() {
@@ -467,7 +467,7 @@ public class SettingsTVOverlay extends Fragment implements KeyDownReceiver {
             }));
         }
 
-        context.addOverlayFragment(selectionTVOverlay);
+        context.addOverlayFragment(selectionTVOverlay, 1);
     }
 
     private boolean subtitlesExist() {

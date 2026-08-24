@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="false">
 
@@ -31,37 +33,37 @@
         app:layout_constraintTop_toBottomOf="@+id/tvoverlaytime"
         android:focusable="false">
 
-    <androidx.leanback.widget.VerticalGridView
-        android:id="@+id/tvoverlayrecycler"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:focusable="false"
-        android:clipChildren="false"
-        android:overScrollMode="never">
-    </androidx.leanback.widget.VerticalGridView>
+        <androidx.leanback.widget.VerticalGridView
+            android:id="@+id/tvoverlayrecycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="false"
+            android:clipChildren="false"
+            android:overScrollMode="never">
+        </androidx.leanback.widget.VerticalGridView>
 
     </androidx.leanback.widget.BrowseFrameLayout>
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/tvoverlaytime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        android:text="00:00 Uhr"
+        tools:text="00:00 Uhr"
         android:focusable="false"
         android:textColor="#fff"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/view"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/tvoverlaydate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:text="Freitag, 00. Januar"
+        tools:text="Freitag, 00. Januar"
         android:focusable="false"
         android:textColor="#fff"
         app:layout_constraintEnd_toStartOf="@+id/tvoverlaytime"

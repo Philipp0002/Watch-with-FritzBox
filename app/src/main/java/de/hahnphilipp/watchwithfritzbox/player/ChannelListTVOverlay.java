@@ -61,12 +61,9 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         INSTANCE = this;
-
         recyclerView = view.findViewById(R.id.tvoverlayrecycler);
 
-        tvOverlayRecyclerAdapter = new ChannelListRecyclerAdapter(this, ChannelUtils.getAllChannels(requireContext()), recyclerView, false);
-
-
+        tvOverlayRecyclerAdapter.setRecyclerView(recyclerView);
         LinearLayoutManager llm = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.setAdapter(tvOverlayRecyclerAdapter);
@@ -90,6 +87,7 @@ public class ChannelListTVOverlay extends Fragment implements KeyDownReceiver, E
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        tvOverlayRecyclerAdapter = new ChannelListRecyclerAdapter(this, ChannelUtils.getAllChannels(requireContext()), null, false);
         startUpdateTimer();
         EpgUtils.addEpgUpdateListener(this);
     }

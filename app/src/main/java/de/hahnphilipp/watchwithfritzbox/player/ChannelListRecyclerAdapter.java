@@ -43,7 +43,7 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
     public ArrayList<ChannelUtils.Channel> objects;
     private final Fragment context;
     public int selectedChannel = -1;
-    private final RecyclerView recyclerView;
+    private RecyclerView recyclerView;
     private final boolean editMode;
 
     public ChannelListRecyclerAdapter(Fragment context, ArrayList<ChannelUtils.Channel> objects, RecyclerView recyclerView, boolean editMode) {
@@ -230,6 +230,10 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
     public void selectChannel(int channelNumber) {
         selectedChannel = channelNumber;
         recyclerView.scrollToPosition(channelNumber - 1);
+    }
+
+    public void setRecyclerView(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
     }
 
     @Override

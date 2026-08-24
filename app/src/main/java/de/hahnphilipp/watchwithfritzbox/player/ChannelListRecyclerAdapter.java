@@ -104,20 +104,22 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
                 GlideUtils.multiRequestBuilder(holder.channelIcon.getContext(), urls,
                         c -> c.centerInside().diskCacheStrategy(DiskCacheStrategy.RESOURCE));
         if(drawableRequestBuilder != null) {
-            holder.glideTarget = new CustomTarget<>() {
-                @Override
-                public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
-                    holder.channelIcon.setImageBitmap(resource);
-                    Palette.from(resource).generate(palette -> {
-                        int color = palette.getVibrantColor(Color.TRANSPARENT);
-                        holder.channelGlow.setBackground(createGlowDrawable(color, GradientDrawable.Orientation.LEFT_RIGHT));
-                    });
-                }
+            if(holder.glideTarget == null) {
+                holder.glideTarget = new CustomTarget<>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
+                        holder.channelIcon.setImageBitmap(resource);
+                        Palette.from(resource).generate(palette -> {
+                            int color = palette.getVibrantColor(Color.TRANSPARENT);
+                            holder.channelGlow.setBackground(createGlowDrawable(color, GradientDrawable.Orientation.LEFT_RIGHT));
+                        });
+                    }
 
-                @Override
-                public void onLoadCleared(@Nullable Drawable placeholder) {
-                }
-            };
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                    }
+                };
+            }
 
             drawableRequestBuilder
                     .into(holder.glideTarget);
@@ -126,45 +128,48 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
         if (editMode) {
             holder.channelProgramNow.setVisibility(View.GONE);
 
-            holder.itemView.setOnKeyListener((view, i, keyEvent) -> {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && (i == KeyEvent.KEYCODE_DPAD_UP || i == KeyEvent.KEYCODE_DPAD_DOWN)) {
-                    if (selectedChannel != -1) {
-                        int direction = (i == KeyEvent.KEYCODE_DPAD_UP) ? -1 : 1;
+            if(!holder.listenersSetUp) {
+                holder.itemView.setOnKeyListener((view, i, keyEvent) -> {
+                    if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && (i == KeyEvent.KEYCODE_DPAD_UP || i == KeyEvent.KEYCODE_DPAD_DOWN)) {
+                        if (selectedChannel != -1) {
+                            int direction = (i == KeyEvent.KEYCODE_DPAD_UP) ? -1 : 1;
 
-                        int pos = holder.getBindingAdapterPosition();
+                            int pos = holder.getBindingAdapterPosition();
 
-                        if ((pos + direction < 0 || pos + direction >= objects.size())) {
+                            if ((pos + direction < 0 || pos + direction >= objects.size())) {
+                                return true;
+                            }
+                            swapItems(pos, pos + direction);
+
+                            ChannelUtils.Channel a = objects.get(pos);
+                            ChannelUtils.Channel b = objects.get(pos + direction);
+                            ChannelUtils.moveChannelToPosition(context.getContext(), a.number, b.number);
+                            recyclerView.post(() -> {
+                                updateView(pos);
+                                updateView(pos + direction);
+                            });
                             return true;
                         }
-                        swapItems(pos, pos + direction);
-
-                        ChannelUtils.Channel a = objects.get(pos);
-                        ChannelUtils.Channel b = objects.get(pos + direction);
-                        ChannelUtils.moveChannelToPosition(context.getContext(), a.number, b.number);
-                        recyclerView.post(() -> {
-                            updateView(pos);
-                            updateView(pos + direction);
-                        });
-                        return true;
                     }
-                }
-                return false;
-            });
+                    return false;
+                });
 
-            holder.itemView.setOnClickListener(v -> {
-                EditChannelListTVOverlay overlay = (EditChannelListTVOverlay) context;
-                if (selectedChannel == -1) {
-                    selectedChannel = item.number;
-                    overlay.showSidepanel(1);
-                    holder.cardView.setElevation(12);
-                    AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
-                } else {
-                    selectedChannel = -1;
-                    overlay.showSidepanel(0);
-                    AnimationUtils.scaleView(holder.cardView, 1.025F, 1F, 1.025F, 1F, 20L);
-                    holder.cardView.setElevation(0);
-                }
-            });
+                holder.itemView.setOnClickListener(v -> {
+                    EditChannelListTVOverlay overlay = (EditChannelListTVOverlay) context;
+                    if (selectedChannel == -1) {
+                        selectedChannel = item.number;
+                        overlay.showSidepanel(1);
+                        holder.cardView.setElevation(12);
+                        AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
+                    } else {
+                        selectedChannel = -1;
+                        overlay.showSidepanel(0);
+                        AnimationUtils.scaleView(holder.cardView, 1.025F, 1F, 1.025F, 1F, 20L);
+                        holder.cardView.setElevation(0);
+                    }
+                });
+                holder.listenersSetUp = true;
+            }
 
         } else {
             EpgUtils.EpgEvent eventNow = EpgUtils.getEventNowFromCache(item.number);
@@ -176,31 +181,34 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
                 holder.channelProgramNow.setVisibility(View.GONE);
             }
 
-            holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
-                if (hasFocus) {
-                    if (recyclerView != null) {
-                        recyclerView.scrollToPosition(holder.getBindingAdapterPosition());
+            if(!holder.listenersSetUp) {
+                holder.itemView.setOnFocusChangeListener((v, hasFocus) -> {
+                    if (hasFocus) {
+                        if (recyclerView != null) {
+                            recyclerView.scrollToPosition(holder.getBindingAdapterPosition());
+                        }
+                        holder.cardView.setElevation(12);
+                        AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
+                        holder.channelProgramNow.setSelected(true);
+                        holder.channelGlow.setVisibility(View.VISIBLE);
+                    } else {
+                        AnimationUtils.scaleView(holder.cardView, 1.025F, 1F, 1.025F, 1F, 20L);
+                        holder.cardView.setElevation(0);
+                        holder.channelProgramNow.setSelected(false);
+                        holder.channelGlow.setVisibility(View.GONE);
                     }
-                    holder.cardView.setElevation(12);
-                    AnimationUtils.scaleView(holder.cardView, 1F, 1.025F, 1F, 1.025F, 100L);
-                    holder.channelProgramNow.setSelected(true);
-                    holder.channelGlow.setVisibility(View.VISIBLE);
-                } else {
-                    AnimationUtils.scaleView(holder.cardView, 1.025F, 1F, 1.025F, 1F, 20L);
-                    holder.cardView.setElevation(0);
-                    holder.channelProgramNow.setSelected(false);
-                    holder.channelGlow.setVisibility(View.GONE);
-                }
-            });
+                });
 
-            holder.itemView.setOnClickListener(v -> {
-                ChannelListTVOverlay overlay = (ChannelListTVOverlay) context;
-                TVPlayerActivity activity = overlay.getTVPlayerActivity();
-                if(activity == null) return;
-                activity.popOverlayFragment();
-                ChannelUtils.updateLastSelectedChannel(activity, item.number);
-                activity.launchPlayer(false);
-            });
+                holder.itemView.setOnClickListener(v -> {
+                    ChannelListTVOverlay overlay = (ChannelListTVOverlay) context;
+                    TVPlayerActivity activity = overlay.getTVPlayerActivity();
+                    if (activity == null) return;
+                    activity.popOverlayFragment();
+                    ChannelUtils.updateLastSelectedChannel(activity, item.number);
+                    activity.launchPlayer(false);
+                });
+                holder.listenersSetUp = true;
+            }
         }
 
         if (selectedChannel == item.number && !editMode) {
@@ -254,6 +262,7 @@ public class ChannelListRecyclerAdapter extends RecyclerView.Adapter<ChannelList
         public TextView channelProgramNow;
 
         public CustomTarget<Bitmap> glideTarget;
+        public boolean listenersSetUp = false;
 
         public ChannelInfoViewHolder(View itemView) {
             super(itemView);

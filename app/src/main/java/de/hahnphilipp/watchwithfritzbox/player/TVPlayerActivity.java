@@ -296,15 +296,18 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
     public void addOverlayFragment(Fragment fragment, int animation) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (animation > 0) {
-            ft.setCustomAnimations(
-                    animation == 1 ? R.anim.fragment_slide_in_right : R.anim.fragment_slide_in_left,  // Das neue Fragment fährt von rechts rein
-                    0,            // Das alte Fragment bleibt einfach stehen
-                    0,            // Das alte Fragment bleibt beim Pop stehen
-                    animation == 1 ? R.anim.fragment_slide_out_right : R.anim.fragment_slide_out_left // Das neue Fragment fährt beim Pop nach rechts raus
-            );
+            ft
+                    .setCustomAnimations(
+                            animation == 1 ? R.anim.fragment_slide_in_right : R.anim.fragment_slide_in_left,  // Das neue Fragment fährt von rechts rein
+                            0,            // Das alte Fragment bleibt einfach stehen
+                            0,            // Das alte Fragment bleibt beim Pop stehen
+                            animation == 1 ? R.anim.fragment_slide_out_right : R.anim.fragment_slide_out_left // Das neue Fragment fährt beim Pop nach rechts raus
+                    )
+                    .add(R.id.overlayMenu, fragment);
+        } else {
+            ft.replace(R.id.overlayMenu, fragment);
         }
-        ft.add(R.id.overlayMenu, fragment)
-                .addToBackStack(null)
+        ft.addToBackStack(null)
                 .commit();
     }
 
@@ -515,7 +518,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         findViewById(R.id.player_skip_radio).setVisibility(View.GONE);
         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
-        if(channel == null) return;
+        if (channel == null) return;
         ((TextView) findViewById(R.id.player_number)).setText("CH " + channel.number);
         ((TextView) findViewById(R.id.player_channel)).setText(channel.title);
 

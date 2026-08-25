@@ -126,7 +126,14 @@ public class TeletextTVOverlay extends Fragment implements KeyDownReceiver {
 
         keypadHideButton.setOnClickListener(view1 -> hideKeypad(!keypadHidden, true));
 
-        hideKeypad(sp.getBoolean(SP_KEYPAD_HIDDEN, false), false);
+        boolean keypadHidden = sp.getBoolean(SP_KEYPAD_HIDDEN, false);
+        hideKeypad(keypadHidden, false);
+
+        if(keypadHidden) {
+            keypadHideButton.requestFocus();
+        } else {
+            key0.requestFocus();
+        }
 
         pageNumberView.setText(enteredNumber);
         setTeletextPage(currentPage);

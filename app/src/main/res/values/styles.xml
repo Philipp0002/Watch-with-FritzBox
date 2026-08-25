@@ -2,7 +2,7 @@
 <resources>
 
     <style name="AppTheme" parent="@style/Theme.Material3Expressive.Dark.NoActionBar" >
-        <item name="android:windowBackground">@color/windowBg</item>
+        <item name="android:windowBackground">@drawable/window_bg</item>
         <item name="wwfbColorButton">?colorPrimary</item>
         <item name="wwfbColorSelection">?colorOnPrimary</item>
         <item name="android:fontFamily">@font/inter</item>

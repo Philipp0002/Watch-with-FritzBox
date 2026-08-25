@@ -58,7 +58,8 @@
             android:focusable="false"
             app:layout_constraintBottom_toTopOf="@id/epgtitle"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="Channel Name" />
+            tools:text="Channel Name"
+            android:fontFamily="@font/ibmplexsans" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -80,7 +81,8 @@
                     android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@id/epgsubtitle"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:text="EPG title" />
+                    tools:text="EPG title"
+                    android:includeFontPadding="false"/>
 
 
                 <TextView
@@ -93,13 +95,12 @@
                     tools:text="EPG metadata" />
 
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/epgtimewrapper"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:cardBackgroundColor="#1f1c2f"
-                    app:cardCornerRadius="4dp">
+                    app:cardCornerRadius="64dp">
 
                     <TextView
                         android:id="@+id/epgtime"
@@ -108,11 +109,12 @@
                         android:drawableStart="@drawable/round_clock"
                         android:drawablePadding="4dp"
                         android:gravity="center_vertical"
-                        android:paddingHorizontal="4dp"
+                        android:paddingHorizontal="12dp"
                         android:paddingVertical="4dp"
-                        tools:text="30 min | 12:30 - 13:00" />
+                        tools:text="30 min | 12:30 - 13:00"
+                        android:fontFamily="@font/ibmplexsans" />
 
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
 

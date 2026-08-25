@@ -71,6 +71,8 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
         View view = getView();
         if (view == null) return;
         Context context = view.getContext();
+        View detailView = view.findViewById(R.id.epgdetails);
+        detailView.setVisibility(GONE);
 
         setState(State.Loading.INSTANCE);
         TextView loadingTextView = view.findViewById(R.id.loading_text);
@@ -102,6 +104,7 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
                 loadingTextView.setText(context.getString(R.string.epg_loading_channels_wait));
                 setData(channels, channelEpgMap, localDate);
                 view.post(() -> {
+                    detailView.setVisibility(VISIBLE);
                     setState(State.Content.INSTANCE);
                     scrollToChannelWithId(ChannelUtils.getLastSelectedChannel(context));
                 });

@@ -19,7 +19,7 @@
     <dimen name="programguide_table_width_per_hour">300dp</dimen>
     <dimen name="programguide_text_size">16sp</dimen>
     <dimen name="programguide_program_row_height">44dp</dimen>
-    <dimen name="programguide_program_row_height_with_empty_space">44dp</dimen>
+    <dimen name="programguide_program_row_height_with_empty_space">48dp</dimen>
     <dimen name="programguide_minimum_item_width_sticking_out_behind_channel_column">74dp</dimen>
     <dimen name="programguide_item_padding">6dp</dimen>
     <dimen name="programguide_item_spacing">2dp</dimen>

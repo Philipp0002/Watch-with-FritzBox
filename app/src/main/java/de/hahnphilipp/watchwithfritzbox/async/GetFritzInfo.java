@@ -34,10 +34,11 @@ public class GetFritzInfo extends AsyncTask<Void, Void, Void> {
 
     public void runFetch() {
         try {
-            List<String> friendlyNames = new ArrayList<>();
             //MOCK AN INVALID FRITZBOX CABLE FOR AMAZON TEST CENTER
             if(ip.contains("hahnphilipp.de")){
-                friendlyNames.add("Test FritzBox Cable");
+                if(callback != null) {
+                    callback.onFetched(false, true);
+                }
             } else {
                 URL url = new URL("http://" + ip + ":49000/satipdesc.xml");
                 URLConnection conn = url.openConnection();
@@ -49,23 +50,29 @@ public class GetFritzInfo extends AsyncTask<Void, Void, Void> {
                 doc = builder.parse(conn.getInputStream());
 
 
-                NodeList friendlyNameNodes = doc.getElementsByTagName("friendlyName");
-                for (int i = 0; i < friendlyNameNodes.getLength(); i++) {
-                    friendlyNames.add(friendlyNameNodes.item(i).getTextContent());
+                NodeList deviceTypeNodes = doc.getElementsByTagName("deviceType");
+                for (int i = 0; i < deviceTypeNodes.getLength(); i++) {
+                    String value = deviceTypeNodes.item(i).getTextContent();
+                    if(value.contains("urn:ses-com:device:SatIPServer:1")) {
+                        if(callback != null) {
+                            callback.onFetched(false, true);
+                        }
+                        return;
+                    }
                 }
             }
 
             if(callback != null)
-                callback.onFetched(false, friendlyNames);
+                callback.onFetched(false, false);
         } catch (Exception e) {
             e.printStackTrace();
             if(callback != null)
-                callback.onFetched(true, null);
+                callback.onFetched(true, false);
         }
     }
 
     public interface FritzInfoCallback {
-        void onFetched(boolean error, List<String> friendlyNames);
+        void onFetched(boolean error, boolean isSatIpServer);
     }
 
 }

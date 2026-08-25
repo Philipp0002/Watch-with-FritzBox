@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
 
@@ -80,35 +83,7 @@ public class SetupFritzboxSearchFragment extends Fragment {
             }
         };
 
-        final GetFritzInfo getFritzInfo = new GetFritzInfo(ip);
-        getFritzInfo.callback = (error, friendlyNames) -> {
-            if (error) {
-                UIThread.run(() -> {
-                    Toast.makeText(requireContext(), R.string.setup_search_error_connect, Toast.LENGTH_LONG).show();
-                    ((OnboardingActivity)requireActivity()).previousScreen();
-                });
-            } else {
-                boolean supportedFritzBox = friendlyNames.stream()
-                        .map(String::toLowerCase)
-                        .anyMatch(s -> s.contains("cable") || s.contains("dvbc") || s.contains("dvb-c"));
-
-                if (supportedFritzBox) {
-                    getPlaylists.execute();
-                } else {
-                    UIThread.run(() -> {
-                        AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                                .setTitle(R.string.setup_search_error_not_supported_title)
-                                .setMessage(R.string.setup_search_error_not_supported_msg)
-                                .setPositiveButton(R.string.setup_search_error_not_supported_continue, (dialog1, which) -> getPlaylists.execute())
-                                .setNegativeButton(R.string.setup_search_error_not_supported_abort, (dialog12, which) -> {
-                                    ((OnboardingActivity)requireActivity()).previousScreen();
-                                }).create();
-                        dialog.show();
-                    });
-                }
-            }
-        };
-        getFritzInfo.execute();
+        getPlaylists.execute();
 
     }
 

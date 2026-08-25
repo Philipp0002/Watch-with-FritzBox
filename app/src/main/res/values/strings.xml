@@ -6,7 +6,7 @@
     <string name="rich_input_setup_wait">Just a second...</string>
 
     <string name="not_tv_title">Not a TV?</string>
-    <string name="not_tv_msg">This app is made for Android TV and Fire TV. Platforms without remote controls cannot use this app properly.</string>
+    <string name="not_tv_msg">This app is made for Android TV and Fire TV. Devices with no remote controls cannot use this app properly.</string>
 
     <string name="setup_welcome_title">Welcome to \nWatch\u00A0with\u00A0FritzBox</string>
     <string name="setup_welcome_subtitle">Get the most out of your DVB-C tuner</string>
@@ -40,6 +40,7 @@
     <string name="setup_search_error_not_supported_continue">Continue</string>
     <string name="setup_search_error_not_supported_abort">Cancel</string>
     <string name="setup_search_dvb_error">Couldn\'t find any tunable frequencies. Try FritzBox search instead!</string>
+    <string name="setup_search_no_back">You can\'t go back to the previous step!</string>
 
     <string name="setup_order_title">Channel order</string>
     <string name="setup_order_description">The channel list is currently unsorted. You can manually change the order later.</string>

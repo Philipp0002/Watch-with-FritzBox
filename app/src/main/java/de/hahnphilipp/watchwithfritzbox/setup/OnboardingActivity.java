@@ -13,18 +13,25 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.Toast;
+import android.window.OnBackInvokedDispatcher;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.transition.MaterialSharedAxis;
 
 import java.util.List;
 
 import de.hahnphilipp.watchwithfritzbox.R;
+import de.hahnphilipp.watchwithfritzbox.async.GetFritzInfo;
 import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
 import de.hahnphilipp.watchwithfritzbox.rich.RichTvUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
@@ -40,6 +47,20 @@ public class OnboardingActivity extends FragmentActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (currentFragment instanceof SetupDVBSearchFragment
+                        || currentFragment instanceof SetupFritzboxSearchFragment) {
+                    Toast.makeText(OnboardingActivity.this, R.string.setup_search_no_back, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!previousScreen()) {
+                    finish();
+                }
+            }
+        });
+
         SharedPreferences sp = getSharedPreferences(
                 getString(R.string.preference_file_key), Context.MODE_PRIVATE);
         if (sp.contains("channels")) {
@@ -50,15 +71,11 @@ public class OnboardingActivity extends FragmentActivity {
         }
 
         if (!isDirectToTV()) {
-            AlertDialog alertDialog = new AlertDialog.Builder(OnboardingActivity.this).create();
+            AlertDialog alertDialog = new MaterialAlertDialogBuilder(OnboardingActivity.this).create();
             alertDialog.setTitle(getString(R.string.not_tv_title));
             alertDialog.setMessage(getString(R.string.not_tv_msg));
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
+                    (dialog, which) -> dialog.dismiss());
             alertDialog.show();
         }
 
@@ -113,15 +130,19 @@ public class OnboardingActivity extends FragmentActivity {
         }
     }
 
-    public void previousScreen() {
+    public boolean previousScreen() {
         if (currentFragment instanceof SetupSearchVariantsFragment) {
             showSetupIPScreen();
+            return true;
         } else if (currentFragment instanceof SetupIPFragment) {
             showWelcomeScreen();
+            return true;
         } else if (currentFragment instanceof SetupDVBSearchFragment ||
                 currentFragment instanceof SetupFritzboxSearchFragment) {
             showSearchVariantsScreen();
+            return true;
         }
+        return false;
     }
 
     public void nextScreen() {
@@ -134,7 +155,34 @@ public class OnboardingActivity extends FragmentActivity {
                 return;
             }
             this.ip = enteredIp;
-            showSearchVariantsScreen();
+
+            enableNextButton(false);
+            final GetFritzInfo getFritzInfo = new GetFritzInfo(ip);
+            getFritzInfo.callback = (error, isSatIpServer) -> {
+                if (error) {
+                    UIThread.run(() -> Toast.makeText(OnboardingActivity.this, R.string.setup_search_error_connect, Toast.LENGTH_LONG).show());
+                } else {
+                    if (isSatIpServer) {
+                        showSearchVariantsScreen();
+                    } else {
+                        UIThread.run(() -> {
+                            AlertDialog dialog = new MaterialAlertDialogBuilder(OnboardingActivity.this)
+                                    .setTitle(R.string.setup_search_error_not_supported_title)
+                                    .setMessage(R.string.setup_search_error_not_supported_msg)
+                                    .setPositiveButton(R.string.setup_search_error_not_supported_continue, (dialog1, which) -> showSearchVariantsScreen())
+                                    .setNegativeButton(R.string.setup_search_error_not_supported_abort, (dialog12, which) -> {
+                                        enableNextButton(true);
+                                    }).create();
+                            dialog.show();
+                            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            if(positiveButton != null) {
+                                positiveButton.requestFocus();
+                            }
+                        });
+                    }
+                }
+            };
+            getFritzInfo.execute();
         } else if (currentFragment instanceof SetupSearchVariantsFragment svf) {
             SetupSearchVariantsFragment.SearchVariant searchVariant = svf.getSelectedVariant();
             if (searchVariant == SetupSearchVariantsFragment.SearchVariant.FRITZBOX) {

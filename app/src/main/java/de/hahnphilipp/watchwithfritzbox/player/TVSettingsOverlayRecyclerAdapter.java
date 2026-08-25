@@ -29,9 +29,14 @@ public class TVSettingsOverlayRecyclerAdapter extends RecyclerView.Adapter<Recyc
     private boolean firstItemSelected = false;
 
     public TVSettingsOverlayRecyclerAdapter(Context context, List<Object> objects, RecyclerView recyclerView) {
+        this(context, objects, recyclerView, true);
+    }
+
+    public TVSettingsOverlayRecyclerAdapter(Context context, List<Object> objects, RecyclerView recyclerView, boolean focusFirstItem) {
         this.objects = objects;
         this.context = context;
         this.recyclerView = recyclerView;
+        this.firstItemSelected = !focusFirstItem;
     }
 
     @Override

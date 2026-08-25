@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/setup_ip_activity_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="horizontal"
+    android:gravity="center">
 
     <LinearLayout
         android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +37,8 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/setup_ip_address_input"
-            android:layout_width="400dp"
+            android:layout_width="match_parent"
+            android:maxWidth="400dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:hint="@string/setup_ip_address_hint"
@@ -61,4 +65,38 @@
 
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <View
+        android:layout_width="1dp"
+        android:layout_height="200dp"
+        android:background="@android:color/white"/>
+
+    <ViewAnimator
+        android:id="@+id/devices_view_animator"
+        android:inAnimation="@android:anim/fade_in"
+        android:outAnimation="@android:anim/fade_out"
+        android:layout_width="450dp"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setup_ip_upnp_no_device"
+            android:layout_gravity="center"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:overScrollMode="never"
+            android:paddingVertical="32dp"
+            android:clipToPadding="false"
+            tools:listitem="@layout/overlay_settings_item"
+            tools:itemCount="2"
+            />
+
+    </ViewAnimator>
+
+</LinearLayout>

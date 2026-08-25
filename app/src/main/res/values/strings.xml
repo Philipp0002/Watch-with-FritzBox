@@ -16,8 +16,9 @@
     <string name="setup_welcome_tv_teaser">Watch all your favorite channels for free</string>
     <string name="setup_ip_address_hint">IP address of FritzBox</string>
     <string name="setup_ip_address_title">Setup</string>
-    <string name="setup_ip_address_text">Please enter the IP address of your FritzBox to continue.</string>
+    <string name="setup_ip_address_text">Please enter the IP address of your FritzBox or select from the list to continue.</string>
     <string name="setup_ip_continue_button">Continue</string>
+    <string name="setup_ip_upnp_no_device">No device found</string>
     <string name="setup_variant_dvbc">DVB-C search</string>
     <string name="setup_variant_dvbc_description">Searches for all available cable channels. This can find channels that otherwise would not be found (even pay tv).</string>
     <string name="setup_variant_fritzbox">FritzBox search</string>

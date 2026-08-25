@@ -515,6 +515,7 @@ public class TVPlayerActivity extends FragmentActivity implements MediaPlayer.Ev
         findViewById(R.id.player_skip_radio).setVisibility(View.GONE);
         int lastChannelNumber = ChannelUtils.getLastSelectedChannel(TVPlayerActivity.this);
         ChannelUtils.Channel channel = ChannelUtils.getChannelByNumber(TVPlayerActivity.this, lastChannelNumber);
+        if(channel == null) return;
         ((TextView) findViewById(R.id.player_number)).setText("CH " + channel.number);
         ((TextView) findViewById(R.id.player_channel)).setText(channel.title);
 

@@ -43,6 +43,8 @@
         android:overScrollMode="never"
         android:paddingVertical="32dp"
         android:clipToPadding="false"
+        tools:listitem="@layout/overlay_settings_item"
+        tools:itemCount="2"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

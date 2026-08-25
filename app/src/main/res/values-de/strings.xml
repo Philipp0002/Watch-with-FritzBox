@@ -10,8 +10,9 @@
     <string name="setup_welcome_tv_teaser">Schaue kostenlos deine Lieblingssender</string>
     <string name="setup_ip_address_hint">IP-Adresse der FritzBox</string>
     <string name="setup_ip_address_title">Einrichten</string>
-    <string name="setup_ip_address_text">Bitte gib die IP-Adresse der FritzBox ein, um fortzufahren.</string>
+    <string name="setup_ip_address_text">Bitte gib die IP-Adresse der FritzBox ein oder wähle aus der Liste, um fortzufahren.</string>
     <string name="setup_ip_continue_button">Fortfahren</string>
+    <string name="setup_ip_upnp_no_device">Kein Gerät gefunden</string>
     <string name="setup_variant_subtitle">Wie soll nach Sendern gesucht werden?</string>
     <string name="setup_searching_title">Sendersuchlauf</string>
     <string name="setup_searching_sd">Suche SD-Sender...</string>

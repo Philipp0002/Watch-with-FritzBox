@@ -32,7 +32,6 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import de.hahnphilipp.watchwithfritzbox.R;
-import de.hahnphilipp.watchwithfritzbox.player.TVPlayerActivity;
 import de.hahnphilipp.watchwithfritzbox.utils.ChannelUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.EpgUtils;
 import de.hahnphilipp.watchwithfritzbox.utils.UIThread;
@@ -47,8 +46,7 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
     private static final long PAUSE_AT_END = 2000;
 
     private boolean wasClosed = true;
-    private boolean isScrollingDown = true;
-    private Runnable scrollRunnable;
+    private List<Runnable> scrollRunnables;
     private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -129,6 +127,7 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
         TextView channelNameView = view.findViewById(R.id.epgchanneltitle);
         TextView titleView = view.findViewById(R.id.epgtitle);
         TextView subtitleView = view.findViewById(R.id.epgsubtitle);
+        ScrollView subtitleScrollView = view.findViewById(R.id.epgsubtitlescroll);
         TextView descriptionView = view.findViewById(R.id.epgdescription);
         ScrollView descriptionScrollView = view.findViewById(R.id.epgdescriptionscroll);
         TextView timeView = view.findViewById(R.id.epgtime);
@@ -196,10 +195,11 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
             timeView.setText(timeInfos.stream().collect(Collectors.joining(" | ")));
             timeWrapperView.setVisibility(VISIBLE);
 
-            isScrollingDown = true;
             stopAutoScroll();
             descriptionScrollView.scrollTo(0,0);
             startAutoScroll(descriptionScrollView, descriptionView);
+            subtitleScrollView.scrollTo(0,0);
+            startAutoScroll(subtitleScrollView, subtitleView);
         }
     }
 
@@ -220,7 +220,11 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
     }
 
     private void startAutoScroll(ScrollView scrollView, TextView textView) {
-        scrollRunnable = new Runnable() {
+        if(scrollRunnables == null) {
+            scrollRunnables = new ArrayList<>();
+        }
+        final boolean[] localScrollingDown = new boolean[] { true };
+        Runnable scrollRunnable = new Runnable() {
             @Override
             public void run() {
                 int currentScrollY = scrollView.getScrollY();
@@ -232,35 +236,39 @@ public class EPGFragment extends ProgramGuideFragment<EpgUtils.EpgEvent> {
                     return;
                 }
 
-                if (isScrollingDown) {
+                if (localScrollingDown[0]) {
                     // Nach unten scrollen
                     if (currentScrollY < maxScrollY) {
-                        scrollView.scrollTo(0, currentScrollY + SCROLL_STEP);
+                        int next = Math.min(currentScrollY + SCROLL_STEP, maxScrollY);
+                        scrollView.scrollTo(0, next);
                         handler.postDelayed(this, SCROLL_DELAY);
                     } else {
                         // Am Ende angekommen, Richtung wechseln nach Pause
-                        isScrollingDown = false;
+                        localScrollingDown[0] = false;
                         handler.postDelayed(this, PAUSE_AT_END);
                     }
                 } else {
                     // Nach oben scrollen
                     if (currentScrollY > 0) {
-                        scrollView.scrollTo(0, currentScrollY - SCROLL_STEP);
+                        int next = Math.max(currentScrollY - SCROLL_STEP, 0);
+                        scrollView.scrollTo(0, next);
                         handler.postDelayed(this, SCROLL_DELAY);
                     } else {
                         // Am Anfang angekommen, Richtung wechseln nach Pause
-                        isScrollingDown = true;
+                        localScrollingDown[0] = true;
                         handler.postDelayed(this, PAUSE_AT_END);
                     }
                 }
             }
         };
+        scrollRunnables.add(scrollRunnable);
         handler.postDelayed(scrollRunnable, PAUSE_AT_END);
     }
 
     private void stopAutoScroll() {
-        if (scrollRunnable != null) {
-            handler.removeCallbacks(scrollRunnable);
+        if (scrollRunnables != null) {
+            scrollRunnables.forEach(handler::removeCallbacks);
+            scrollRunnables.clear();
         }
     }
 

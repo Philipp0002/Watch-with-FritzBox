@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
 
 android {
@@ -33,9 +32,6 @@ android {
     }
     lintOptions {
         abortOnError false
-    }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17
     }
     namespace 'de.hahnphilipp.watchwithfritzbox'
 }
